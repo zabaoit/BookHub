@@ -32,6 +32,12 @@ const userSchema = new mongoose.Schema({
         default: 'USER',          // Mặc định là USER
     },
 
+    // refreshToken: Token để làm mới access token
+    refreshToken: {
+        type: String,
+        default: null,
+    },
+
     // createdAt: Thời gian tạo tài khoản
     createdAt: {
         type: Date,
