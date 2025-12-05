@@ -117,7 +117,7 @@ const authLogOut = async (req, res) => {
     }
 }
 
-const refreshToken = async (req, res)  => {
+const authRefreshToken = async (req, res)  => {
     try {
         const {refreshToken} = req.cookies;
         if(!refreshToken) {
@@ -137,4 +137,4 @@ const refreshToken = async (req, res)  => {
         return res.status(500).json({message: `${error}`});
     }
 }
-export { authRegister, authlogin, authLogOut, refreshToken };
+export { authRegister, authlogin, authLogOut, authRefreshToken };
