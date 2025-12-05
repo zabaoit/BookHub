@@ -90,4 +90,51 @@ const authlogin = async (req, res) => {
         return res.status(500).json({message: `${error}`});
     }
 }
-export { authRegister, authlogin };
+
+const authLogOut = async (req, res) => {
+    try {
+        const {refreshToken} = req.cookies;
+        if(!refreshToken) {
+            return res.status(400).json({message: "Đã có lỗi xảy ra!"});
+        }
+
+        // tim user co refresh token set về null
+        const user = await User.findOne({refreshToken});
+        if(user){
+            user.refreshToken = null;
+            await user.save();
+        }
+        // xóa cookie
+        res.clearCookie("refreshToken", {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: "strict",
+        });
+
+        return res.status(200).json({message: "Đăng xuất thành công!"});
+    } catch (error) {
+        return res.status(500).json({message: `${error}`});
+    }
+}
+
+const refreshToken = async (req, res)  => {
+    try {
+        const {refreshToken} = req.cookies;
+        if(!refreshToken) {
+            return res.status(400).json({message: "Đã có lỗi xảy ra!"});
+        }
+        // tim user co refresh token
+        const user = await User.findOne({refreshToken});
+        if(!user) {
+            return res.status(403).json({message: "Không có quyền truy cập!"});
+        }
+
+        // tạo access token mới
+        const newAccessToken = jwt.sign({userId: user._id}, process.env.ACCESS_TOKEN_SECRET, {expiresIn: ACCESS_TOKEN_TTL});
+
+        return res.status(200).json({accessToken: newAccessToken});
+    } catch (error) {
+        return res.status(500).json({message: `${error}`});
+    }
+}
+export { authRegister, authlogin, authLogOut, refreshToken };
