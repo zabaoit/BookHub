@@ -2,9 +2,9 @@ import jwt from 'jsonwebtoken';
 import User from '../models/UserModel.js';
 
 // Middleware xác thực token
-const protectedRoute = async (reqq, res, next) => {
+const protectedRoute = async (req, res, next) => {
     try {
-        const authHeader = reqq.headers?.authorization;
+        const authHeader = req.headers?.authorization;
         const token =  authHeader && authHeader.split(' ')[1];
 
         if(!token) {
@@ -18,12 +18,12 @@ const protectedRoute = async (reqq, res, next) => {
             }
 
             // tim user
-            const user = await User.findById(decoded.userId).select('-password');
+            const user = await User.findById(decoded.userId).select('-hashedPassword');
             if(!user){
-                res.status(404).json({message: 'Người dùng không tồn tại'});
+                return res.status(404).json({message: 'Người dùng không tồn tại'});
             }
 
-            reqq.user = user;
+            req.user = user;
             next();
         });
     } catch (error) {
@@ -41,7 +41,7 @@ const verifyAdmin = (req, res, next) => {
 const verifyUser = (req, res, next) => {
     if(req.user.role !== 'USER' && req.user.role !== 'ADMIN'){
         return res.status(403).json({message: 'Không có quyền truy cập tài nguyên này'});
-
     }
+    next();
 }
 export { protectedRoute, verifyAdmin, verifyUser };

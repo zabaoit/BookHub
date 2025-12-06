@@ -4,7 +4,6 @@ import cookieParser from 'cookie-parser';
 import { connectDB } from './src/libs/db.js';
 import authRoute from './src/routes/AuthRoute.js'
 import bookRoute from './src/routes/BookRoute.js'
-import { protectedRoute } from './src/middlewares/AuthMiddleWare.js';
 dotenv.config({path: './.env'});
 
 const app = express();
@@ -20,7 +19,6 @@ connectDB();
 app.use('/api/auth', authRoute);
 
 // private routes
-// app.use(protectedRoute);
 app.use('/api/books', bookRoute);
 
 app.listen(PORT, () => {
