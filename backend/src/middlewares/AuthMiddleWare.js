@@ -17,9 +17,8 @@ const protectedRoute = async (reqq, res, next) => {
                 return res.status(403).json({message: 'Token hết hạn hoặc không hợp lệ'});
             }
 
-            console.log(decoded);
             // tim user
-            const user = await User.findById(decoded.id).select('-hashedPassword');
+            const user = await User.findById(decoded.userId).select('-password');
             if(!user){
                 res.status(404).json({message: 'Người dùng không tồn tại'});
             }

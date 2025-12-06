@@ -36,7 +36,7 @@ const bookSchema = new mongoose.Schema({
   stock: { type: Number, default: 0 },
 
   // author: Tham chiếu đến tác giả của sách
-  author: { type: mongoose.Schema.Types.ObjectId, ref: "Author" },
+  author: [{ type: mongoose.Schema.Types.ObjectId, ref: "Author" }],
 
   // images: Danh sách ảnh của sách (mảng)
   images: [
