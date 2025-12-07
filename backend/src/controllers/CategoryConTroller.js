@@ -67,6 +67,20 @@ const getCategoryById = async (req, res) => {
     }
 }
 
+const getCategoryBySlug = async (req, res) => {
+    try {
+        const {slug} = req.params;
+
+        const category = await Category.findOne({slug});
+        if(!category) {
+            return res.status(404).json({message: 'Không tìm thấy danh mục'});
+        }
+        const books = await Book.find({categories: category._id});
+        return res.status(200).json({message: 'Lấy danh mục thành công!', data: category, books});
+    } catch (error) {
+        return res.status(500).json({message: `Get categories by slug error: ${error.message}`});
+    }
+}
 const updateCategoryById = async (req, res) => {
     try {
         // 
@@ -105,4 +119,4 @@ const deleteCategoryById = async (req, res) => {
     }
 }
 
-export { postCategory, getAllCategories, getCategoryById, updateCategoryById, deleteCategoryById };
+export { postCategory, getAllCategories, getCategoryById, getCategoryBySlug, updateCategoryById, deleteCategoryById };
