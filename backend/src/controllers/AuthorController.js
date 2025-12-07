@@ -46,7 +46,7 @@ const getAllAuthors = async (req, res) => {
         // Trả về kết quả
         return res.status(200).json({message: 'Lấy danh sách tác giả thành công', data: authors, total, page, limit, totalPages});
     } catch (error) {
-        return res.status(500).json({message: `Loi server: ${error.message}`});
+        return res.status(500).json({message: `Get all authors error: ${error.message}`});
     }
 }
 

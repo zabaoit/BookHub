@@ -5,6 +5,7 @@ import { connectDB } from './src/libs/db.js';
 import authRoute from './src/routes/AuthRoute.js'
 import bookRoute from './src/routes/BookRoute.js'
 import authorRoute from './src/routes/AuthorRoute.js';
+import categoryRoute from './src/routes/CategoryRoute.js';
 dotenv.config({path: './.env'});
 
 const app = express();
@@ -22,6 +23,7 @@ app.use('/api/auth', authRoute);
 // private routes
 app.use('/api/books', bookRoute);
 app.use('/api/authors', authorRoute);
+app.use('/api/categories', categoryRoute);
 
 app.listen(PORT, () => {
   console.log(`Server started on port ${PORT}`);

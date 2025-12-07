@@ -3,7 +3,7 @@ import jwt from "jsonwebtoken";
 import crypto from "crypto";
 import User from '../models/UserModel.js'
 
-const ACCESS_TOKEN_TTL = "30m";
+const ACCESS_TOKEN_TTL = "30day";
 const REFRESH_TOKEN_TTL = 7 * 24 * 60 * 60 * 1000; // 7 ngày tính bằng milliseconds
 
 const authRegister = async (req, res) => {
