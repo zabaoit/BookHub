@@ -7,6 +7,7 @@ import bookRoute from './src/routes/BookRoute.js'
 import authorRoute from './src/routes/AuthorRoute.js';
 import categoryRoute from './src/routes/CategoryRoute.js';
 import cartRoute from './src/routes/CartRoute.js';
+import orderRoute from './src/routes/OrderRoute.js';
 dotenv.config({path: './.env'});
 
 const app = express();
@@ -26,6 +27,7 @@ app.use('/api/books', bookRoute);
 app.use('/api/authors', authorRoute);
 app.use('/api/categories', categoryRoute);
 app.use('/api/cart', cartRoute);
+app.use('/api/orders', orderRoute);
 
 app.listen(PORT, () => {
   console.log(`Server started on port ${PORT}`);
