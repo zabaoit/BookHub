@@ -8,6 +8,7 @@ import authorRoute from './src/routes/AuthorRoute.js';
 import categoryRoute from './src/routes/CategoryRoute.js';
 import cartRoute from './src/routes/CartRoute.js';
 import orderRoute from './src/routes/OrderRoute.js';
+import paymentRoute from './src/routes/PaymentRoute.js';
 dotenv.config({path: './.env'});
 
 const app = express();
@@ -28,6 +29,7 @@ app.use('/api/authors', authorRoute);
 app.use('/api/categories', categoryRoute);
 app.use('/api/cart', cartRoute);
 app.use('/api/orders', orderRoute);
+app.use('/api/payment', paymentRoute);
 
 app.listen(PORT, () => {
   console.log(`Server started on port ${PORT}`);
