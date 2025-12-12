@@ -4,7 +4,7 @@ const FeaturedSection = () => {
       <h2 className="font-heading text-3xl font-bold text-gray-900 dark:text-white mb-8 text-center">
         Sách mới nhất (Newest Books)
       </h2>
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4 mb-8">
         {/* <!-- Book Card --> */}
         <div className="flex flex-col rounded-lg bg-white dark:bg-gray-800/50 overflow-hidden shadow-sm transition hover:shadow-xl">
           <img

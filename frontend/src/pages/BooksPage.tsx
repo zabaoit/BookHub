@@ -1,3 +1,4 @@
+import Footer from "../components/Footer";
 import Header from "../components/Header";
 
 const BooksPage = () => {
@@ -524,6 +525,7 @@ const BooksPage = () => {
           </div>
         </div>
       </main>
+      <Footer />
     </div>
   );
 };

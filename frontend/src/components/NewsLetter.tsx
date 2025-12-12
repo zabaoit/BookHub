@@ -1,6 +1,6 @@
 const NewsLetter = () => {
   return (
-    <section className="bg-secondary dark:bg-primary/20 py-16">
+    <section className="bg-secondary-text-dark dark:bg-primary/20 py-16">
       <div className="container mx-auto px-4 text-center max-w-2xl">
         <h2 className="font-heading text-text-light dark:text-text-dark text-3xl font-bold leading-tight tracking-tight mb-2">
           Join Our Newsletter

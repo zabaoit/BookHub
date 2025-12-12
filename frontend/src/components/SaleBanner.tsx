@@ -1,8 +1,6 @@
-import React from "react";
-
 const SaleBanner = () => {
   return (
-    <section className="w-full bg-secondary dark:bg-primary/20 py-8 my-10">
+    <section className="w-full bg-background-light dark:bg-primary/20 py-8 my-10">
       <div className="container mx-auto flex flex-col md:flex-row items-center justify-between gap-6 px-4">
         <div className="text-center md:text-left">
           <h2 className="font-heading text-2xl md:text-3xl font-bold text-primary dark:text-white">
@@ -15,7 +13,7 @@ const SaleBanner = () => {
         {/* <!-- Timer --> */}
         <div className="flex gap-2 sm:gap-4">
           <div className="flex w-20 flex-col items-stretch gap-2">
-            <div className="flex h-16 sm:h-20 items-center justify-center rounded-lg bg-background-light dark:bg-background-dark">
+            <div className="flex h-16 sm:h-20 items-center justify-center rounded-lg bg-white dark:bg-background-dark">
               <p className="font-heading text-3xl sm:text-4xl font-bold">02</p>
             </div>
             <div className="flex items-center justify-center">
@@ -23,7 +21,7 @@ const SaleBanner = () => {
             </div>
           </div>
           <div className="flex w-20 flex-col items-stretch gap-2">
-            <div className="flex h-16 sm:h-20 items-center justify-center rounded-lg bg-background-light dark:bg-background-dark">
+            <div className="flex h-16 sm:h-20 items-center justify-center rounded-lg bg-white dark:bg-background-dark">
               <p className="font-heading text-3xl sm:text-4xl font-bold">12</p>
             </div>
             <div className="flex items-center justify-center">
@@ -31,7 +29,7 @@ const SaleBanner = () => {
             </div>
           </div>
           <div className="flex w-20 flex-col items-stretch gap-2">
-            <div className="flex h-16 sm:h-20 items-center justify-center rounded-lg bg-background-light dark:bg-background-dark">
+            <div className="flex h-16 sm:h-20 items-center justify-center rounded-lg bg-white dark:bg-background-dark">
               <p className="font-heading text-3xl sm:text-4xl font-bold">45</p>
             </div>
             <div className="flex items-center justify-center">
@@ -39,7 +37,7 @@ const SaleBanner = () => {
             </div>
           </div>
           <div className="flex w-20 flex-col items-stretch gap-2">
-            <div className="flex h-16 sm:h-20 items-center justify-center rounded-lg bg-background-light dark:bg-background-dark">
+            <div className="flex h-16 sm:h-20 items-center justify-center rounded-lg bg-white dark:bg-background-dark">
               <p className="font-heading text-3xl sm:text-4xl font-bold">33</p>
             </div>
             <div className="flex items-center justify-center">
