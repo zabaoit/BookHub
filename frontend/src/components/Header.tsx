@@ -56,16 +56,23 @@ const Header = () => {
               </a>
             </div>
             <div className="flex gap-2">
-              <button className="flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark gap-2 text-sm font-bold leading-normal tracking-[0.015em] min-w-0 px-2.5">
-                <span className="material-symbols-outlined">shopping_cart</span>
-              </button>
+              <a href="/cart">
+                <button className="flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark gap-2 text-sm font-bold leading-normal tracking-[0.015em] min-w-0 px-2.5">
+                  <span className="material-symbols-outlined">
+                    shopping_cart
+                  </span>
+                </button>
+              </a>
+
               <button className="flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark gap-2 text-sm font-bold leading-normal tracking-[0.015em] min-w-0 px-2.5">
                 <span className="material-symbols-outlined">favorite</span>
               </button>
-              <button className="flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark gap-2 text-sm font-bold leading-normal tracking-[0.015em] min-w-0 px-2.5">
-                {/* <span className="material-symbols-outlined">favorite</span> */}
-                <span className="truncate hover:text-primary ">Sign In</span>
-              </button>
+              <a href="/signin">
+                <button className="flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark gap-2 text-sm font-bold leading-normal tracking-[0.015em] min-w-0 px-2.5">
+                  {/* <span className="material-symbols-outlined">favorite</span> */}
+                  <span className="truncate hover:text-primary ">Sign In</span>
+                </button>
+              </a>
             </div>
 
             {/* <div
