@@ -75,14 +75,15 @@ const Header = () => {
               </a>
             </div>
 
-            {/* <div
+            <a
+              href="/account/profile"
               className="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10"
               data-alt="User profile picture"
               style={{
                 backgroundImage:
                   'url("https://lh3.googleusercontent.com/aida-public/AB6AXuBWCkSpJt2C6SAgxeNHQ8LTIE06T2xWLMTSiw2LfRR9QT0e4UGqUSXX-6HDBKLoDw6yA1JfQGK_xZMWk3tvjhRVBtFq6v3ADYrv8hS4kPnvgxsotBAI90X8jRCNdcxGCTsP-Wkvoymq9_tTkJQvZzfKO1UlId3NW1m0rCxXNqCZgsWUMZ91hAYjP8ifvDpxcEZ9U7ThbL22JJelBVZeLSrXSqjkezascMPqKF8jJeRBzOYxlVPzk4DCM8WkPwixJkPhaGFnOTkHWr0")',
               }}
-            ></div> */}
+            ></a>
           </div>
         </div>
       </div>
