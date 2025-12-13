@@ -58,30 +58,20 @@ const LoginPage = () => {
                 </button>
               </div>
             </div>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <input
-                  className="h-4 w-4 rounded border-gray-300 bg-transparent text-primary focus:ring-primary dark:border-gray-600"
-                  id="remember-me"
-                  type="checkbox"
-                />
-                <label
-                  className="text-sm font-normal text-gray-800 dark:text-gray-300"
-                  htmlFor="remember-me"
-                >
-                  Remember me
-                </label>
-              </div>
+            <div className="flex items-center justify-end">
               <a
                 className="text-sm font-medium text-primary hover:underline"
-                href="#"
+                href="/forgot-password"
               >
                 Forgot Password?
               </a>
             </div>
-            <button className="flex h-12 w-full items-center justify-center rounded-lg bg-primary text-base font-semibold text-white transition-colors hover:bg-primary/90">
+            <a
+              href="/"
+              className="flex h-12 w-full items-center justify-center rounded-lg bg-primary text-base font-semibold text-white transition-colors hover:bg-primary/90"
+            >
               Sign In
-            </button>
+            </a>
             <div className="relative flex items-center justify-center py-2">
               <div className="absolute inset-0 flex items-center">
                 <div className="w-full border-t border-gray-300 dark:border-gray-700"></div>
