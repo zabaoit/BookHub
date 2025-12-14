@@ -1,4 +1,8 @@
+import useAuthStore from "../store/useAuthStore";
+
 const Header = () => {
+  const { user } = useAuthStore();
+
   return (
     // <!-- TopNavBar -->
     <header className="w-full bg-card-light dark:bg-card-dark shadow-sm sticky top-0 z-50">
@@ -67,23 +71,27 @@ const Header = () => {
               <button className="flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark gap-2 text-sm font-bold leading-normal tracking-[0.015em] min-w-0 px-2.5">
                 <span className="material-symbols-outlined">favorite</span>
               </button>
-              <a href="/signin">
-                <button className="flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark gap-2 text-sm font-bold leading-normal tracking-[0.015em] min-w-0 px-2.5">
-                  {/* <span className="material-symbols-outlined">favorite</span> */}
-                  <span className="truncate hover:text-primary ">Sign In</span>
-                </button>
-              </a>
-            </div>
 
-            <a
-              href="/account/profile"
-              className="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10"
-              data-alt="User profile picture"
-              style={{
-                backgroundImage:
-                  'url("https://lh3.googleusercontent.com/aida-public/AB6AXuBWCkSpJt2C6SAgxeNHQ8LTIE06T2xWLMTSiw2LfRR9QT0e4UGqUSXX-6HDBKLoDw6yA1JfQGK_xZMWk3tvjhRVBtFq6v3ADYrv8hS4kPnvgxsotBAI90X8jRCNdcxGCTsP-Wkvoymq9_tTkJQvZzfKO1UlId3NW1m0rCxXNqCZgsWUMZ91hAYjP8ifvDpxcEZ9U7ThbL22JJelBVZeLSrXSqjkezascMPqKF8jJeRBzOYxlVPzk4DCM8WkPwixJkPhaGFnOTkHWr0")',
-              }}
-            ></a>
+              {user ? (
+                // profile
+                <a
+                  href="/account/profile"
+                  className="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10"
+                  data-alt="User profile picture"
+                  style={{
+                    backgroundImage:
+                      'url("https://lh3.googleusercontent.com/aida-public/AB6AXuBWCkSpJt2C6SAgxeNHQ8LTIE06T2xWLMTSiw2LfRR9QT0e4UGqUSXX-6HDBKLoDw6yA1JfQGK_xZMWk3tvjhRVBtFq6v3ADYrv8hS4kPnvgxsotBAI90X8jRCNdcxGCTsP-Wkvoymq9_tTkJQvZzfKO1UlId3NW1m0rCxXNqCZgsWUMZ91hAYjP8ifvDpxcEZ9U7ThbL22JJelBVZeLSrXSqjkezascMPqKF8jJeRBzOYxlVPzk4DCM8WkPwixJkPhaGFnOTkHWr0")',
+                  }}
+                ></a>
+              ) : (
+                // signin
+                <a href="/signin">
+                  <button className="flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark gap-2 text-sm font-bold leading-normal tracking-[0.015em] min-w-0 px-2.5">
+                    <span className="truncate hover:text-primary">Sign In</span>
+                  </button>
+                </a>
+              )}
+            </div>
           </div>
         </div>
       </div>
