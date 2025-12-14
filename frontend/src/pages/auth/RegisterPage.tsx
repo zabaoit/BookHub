@@ -1,4 +1,53 @@
+import { useNavigate } from "react-router";
+import { toast } from "sonner";
+import useAuthStore from "../../store/useAuthStore";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+
+const RegisterSchema = z
+  .object({
+    username: z.string().min(3, "Username phải có ít nhất 3 kí tự!"),
+    email: z
+      .string()
+      .min(1, "Email bắt buộc phải có!")
+      .regex(/^[\w.+-]+@gmail\.com$/, "Chỉ chấp nhận email @gmail.com!"),
+    password: z.string().min(6, "Mật khẩu phải có ít nhất 6 kí tự!"),
+    confirmPassword: z.string().min(1, "Vui lòng xác nhận mật khẩu!"),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Mật khẩu xác nhận không khớp!",
+    path: ["confirmPassword"],
+  });
+
+type RegisterFormValues = z.infer<typeof RegisterSchema>;
+
 const RegisterPage = () => {
+  const { register: signUp } = useAuthStore();
+  const navigate = useNavigate();
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<RegisterFormValues>({
+    resolver: zodResolver(RegisterSchema),
+  });
+
+  const onSubmit = async (data: RegisterFormValues) => {
+    try {
+      await signUp(data.username, data.email, data.password);
+
+      navigate("/signin");
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        toast.error(err.message);
+      } else {
+        toast.error("Đăng ký thất bại. Vui lòng thử lại.");
+      }
+    }
+  };
+
   return (
     <div className="bg-background-light dark:bg-background-dark font-display text-gray-800 dark:text-gray-200">
       <div className="relative flex min-h-screen w-full flex-col items-center justify-center p-4">
@@ -16,26 +65,32 @@ const RegisterPage = () => {
               Create an Account
             </h1>
             <p className="text-base text-gray-600 dark:text-gray-400">
-              Join our community of book loves
+              Join our community of book lovers
             </p>
           </div>
-          <div className="space-y-6">
+
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
             <div className="flex flex-col">
               <label
                 className="text-sm font-medium leading-normal text-gray-900 dark:text-gray-200 pb-2"
-                htmlFor="fullName"
+                htmlFor="username"
               >
-                Full Name
+                Username
               </label>
-              <div className="relative flex w-full flex-1 items-stretch">
-                <input
-                  className="form-input h-12 w-full flex-1 rounded-lg border border-gray-300 bg-transparent px-4 text-base font-normal text-gray-900 dark:border-gray-600 dark:text-white dark:placeholder:text-gray-500 placeholder:text-gray-500 focus:border-primary focus:ring-primary"
-                  id="fullName"
-                  placeholder="Enter your email"
-                  type="email"
-                />
-              </div>
+              <input
+                {...register("username")}
+                className="form-input h-12 w-full rounded-lg border border-gray-300 bg-transparent px-4 text-base font-normal text-gray-900 dark:border-gray-600 dark:text-white dark:placeholder:text-gray-500 placeholder:text-gray-500 focus:border-primary focus:ring-primary"
+                id="username"
+                placeholder="Nhập username"
+                type="text"
+              />
+              {errors.username && (
+                <p className="text-sm text-red-500 mt-1">
+                  {errors.username.message}
+                </p>
+              )}
             </div>
+
             <div className="flex flex-col">
               <label
                 className="text-sm font-medium leading-normal text-gray-900 dark:text-gray-200 pb-2"
@@ -43,15 +98,20 @@ const RegisterPage = () => {
               >
                 Email
               </label>
-              <div className="relative flex w-full flex-1 items-stretch">
-                <input
-                  className="form-input h-12 w-full flex-1 rounded-lg border border-gray-300 bg-transparent px-4 text-base font-normal text-gray-900 dark:border-gray-600 dark:text-white dark:placeholder:text-gray-500 placeholder:text-gray-500 focus:border-primary focus:ring-primary"
-                  id="email"
-                  placeholder="Enter your email"
-                  type="email"
-                />
-              </div>
+              <input
+                {...register("email")}
+                className="form-input h-12 w-full rounded-lg border border-gray-300 bg-transparent px-4 text-base font-normal text-gray-900 dark:border-gray-600 dark:text-white dark:placeholder:text-gray-500 placeholder:text-gray-500 focus:border-primary focus:ring-primary"
+                id="email"
+                placeholder="Nhập email"
+                type="email"
+              />
+              {errors.email && (
+                <p className="text-sm text-red-500 mt-1">
+                  {errors.email.message}
+                </p>
+              )}
             </div>
+
             <div className="flex flex-col">
               <label
                 className="text-sm font-medium leading-normal text-gray-900 dark:text-gray-200 pb-2"
@@ -59,36 +119,49 @@ const RegisterPage = () => {
               >
                 Password
               </label>
-              <div className="relative flex w-full flex-1 items-stretch">
-                <input
-                  className="form-input h-12 w-full flex-1 rounded-lg border border-gray-300 bg-transparent p-4 pr-12 text-base font-normal text-gray-900 dark:border-gray-600 dark:text-white dark:placeholder:text-gray-500 placeholder:text-gray-500 focus:border-primary focus:ring-primary"
-                  id="password"
-                  placeholder="Create a password"
-                  type="password"
-                />
-              </div>
+              <input
+                {...register("password")}
+                className="form-input h-12 w-full rounded-lg border border-gray-300 bg-transparent p-4 text-base font-normal text-gray-900 dark:border-gray-600 dark:text-white dark:placeholder:text-gray-500 placeholder:text-gray-500 focus:border-primary focus:ring-primary"
+                id="password"
+                placeholder="Nhập mật khẩu"
+                type="password"
+              />
+              {errors.password && (
+                <p className="text-sm text-red-500 mt-1">
+                  {errors.password.message}
+                </p>
+              )}
             </div>
+
             <div className="flex flex-col">
               <label
                 className="text-sm font-medium leading-normal text-gray-900 dark:text-gray-200 pb-2"
-                htmlFor="confirm-password"
+                htmlFor="confirmPassword"
               >
-                ConFirm Password
+                Confirm Password
               </label>
-              <div className="relative flex w-full flex-1 items-stretch">
-                <input
-                  className="form-input h-12 w-full flex-1 rounded-lg border border-gray-300 bg-transparent p-4 pr-12 text-base font-normal text-gray-900 dark:border-gray-600 dark:text-white dark:placeholder:text-gray-500 placeholder:text-gray-500 focus:border-primary focus:ring-primary"
-                  id="confirm-password"
-                  placeholder="ConFirm your Password"
-                  type="password"
-                />
-              </div>
+              <input
+                {...register("confirmPassword")}
+                className="form-input h-12 w-full rounded-lg border border-gray-300 bg-transparent p-4 text-base font-normal text-gray-900 dark:border-gray-600 dark:text-white dark:placeholder:text-gray-500 placeholder:text-gray-500 focus:border-primary focus:ring-primary"
+                id="confirmPassword"
+                placeholder="Xác nhận mật khẩu"
+                type="password"
+              />
+              {errors.confirmPassword && (
+                <p className="text-sm text-red-500 mt-1">
+                  {errors.confirmPassword.message}
+                </p>
+              )}
             </div>
 
-            <button className="flex h-12 w-full items-center justify-center rounded-lg bg-primary text-base font-semibold text-white transition-colors hover:bg-primary/90">
-              Create Account
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="flex h-12 w-full items-center justify-center rounded-lg bg-primary text-base font-semibold text-white transition-colors hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed hover:cursor-pointer"
+            >
+              {isSubmitting ? "Creating Account..." : "Create Account"}
             </button>
-          </div>
+          </form>
           <p className="text-center text-sm text-gray-600 dark:text-gray-400">
             Already have an account?{" "}
             <a
