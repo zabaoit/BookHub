@@ -1,3 +1,5 @@
+import { Link } from "react-router";
+
 const OrderSuccessPage = () => {
   return (
     <div>
@@ -41,12 +43,12 @@ const OrderSuccessPage = () => {
               registered email address.{" "}
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <a
-                href="/"
+              <Link
+                to="/"
                 className="w-full sm:w-auto flex items-center justify-center px-6 py-2.5 rounded-full border-2 border-primary text-primary font-bold text-sm hover:bg-primary/10 transition-colors"
               >
                 Home
-              </a>
+              </Link>
             </div>
           </div>
         </div>

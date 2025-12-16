@@ -1,3 +1,4 @@
+import { Link } from "react-router";
 import Footer from "../../components/Footer";
 import Header from "../../components/Header";
 
@@ -14,13 +15,13 @@ const PaymentPage = () => {
                 CHECKOUT (Step 3 of 4)
               </p>
 
-              <a
+              <Link
                 className="flex items-center shadow-sm rounded-lg gap-2  font-medium text-sm p-2 text-text-light/80 dark:text-text-dark/80 hover:text-primary dark:hover:text-primary transition-colors"
-                href="/checkout/shipping"
+                to="/checkout/shipping"
               >
                 <span className="material-symbols-outlined">arrow_back</span>
                 Return to Shipping
-              </a>
+              </Link>
             </div>
             {/* <!-- ProgressBar --> */}
             <div className="flex flex-col gap-3 p-4">
@@ -136,12 +137,12 @@ const PaymentPage = () => {
                       </div>
                     </div>
                     <div className="mt-8">
-                      <a
-                        href="/checkout/review"
+                      <Link
+                        to="/checkout/review"
                         className="w-full flex items-center justify-center bg-primary text-white font-bold py-3 px-4 rounded-lg hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:ring-offset-2 focus:ring-offset-card-light dark:focus:ring-offset-card-dark transition-colors text-base"
                       >
                         Next: Review &amp; Pay
-                      </a>
+                      </Link>
                     </div>
                   </div>
                 </div>

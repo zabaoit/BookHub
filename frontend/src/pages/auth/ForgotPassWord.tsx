@@ -1,3 +1,5 @@
+import { Link } from "react-router";
+
 const ForgotPassWord = () => {
   return (
     <div className="font-display bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark">
@@ -47,12 +49,12 @@ const ForgotPassWord = () => {
                   </div>
                   {/* <!-- SingleButton --> */}
                   <div className="flex justify-center">
-                    <a
-                      href="/verify-email"
+                    <Link
+                      to="/verify-email"
                       className="flex min-w-[84px] w-full cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-5 bg-primary text-white text-base font-bold leading-normal tracking-[0.015em] hover:opacity-90 transition-opacity"
                     >
                       <span className="truncate">Send Reset Link</span>
-                    </a>
+                    </Link>
                   </div>
                   {/* <!-- Success Message (hidden by default) --> */}
                   {/* <!-- To show this, remove the 'hidden' className and add 'flex' --> */}
@@ -70,15 +72,15 @@ const ForgotPassWord = () => {
                     </div>
                   </div>
                   {/* <!-- MetaText --> */}
-                  <a
+                  <Link
                     className="text-muted-light dark:text-muted-dark text-sm font-normal leading-normal text-center hover:underline"
-                    href="/signin"
+                    to="/signin"
                   >
                     <span className="font-normal">Remember your password?</span>{" "}
                     <span className="font-bold text-primary">
                       Back to Login
                     </span>
-                  </a>
+                  </Link>
                 </div>
               </div>
             </div>

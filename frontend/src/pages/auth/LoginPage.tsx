@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router";
+import { useNavigate, Link } from "react-router";
 import { toast } from "sonner";
 import useAuthStore from "../../store/useAuthStore";
 import { z } from "zod";
@@ -105,12 +105,12 @@ const LoginPage = () => {
             </div>
 
             <div className="flex items-center justify-end">
-              <a
+              <Link
                 className="text-sm font-medium text-primary hover:underline"
-                href="/forgot-password"
+                to="/forgot-password"
               >
                 Forgot Password?
-              </a>
+              </Link>
             </div>
 
             <button
@@ -170,12 +170,12 @@ const LoginPage = () => {
 
           <p className="text-center text-sm text-gray-600 dark:text-gray-400">
             Don't have an account? {""}
-            <a
+            <Link
               className="font-semibold text-primary hover:underline"
-              href="/signup"
+              to="/signup"
             >
               Sign Up →
-            </a>
+            </Link>
           </p>
         </div>
       </div>

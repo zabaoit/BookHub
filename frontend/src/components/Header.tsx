@@ -1,3 +1,4 @@
+import { Link } from "react-router";
 import useAuthStore from "../store/useAuthStore";
 
 const Header = () => {
@@ -34,64 +35,63 @@ const Header = () => {
           {/* right */}
           <div className="flex flex-1 items-center justify-end gap-4 sm:gap-8">
             <div className="hidden lg:flex items-center gap-6 sm:gap-9">
-              <a
+              <Link
                 className="text-sm font-medium leading-normal hover:text-primary dark:hover:text-primary transition-colors"
-                href="/"
+                to="/"
               >
                 Home
-              </a>
-              <a
+              </Link>
+              <Link
                 className="text-sm font-medium leading-normal hover:text-primary dark:hover:text-primary transition-colors"
-                href="/booklist"
+                to="/booklist"
               >
                 Book
-              </a>
-              <a
+              </Link>
+              <Link
                 className="text-sm font-medium leading-normal hover:text-primary dark:hover:text-primary transition-colors"
-                href="#"
+                to="#"
               >
                 Categories
-              </a>
-              <a
+              </Link>
+              <Link
                 className="text-sm font-medium leading-normal hover:text-primary dark:hover:text-primary transition-colors"
-                href="#"
+                to="#"
               >
                 About
-              </a>
+              </Link>
             </div>
             <div className="flex gap-2">
-              <a href="/cart">
+              <Link to="/cart">
                 <button className="flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark gap-2 text-sm font-bold leading-normal tracking-[0.015em] min-w-0 px-2.5">
                   <span className="material-symbols-outlined">
                     shopping_cart
                   </span>
                 </button>
-              </a>
+              </Link>
 
               <button className="flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark gap-2 text-sm font-bold leading-normal tracking-[0.015em] min-w-0 px-2.5">
                 <span className="material-symbols-outlined">favorite</span>
               </button>
-
-              {user ? (
-                // profile
-                <a
-                  href="/account/profile"
-                  className="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10"
-                  data-alt="User profile picture"
-                  style={{
-                    backgroundImage:
-                      'url("https://lh3.googleusercontent.com/aida-public/AB6AXuBWCkSpJt2C6SAgxeNHQ8LTIE06T2xWLMTSiw2LfRR9QT0e4UGqUSXX-6HDBKLoDw6yA1JfQGK_xZMWk3tvjhRVBtFq6v3ADYrv8hS4kPnvgxsotBAI90X8jRCNdcxGCTsP-Wkvoymq9_tTkJQvZzfKO1UlId3NW1m0rCxXNqCZgsWUMZ91hAYjP8ifvDpxcEZ9U7ThbL22JJelBVZeLSrXSqjkezascMPqKF8jJeRBzOYxlVPzk4DCM8WkPwixJkPhaGFnOTkHWr0")',
-                  }}
-                ></a>
-              ) : (
-                // signin
-                <a href="/signin">
-                  <button className="flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark gap-2 text-sm font-bold leading-normal tracking-[0.015em] min-w-0 px-2.5">
-                    <span className="truncate hover:text-primary">Sign In</span>
-                  </button>
-                </a>
-              )}
             </div>
+            {user ? (
+              // profile
+              <Link
+                to="/account/profile"
+                className="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10"
+                data-alt="User profile picture"
+                style={{
+                  backgroundImage:
+                    'url("https://lh3.googleusercontent.com/aida-public/AB6AXuBWCkSpJt2C6SAgxeNHQ8LTIE06T2xWLMTSiw2LfRR9QT0e4UGqUSXX-6HDBKLoDw6yA1JfQGK_xZMWk3tvjhRVBtFq6v3ADYrv8hS4kPnvgxsotBAI90X8jRCNdcxGCTsP-Wkvoymq9_tTkJQvZzfKO1UlId3NW1m0rCxXNqCZgsWUMZ91hAYjP8ifvDpxcEZ9U7ThbL22JJelBVZeLSrXSqjkezascMPqKF8jJeRBzOYxlVPzk4DCM8WkPwixJkPhaGFnOTkHWr0")',
+                }}
+              ></Link>
+            ) : (
+              // signin
+              <Link to="/signin">
+                <button className="flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark gap-2 text-sm font-bold leading-normal tracking-[0.015em] min-w-0 px-2.5">
+                  <span className="truncate hover:text-primary">Sign In</span>
+                </button>
+              </Link>
+            )}
           </div>
         </div>
       </div>

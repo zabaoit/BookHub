@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router";
+import { useNavigate, Link } from "react-router";
 import { toast } from "sonner";
 import useAuthStore from "../../store/useAuthStore";
 import { z } from "zod";
@@ -164,12 +164,12 @@ const RegisterPage = () => {
           </form>
           <p className="text-center text-sm text-gray-600 dark:text-gray-400">
             Already have an account?{" "}
-            <a
+            <Link
               className="font-semibold text-primary hover:underline"
-              href="/signin"
+              to="/signin"
             >
               Sign In →
-            </a>
+            </Link>
           </p>
         </div>
       </div>

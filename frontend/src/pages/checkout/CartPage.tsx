@@ -1,3 +1,4 @@
+import { Link } from "react-router";
 import Footer from "../../components/Footer";
 import Header from "../../components/Header";
 
@@ -13,12 +14,12 @@ const CartPage = () => {
                 <p className="font-display text-primary dark:text-accent text-4xl font-black leading-tight tracking-tighter">
                   Shopping Cart
                 </p>
-                <a
+                <Link
                   className="text-muted-light  dark:text-muted-dark text-base font-normal leading-normal hover:text-primary dark:hover:text-accent transition-colors"
-                  href="/booklist"
+                  to="/booklist"
                 >
                   Continue Shopping
-                </a>
+                </Link>
               </div>
             </div>
             <div className="flex flex-col lg:flex-row gap-8 mt-8">
@@ -272,18 +273,18 @@ const CartPage = () => {
                       <span>$113.00</span>
                     </div>
                     <div className="flex flex-col gap-3 mt-6">
-                      <a
-                        href="/checkout/information"
+                      <Link
+                        to="/checkout/information"
                         className="w-full flex justify-center bg-primary hover:bg-primary/90 text-white font-bold py-3 px-4 rounded transition-colors"
                       >
                         Proceed to Checkout
-                      </a>
-                      <a
-                        href="/booklist"
+                      </Link>
+                      <Link
+                        to="/booklist"
                         className="w-full flex justify-center bg-transparent hover:bg-primary/10 text-primary dark:text-accent font-bold py-3 px-4 rounded border border-primary dark:border-accent transition-colors"
                       >
                         Continue Shopping
-                      </a>
+                      </Link>
                     </div>
                   </div>
                 </div>

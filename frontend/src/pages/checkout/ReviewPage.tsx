@@ -1,3 +1,4 @@
+import { Link } from "react-router";
 import Footer from "../../components/Footer";
 import Header from "../../components/Header";
 
@@ -14,13 +15,13 @@ const ReviewPage = () => {
                 CHECKOUT (Step 4 of 4)
               </p>
 
-              <a
+              <Link
                 className="flex items-center shadow-sm rounded-lg gap-2  font-medium text-sm p-2 text-text-light/80 dark:text-text-dark/80 hover:text-primary dark:hover:text-primary transition-colors"
-                href="/checkout/payment"
+                to="/checkout/payment"
               >
                 <span className="material-symbols-outlined">arrow_back</span>
                 Return to Payment
-              </a>
+              </Link>
             </div>
             {/* <!-- ProgressBar --> */}
             <div className="flex flex-col gap-3 p-4">
@@ -231,18 +232,18 @@ const ReviewPage = () => {
                       </div>
                     </div>
                     <div className="flex flex-col mt-2 space-y-3">
-                      <a
-                        href="/order-success"
+                      <Link
+                        to="/order-success"
                         className="w-full bg-primary flex items-center justify-center text-white font-bold py-3 px-4 rounded-lg hover:bg-primary/90 transition-colors"
                       >
                         Confirm &amp; Pay
-                      </a>
-                      <a
-                        href="/cart"
+                      </Link>
+                      <Link
+                        to="/cart"
                         className="w-full bg-transparent flex items-center justify-center border border-primary text-primary font-bold py-3 px-4 rounded-lg hover:bg-primary/10 transition-colors"
                       >
                         Back to Cart
-                      </a>
+                      </Link>
 
                       <a className="w-full flex items-center justify-center text-text-muted-light dark:text-text-muted-dark font-medium text-sm py-2 hover:underline hover:cursor-pointer">
                         Cancel

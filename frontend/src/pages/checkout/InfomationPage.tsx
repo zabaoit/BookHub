@@ -1,3 +1,4 @@
+import { Link } from "react-router";
 import Footer from "../../components/Footer";
 import Header from "../../components/Header";
 
@@ -14,13 +15,13 @@ const InfomationPage = () => {
                 CHECKOUT (Step 1 of 4)
               </p>
 
-              <a
+              <Link
                 className="flex items-center shadow-sm rounded-lg gap-2  font-medium text-sm p-2 text-text-light/80 dark:text-text-dark/80 hover:text-primary dark:hover:text-primary transition-colors"
-                href="/cart"
+                to="/cart"
               >
                 <span className="material-symbols-outlined">arrow_back</span>
                 Return Cart
-              </a>
+              </Link>
             </div>
             {/* <!-- ProgressBar --> */}
             <div className="flex flex-col gap-3 p-4">
@@ -285,14 +286,14 @@ const InfomationPage = () => {
                     </div>
                   </div>
                   {/* <!-- Primary Button --> */}
-                  <a href="/checkout/shipping">
+                  <Link to="/checkout/shipping">
                     <button className="w-full flex cursor-pointer items-center justify-center overflow-hidden rounded-lg h-14 bg-primary text-white gap-2 text-lg font-bold leading-normal tracking-[0.015em] hover:opacity-90 transition-opacity">
                       Next: Shipping
                       <span className="material-symbols-outlined">
                         arrow_forward
                       </span>
                     </button>
-                  </a>
+                  </Link>
                 </div>
               </div>
             </div>
