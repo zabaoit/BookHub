@@ -4,10 +4,11 @@ import { authService } from "../services/authService";
 import type { AuthState } from "../types/store";
 import { toast } from "sonner";
 
-const useAuthStore = create<AuthState>((set, get) => ({
+const useAuthStore = create<AuthState>()((set, get) => ({
   accessToken: null,
   user: null,
   loading: false,
+  isInitialized: false,
   clearState: () =>
     set({
       accessToken: null,
@@ -45,6 +46,7 @@ const useAuthStore = create<AuthState>((set, get) => ({
         accessToken: accessToken,
         user: user,
       });
+      console.log("User after login:", user);
       toast.success(message || "Đăng nhập thành công!");
       return true;
     } catch (error) {
@@ -68,7 +70,43 @@ const useAuthStore = create<AuthState>((set, get) => ({
       toast.error("Đăng xuất thất bại. Vui lòng thử lại.");
     }
   },
-  refresh: async () => {},
+
+  refresh: async () => {
+    try {
+      set({ loading: true });
+      const { accessToken, user } = await authService.refreshToken();
+      set({ accessToken, user });
+      return true;
+    } catch (err) {
+      console.log(err);
+      get().clearState();
+      return false;
+    } finally {
+      set({ loading: false });
+    }
+  },
+
+  initAuth: async () => {
+    const { accessToken } = get();
+    // Chỉ refresh khi chưa có accessToken (trang vừa load/F5)
+    if (accessToken) {
+      set({ isInitialized: true });
+      return; // Đã có token, không cần refresh
+    }
+
+    // Khi app load, thử refresh để lấy accessToken từ refreshToken cookie
+    try {
+      set({ loading: true });
+      const { accessToken: newToken, user } = await authService.refreshToken();
+      set({ accessToken: newToken, user, isInitialized: true });
+    } catch {
+      // Refresh thất bại - không có session
+      get().clearState();
+      set({ isInitialized: true });
+    } finally {
+      set({ loading: false });
+    }
+  },
 }));
 
 export default useAuthStore;

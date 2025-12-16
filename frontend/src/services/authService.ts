@@ -23,4 +23,13 @@ export const authService = {
     const res = await api.post("/auth/logout", {}, { withCredentials: true });
     return res.data;
   },
+
+  refreshToken: async () => {
+    const res = await api.post(
+      "/auth/refresh-token",
+      {},
+      { withCredentials: true }
+    );
+    return res.data;
+  },
 };

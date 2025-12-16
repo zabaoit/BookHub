@@ -4,6 +4,7 @@ export interface AuthState {
   accessToken: string | null;
   user: User | null;
   loading: boolean;
+  isInitialized: boolean;
   clearState: () => void;
   register: (
     username: string,
@@ -13,5 +14,6 @@ export interface AuthState {
 
   login: (email: string, password: string) => Promise<boolean>;
   logout: () => Promise<void>;
-  refresh: () => Promise<void>;
+  refresh: () => Promise<boolean>;
+  initAuth: () => Promise<void>;
 }
