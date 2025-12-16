@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { BrowserRouter, Route, Routes } from "react-router";
 import { Toaster } from "sonner";
 import HomePage from "./pages/HomePage";
@@ -18,8 +19,15 @@ import ForgotPassWord from "./pages/auth/ForgotPassWord";
 import ResetPassword from "./pages/auth/ResetPassword";
 import VerifyEmail from "./pages/auth/VerifyEmail";
 import ProtectedRoute from "./pages/auth/ProtectedRoute ";
+import useAuthStore from "./store/useAuthStore";
 
 const App = () => {
+  const initAuth = useAuthStore((state) => state.initAuth);
+
+  useEffect(() => {
+    initAuth();
+  }, [initAuth]);
+
   return (
     <>
       <Toaster position="top-right" richColors closeButton duration={3000} />
