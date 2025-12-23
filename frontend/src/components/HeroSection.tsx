@@ -17,7 +17,7 @@ const HeroSection = () => {
             Explore thousands of titles from beloved authors and new voices.
           </h2>
         </div>
-        <button className="flex mx-auto min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-8 bg-primary text-white text-base font-bold leading-normal tracking-wide hover:bg-primary/90 transition-colors">
+        <button className="flex mx-auto min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-8 bg-primary text-primary-foreground text-base font-bold leading-normal tracking-wide hover:bg-primary/90 transition-colors">
           <span className="truncate">Shop All Books</span>
         </button>
       </div>
@@ -26,3 +26,4 @@ const HeroSection = () => {
 };
 
 export default HeroSection;
+

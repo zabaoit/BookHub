@@ -13,9 +13,9 @@ const SideNavBarProfile = () => {
     }
   };
   return (
-    <div className="bg-background-light">
+    <div className="bg-background">
       <aside className="w-64 flex-shrink-0 p-6  hidden md:block  ">
-        <div className="flex flex-col gap-8 shadow-sm p-4 bg-card-light dark:bg-card-dark rounded-lg border border-border-light dark:border-border-dark ">
+        <div className="flex flex-col gap-8 shadow-sm p-4 bg-card rounded-lg border border-border ">
           <div className="flex items-center gap-3">
             <div
               className="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-12"
@@ -26,7 +26,7 @@ const SideNavBarProfile = () => {
               }}
             ></div>
             <div className="flex flex-col ">
-              <h1 className="text-text-light dark:text-text-dark text-base font-bold leading-normal">
+              <h1 className="text-card-foreground text-base font-bold leading-normal">
                 {user?.username}
               </h1>
               <p className="text-text-muted-light dark:text-text-muted-dark text-sm font-normal leading-normal">
@@ -138,3 +138,4 @@ const SideNavBarProfile = () => {
 };
 
 export default SideNavBarProfile;
+

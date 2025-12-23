@@ -1,7 +1,7 @@
 const CategoriesSection = () => {
   return (
     <section className="container mx-auto px-4 py-10">
-      <h2 className="font-heading text-text-light dark:text-text-dark text-3xl font-bold leading-tight tracking-tight mb-6">
+      <h2 className="font-heading text-foreground text-3xl font-bold leading-tight tracking-tight mb-6">
         Explore by Category
       </h2>
       {/* <!-- ImageGrid --> */}
@@ -84,3 +84,4 @@ const CategoriesSection = () => {
 };
 
 export default CategoriesSection;
+

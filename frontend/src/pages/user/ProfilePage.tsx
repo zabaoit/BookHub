@@ -15,17 +15,17 @@ const ProfilePage = () => {
           {/* <!-- SideNavBar --> */}
           <SideNavBarProfile />
           {/* <!-- Main Content --> */}
-          <main className="flex-1 p-6 bg-background-light dark:bg-background-dark">
+          <main className="flex-1 p-6 bg-background">
             <div className="flex flex-col gap-6">
               {/* <!-- PageHeading --> */}
               <header className="flex flex-wrap justify-center md:justify-between items-center gap-4">
-                <h1 className="text-text-light dark:text-text-dark text-4xl font-black font-heading leading-tight tracking-tight">
+                <h1 className="text-foreground text-4xl font-black font-heading leading-tight tracking-tight">
                   Profile Dashboard
                 </h1>
               </header>
               {/* <!-- Personal Information Card --> */}
-              <section className="bg-card-light dark:bg-card-dark p-6 rounded-lg shadow-sm border border-border-light dark:border-border-dark">
-                <h2 className="text-text-light dark:text-text-dark text-2xl font-bold font-heading leading-tight tracking-tight pb-6 flex justify-center md:justify-between">
+              <section className="bg-card p-6 rounded-lg shadow-sm border border-border">
+                <h2 className="text-card-foreground text-2xl font-bold font-heading leading-tight tracking-tight pb-6 flex justify-center md:justify-between">
                   PERSONAL INFORMATION
                 </h2>
                 <form className="grid grid-cols-1 md:grid-cols-2 gap-6">
