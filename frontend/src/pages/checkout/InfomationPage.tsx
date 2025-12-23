@@ -306,3 +306,4 @@ const InfomationPage = () => {
 };
 
 export default InfomationPage;
+
