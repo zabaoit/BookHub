@@ -119,7 +119,7 @@ const SideNavBarProfile = () => {
                 </a> */}
             <div className="border-t border-border-light dark:border-border-dark">
               <a
-                className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-primary/10 dark:hover:bg-primary/20 transition-colors mt-4"
+                className="flex hover:cursor-pointer items-center gap-3 px-3 py-2 rounded-lg hover:bg-primary/10 dark:hover:bg-primary/20 transition-colors mt-4"
                 onClick={handleLogout}
               >
                 <span className="material-symbols-outlined text-text-muted-light dark:text-text-muted-dark">
@@ -138,4 +138,3 @@ const SideNavBarProfile = () => {
 };
 
 export default SideNavBarProfile;
-

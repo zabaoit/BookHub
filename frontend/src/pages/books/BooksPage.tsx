@@ -1,7 +1,17 @@
 import { useEffect } from "react";
 import Footer from "../../components/Footer";
 import Header from "../../components/Header";
+import BookCard from "../../components/BookCard";
 import useBookStore from "../../store/useBookStore";
+import type { BookFilters } from "../../types/book";
+import {
+  Search,
+  RotateCcw,
+  ChevronLeft,
+  ChevronRight,
+  SlidersHorizontal,
+  Star,
+} from "lucide-react";
 
 const BooksPage = () => {
   const {
@@ -34,373 +44,277 @@ const BooksPage = () => {
   };
 
   return (
-    <div>
+    <div className="min-h-screen flex flex-col bg-gray-50">
       <Header />
-      <main className="container mx-auto px-6 py-8">
+      <main className="container mx-auto px-4 sm:px-6 py-8 flex-grow">
         <div className="flex flex-col lg:flex-row gap-8">
           {/* <!-- Sticky Filter Sidebar --> */}
-          <aside className="w-full lg:w-1/4 xl:w-1/5">
-            <div className="sticky top-24">
-              <div className="flex h-full min-h-[700px] flex-col justify-between bg-card p-4 rounded-xl shadow-sm border border-border">
-                <div className="flex flex-col gap-4">
-                  <div className="flex flex-col border-b border-border pb-4">
-                    <h1 className="text-foreground text-lg font-bold font-heading">
-                      Filters
-                    </h1>
-                    <p className="text-muted-foreground text-sm font-normal leading-normal">
-                      Refine your search
-                    </p>
-                  </div>
-                  {/* <!-- Price Range Slider --> */}
-                  <div className="border-b border-border py-4">
-                    <p className="text-foreground text-base font-medium leading-normal w-full mb-3">
-                      Price Range
-                    </p>
-                    <div className="flex h-[38px] w-full pt-1.5">
-                      <div className="flex h-1.5 w-full rounded-full bg-primary/20">
-                        <div className="relative w-[20%]">
-                          <div className="absolute -left-2 -top-2 flex flex-col items-center gap-1">
-                            <div className="size-5 rounded-full bg-primary border-2 border-card shadow"></div>
-                            <p className="text-foreground text-xs font-normal leading-normal">
-                              $10
-                            </p>
-                          </div>
-                        </div>
-                        <div className="h-1.5 flex-1 rounded-full bg-primary"></div>
-                        <div className="relative w-[25%]">
-                          <div className="absolute -right-2 -top-2 flex flex-col items-center gap-1">
-                            <div className="size-5 rounded-full bg-primary border-2 border-card shadow"></div>
-                            <p className="text-foreground text-xs font-normal leading-normal">
-                              $75
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  {/* <!-- Author Search --> */}
-                  <div className="border-b border-border pb-4">
-                    <p className="text-foreground text-base font-medium leading-normal w-full mb-2">
-                      Author
-                    </p>
-                    <label className="flex flex-col min-w-40 h-11 w-full">
-                      <div className="flex w-full flex-1 items-stretch rounded-lg h-full">
-                        <div className="text-muted-foreground flex border border-r-0 border-border bg-secondary items-center justify-center pl-3 rounded-l-lg">
-                          <span className="material-symbols-outlined text-xl">
-                            search
-                          </span>
-                        </div>
-                        <input
-                          className="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-foreground focus:outline-0 focus:ring-1 focus:ring-primary border-border bg-secondary focus:border-primary h-full placeholder:text-muted-foreground px-3 rounded-l-none border-l-0 text-sm font-normal leading-normal"
-                          placeholder="Search by author..."
-                          defaultValue=""
-                          onChange={(e) =>
-                            handleFilterChange({ author: e.target.value })
-                          }
-                        />
-                      </div>
-                    </label>
-                  </div>
-                  {/* <!-- Categories Accordion --> */}
-                  <div className="flex flex-col border-b border-border pb-2">
-                    <details
-                      className="flex flex-col group"
-                      // open=""
-                    >
-                      <summary className="flex cursor-pointer items-center justify-between gap-6 py-2">
-                        <p className="text-foreground text-base font-medium leading-normal">
-                          Categories
-                        </p>
-                        <span className="material-symbols-outlined text-foreground group-open:rotate-180 transition-transform">
-                          expand_more
-                        </span>
-                      </summary>
-                      <div className="flex flex-col gap-2 pt-2 pb-2">
-                        <label className="flex items-center gap-2 cursor-pointer text-sm">
-                          <input
-                            // checked=""
-                            className="form-checkbox rounded-sm bg-secondary border-border text-primary focus:ring-primary/50"
-                            type="checkbox"
-                          />{" "}
-                          Fiction
-                        </label>
-                        <label className="flex items-center gap-2 cursor-pointer text-sm">
-                          <input
-                            className="form-checkbox rounded-sm bg-secondary border-border text-primary focus:ring-primary/50"
-                            type="checkbox"
-                          />{" "}
-                          Non-Fiction
-                        </label>
-                        <label className="flex items-center gap-2 cursor-pointer text-sm">
-                          <input
-                            // checked=""
-                            className="form-checkbox rounded-sm bg-secondary border-border text-primary focus:ring-primary/50"
-                            type="checkbox"
-                          />{" "}
-                          Science Fiction
-                        </label>
-                        <label className="flex items-center gap-2 cursor-pointer text-sm">
-                          <input
-                            className="form-checkbox rounded-sm bg-secondary border-border text-primary focus:ring-primary/50"
-                            type="checkbox"
-                          />{" "}
-                          Fantasy
-                        </label>
-                        <label className="flex items-center gap-2 cursor-pointer text-sm">
-                          <input
-                            className="form-checkbox rounded-sm bg-secondary border-border text-primary focus:ring-primary/50"
-                            type="checkbox"
-                          />{" "}
-                          Mystery
-                        </label>
-                      </div>
-                    </details>
-                  </div>
-                  {/* <!-- Rating Filter --> */}
-                  <div className="pt-2 pb-4">
-                    <p className="text-foreground text-base font-medium leading-normal w-full mb-2">
-                      Rating
-                    </p>
-                    <div className="flex items-center gap-1 text-accent cursor-pointer">
-                      <span
-                        className="material-symbols-outlined !text-2xl"
-                        style={{ fontVariationSettings: "'FILL' 1" }}
-                      >
-                        star
-                      </span>
-                      <span
-                        className="material-symbols-outlined !text-2xl"
-                        style={{ fontVariationSettings: "'FILL' 1" }}
-                      >
-                        star
-                      </span>
-                      <span
-                        className="material-symbols-outlined !text-2xl"
-                        style={{ fontVariationSettings: "'FILL' 1" }}
-                      >
-                        star
-                      </span>
-                      <span
-                        className="material-symbols-outlined !text-2xl"
-                        style={{ fontVariationSettings: "'FILL' 1" }}
-                      >
-                        star
-                      </span>
-                      <span className="material-symbols-outlined !text-2xl">
-                        star
-                      </span>
-                      <span className="text-muted-foreground text-sm ml-2">
-                        &amp; up
-                      </span>
-                    </div>
+          <aside className="w-full lg:w-64 xl:w-72 flex-shrink-0">
+            <div className="sticky top-24 bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-xl font-bold flex items-center gap-2">
+                  <SlidersHorizontal className="h-5 w-5" />
+                  Bộ lọc
+                </h2>
+              </div>
+
+              {/* <!-- Search --> */}
+              <div className="mb-6">
+                <p className="text-sm font-semibold mb-3">Tìm kiếm</p>
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <input
+                    type="text"
+                    className="w-full pl-9 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all"
+                    placeholder="Tên sách, tác giả..."
+                    value={filters.search}
+                    onChange={(e) =>
+                      handleFilterChange({ search: e.target.value })
+                    }
+                  />
+                </div>
+              </div>
+
+              {/* <!-- Price Range Placeholder --> */}
+              <div className="mb-6">
+                <p className="text-sm font-semibold mb-3">Khoảng giá</p>
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="number"
+                      placeholder="Từ"
+                      className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm outline-none"
+                      onChange={(e) =>
+                        handleFilterChange({
+                          minPrice: Number(e.target.value) || undefined,
+                        })
+                      }
+                    />
+                    <span className="text-gray-400">-</span>
+                    <input
+                      type="number"
+                      placeholder="Đến"
+                      className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm outline-none"
+                      onChange={(e) =>
+                        handleFilterChange({
+                          maxPrice: Number(e.target.value) || undefined,
+                        })
+                      }
+                    />
                   </div>
                 </div>
-                <button className="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-primary/20 text-primary text-sm font-bold leading-normal tracking-[0.015em] hover:bg-primary/30">
-                  <span className="truncate">Reset All Filters</span>
-                </button>
               </div>
+
+              {/* <!-- Categories Placeholder --> */}
+              <div className="mb-6">
+                <p className="text-sm font-semibold mb-3">Thể loại</p>
+                <div className="space-y-2 max-h-48 overflow-y-auto pr-2 custom-scrollbar">
+                  {[
+                    "Văn học",
+                    "Kinh tế",
+                    "Kỹ năng sống",
+                    "Thiếu nhi",
+                    "Ngoại ngữ",
+                  ].map((cat) => (
+                    <label
+                      key={cat}
+                      className="flex items-center gap-2 cursor-pointer group"
+                    >
+                      <input
+                        type="checkbox"
+                        className="rounded border-gray-300 text-primary focus:ring-primary"
+                        checked={filters.category === cat}
+                        onChange={() =>
+                          handleFilterChange({
+                            category: filters.category === cat ? "" : cat,
+                          })
+                        }
+                      />
+                      <span className="text-sm text-gray-600 group-hover:text-primary transition-colors">
+                        {cat}
+                      </span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              {/* <!-- Rating --> */}
+              <div className="mb-8">
+                <p className="text-sm font-semibold mb-3">Đánh giá</p>
+                <div className="space-y-2">
+                  {[5, 4, 3, 2, 1].map((star) => (
+                    <button
+                      key={star}
+                      className="flex items-center gap-2 w-full text-sm text-gray-600 hover:text-primary transition-colors"
+                      onClick={() => handleFilterChange({ rating: star })}
+                    >
+                      <div className="flex">
+                        {[...Array(5)].map((_, i) => (
+                          <Star
+                            key={i}
+                            className={`h-3.5 w-3.5 ${
+                              i < star
+                                ? "fill-yellow-400 text-yellow-400"
+                                : "text-gray-300"
+                            }`}
+                          />
+                        ))}
+                      </div>
+                      <span
+                        className={
+                          filters.rating === star
+                            ? "font-bold text-primary"
+                            : ""
+                        }
+                      >
+                        từ {star} sao
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <button
+                onClick={handleClearFilters}
+                className="w-full py-2.5 flex items-center justify-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl text-sm font-bold transition-all"
+              >
+                <RotateCcw className="h-4 w-4" />
+                Xóa tất cả bộ lọc
+              </button>
             </div>
           </aside>
+
           {/* <!-- Books Grid and Sorting --> */}
-          <div className="w-full lg:w-3/4 xl:w-4/5">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6">
+          <div className="flex-1">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 gap-4">
               <div>
-                <h1 className="text-3xl font-bold font-heading mb-2">
-                  Browse Books
+                <h1 className="text-2xl font-bold text-gray-900 mb-1">
+                  Tất cả sách
                 </h1>
-                {total > 0 && (
-                  <p className="text-muted-foreground text-sm">
-                    Showing {(currentPage - 1) * 12 + 1}-
-                    {Math.min(currentPage * 12, total)} of {total} books
-                    {filters.search && <span> for "{filters.search}"</span>}
+                {total > 0 ? (
+                  <p className="text-gray-500 text-sm">
+                    Hiển thị{" "}
+                    <span className="font-semibold text-gray-900">
+                      {(currentPage - 1) * 12 + 1}-
+                      {Math.min(currentPage * 12, total)}
+                    </span>{" "}
+                    trong{" "}
+                    <span className="font-semibold text-gray-900">{total}</span>{" "}
+                    kết quả
+                  </p>
+                ) : (
+                  <p className="text-gray-500 text-sm">
+                    Không tìm thấy kết quả nào
                   </p>
                 )}
               </div>
-              <div className="flex items-center gap-2 text-sm mt-4 sm:mt-0">
-                <span className="text-muted-foreground">Sort by:</span>
+
+              <div className="flex items-center gap-3 self-end sm:self-auto">
+                <span className="text-sm text-gray-500 whitespace-nowrap">
+                  Sắp xếp:
+                </span>
                 <select
                   value={filters.sortBy || "newest"}
                   onChange={(e) =>
                     handleFilterChange({
-                      sortBy: e.target.value as
-                        | "newest"
-                        | "oldest"
-                        | "price-low"
-                        | "price-high"
-                        | "rating"
-                        | "popular",
+                      sortBy: e.target.value as BookFilters["sortBy"],
                     })
                   }
-                  className="px-3 py-2 border border-border rounded-lg bg-card text-foreground text-sm"
+                  className="px-4 py-2 bg-white border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-primary/20 outline-none cursor-pointer"
                 >
-                  <option value="newest">Newest</option>
-                  <option value="oldest">Oldest</option>
-                  <option value="price-low">Price: Low to High</option>
-                  <option value="price-high">Price: High to Low</option>
-                  <option value="rating">Highest Rated</option>
-                  <option value="popular">Most Popular</option>
+                  <option value="newest">Mới nhất</option>
+                  <option value="oldest">Cũ nhất</option>
+                  <option value="price-low">Giá: Thấp đến Cao</option>
+                  <option value="price-high">Giá: Cao đến Thấp</option>
+                  <option value="rating">Đánh giá cao nhất</option>
+                  <option value="popular">Phổ biến nhất</option>
                 </select>
               </div>
             </div>
-            {/* <!-- Book Grid --> */}
+
             {loading ? (
-              <div className="flex justify-center items-center h-64">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
+                {[...Array(8)].map((_, i) => (
+                  <div
+                    key={i}
+                    className="bg-white rounded-2xl border border-gray-100 p-4 space-y-4 animate-pulse"
+                  >
+                    <div className="aspect-[3/4] bg-gray-100 rounded-xl" />
+                    <div className="h-4 bg-gray-100 rounded w-3/4" />
+                    <div className="h-4 bg-gray-100 rounded w-1/2" />
+                  </div>
+                ))}
               </div>
             ) : books && books.length > 0 ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
                 {books.map((book) => (
-                  <div
-                    key={book._id}
-                    className="flex flex-col bg-card rounded-xl shadow-sm border border-border overflow-hidden group"
-                  >
-                    <div className="relative">
-                      <div
-                        className="bg-center bg-no-repeat aspect-[3/4] bg-cover"
-                        data-alt={`Book cover for '${book.title}'`}
-                        style={{
-                          backgroundImage: `url('${
-                            book.images?.[0]?.url ||
-                            book.imageUrl ||
-                            "https://via.placeholder.com/300x400?text=No+Image"
-                          }')`,
-                        }}
-                      ></div>
-                      <button className="absolute top-2 right-2 flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-full h-9 bg-card/80 backdrop-blur-sm text-foreground/80 gap-2 min-w-0 px-2.5 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <span className="material-symbols-outlined">
-                          favorite
-                        </span>
-                      </button>
-                    </div>
-                    <div className="p-4 flex flex-col flex-grow">
-                      <h3 className="font-heading font-bold text-lg leading-tight text-foreground">
-                        {book.title}
-                      </h3>
-                      <p className="text-sm text-muted-foreground mt-1">
-                        {Array.isArray(book.author)
-                          ? book.author
-                              .map((a) => (typeof a === "string" ? a : a.name))
-                              .join(", ")
-                          : book.author}
-                      </p>
-                      <div className="flex items-center gap-1 mt-2 text-accent">
-                        {[...Array(5)].map((_, i) => (
-                          <span
-                            key={i}
-                            className="material-symbols-outlined !text-base"
-                            style={{
-                              fontVariationSettings:
-                                i < Math.floor(book.rating || 0)
-                                  ? "'FILL' 1"
-                                  : "'FILL' 0",
-                            }}
-                          >
-                            star
-                          </span>
-                        ))}
-                        <span className="text-xs text-muted-foreground ml-1">
-                          ({book.reviewCount || 0})
-                        </span>
-                      </div>
-                      <div className="mt-3">
-                        {book.originalPrice &&
-                        book.originalPrice > book.price ? (
-                          <div className="flex items-center gap-2">
-                            <p className="text-xl font-bold text-primary">
-                              ${book.price}
-                            </p>
-                            <p className="text-sm text-muted-foreground line-through">
-                              ${book.originalPrice}
-                            </p>
-                          </div>
-                        ) : (
-                          <p className="text-xl font-bold text-primary">
-                            ${book.price}
-                          </p>
-                        )}
-                      </div>
-                      <button className="mt-4 flex min-w-[84px] w-full cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-primary text-white text-sm font-bold leading-normal tracking-[0.015em] hover:bg-primary/90">
-                        <span className="truncate">Add to Cart</span>
-                      </button>
-                    </div>
-                  </div>
+                  <BookCard key={book._id} book={book} />
                 ))}
               </div>
             ) : (
-              <div className="text-center py-12">
-                <div className="text-6xl text-muted-foreground/20 mb-4">📚</div>
-                <h3 className="text-xl font-bold text-foreground mb-2">
-                  No books found
+              <div className="bg-white rounded-3xl p-12 text-center border border-dashed border-gray-200">
+                <div className="bg-gray-50 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <Search className="h-8 w-8 text-gray-300" />
+                </div>
+                <h3 className="text-xl font-bold text-gray-900 mb-2">
+                  Không tìm thấy sách
                 </h3>
-                <p className="text-muted-foreground mb-4">
-                  Try adjusting your search or filters
+                <p className="text-gray-500 mb-8 max-w-sm mx-auto">
+                  Rất tiếc, chúng tôi không tìm thấy cuốn sách nào khớp với bộ
+                  lọc của bạn. Hãy thử thay đổi tìm kiếm.
                 </p>
                 <button
                   onClick={handleClearFilters}
-                  className="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary/90"
+                  className="px-8 py-3 bg-primary text-white rounded-xl font-bold hover:shadow-lg hover:shadow-primary/30 transition-all"
                 >
-                  Clear Filters
+                  Xóa tất cả bộ lọc
                 </button>
               </div>
             )}
+
             {/* <!-- Pagination Control --> */}
             {totalPages > 1 && (
-              <div className="flex items-center justify-center mt-12">
-                <nav
-                  aria-label="Pagination"
-                  className="flex items-center gap-2"
-                >
+              <div className="mt-12 flex justify-center">
+                <nav className="flex items-center gap-1 bg-white p-1 rounded-2xl shadow-sm border border-gray-100">
                   <button
                     onClick={() => handlePageChange(currentPage - 1)}
                     disabled={currentPage === 1}
-                    className="flex items-center justify-center size-9 rounded-lg border border-border bg-card text-muted-foreground hover:border-primary hover:text-primary disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="p-2 rounded-xl text-gray-500 hover:bg-gray-50 disabled:opacity-30 disabled:hover:bg-transparent transition-all"
                   >
-                    <span className="material-symbols-outlined !text-xl">
-                      chevron_left
-                    </span>
+                    <ChevronLeft className="h-5 w-5" />
                   </button>
 
-                  {[...Array(Math.min(totalPages, 5))].map((_, index) => {
+                  {[...Array(totalPages)].map((_, index) => {
                     const pageNumber = index + 1;
-                    const isActive = pageNumber === currentPage;
-
-                    return (
-                      <button
-                        key={pageNumber}
-                        onClick={() => handlePageChange(pageNumber)}
-                        className={`flex items-center justify-center size-9 rounded-lg font-medium ${
-                          isActive
-                            ? "bg-primary text-white"
-                            : "bg-card hover:bg-primary/10 text-muted-foreground"
-                        }`}
-                      >
-                        {pageNumber}
-                      </button>
-                    );
+                    // Simplified pagination logic for 1-5 pages
+                    if (
+                      totalPages <= 7 ||
+                      (pageNumber >= currentPage - 2 &&
+                        pageNumber <= currentPage + 2)
+                    ) {
+                      return (
+                        <button
+                          key={pageNumber}
+                          onClick={() => handlePageChange(pageNumber)}
+                          className={`min-w-[40px] h-10 rounded-xl text-sm font-bold transition-all ${
+                            pageNumber === currentPage
+                              ? "bg-primary text-white shadow-lg shadow-primary/30"
+                              : "text-gray-600 hover:bg-gray-50"
+                          }`}
+                        >
+                          {pageNumber}
+                        </button>
+                      );
+                    }
+                    return null;
                   })}
-
-                  {totalPages > 5 && currentPage < totalPages - 2 && (
-                    <>
-                      <span className="flex items-center justify-center size-9 text-muted-foreground">
-                        ...
-                      </span>
-                      <button
-                        onClick={() => handlePageChange(totalPages)}
-                        className="flex items-center justify-center size-9 rounded-lg bg-card hover:bg-primary/10 text-muted-foreground font-medium"
-                      >
-                        {totalPages}
-                      </button>
-                    </>
-                  )}
 
                   <button
                     onClick={() => handlePageChange(currentPage + 1)}
                     disabled={currentPage === totalPages}
-                    className="flex items-center justify-center size-9 rounded-lg border border-border bg-card text-muted-foreground hover:border-primary hover:text-primary disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="p-2 rounded-xl text-gray-500 hover:bg-gray-50 disabled:opacity-30 disabled:hover:bg-transparent transition-all"
                   >
-                    <span className="material-symbols-outlined !text-xl">
-                      chevron_right
-                    </span>
+                    <ChevronRight className="h-5 w-5" />
                   </button>
                 </nav>
               </div>

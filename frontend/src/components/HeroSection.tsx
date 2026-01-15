@@ -1,29 +1,46 @@
+import { Link } from "react-router";
+import { ArrowRight } from "lucide-react";
+
 const HeroSection = () => {
   return (
-    <section className="container mx-auto px-4 py-10">
-      <div
-        className="flex min-h-[480px] flex-col gap-8 rounded-xl items-start justify-center text-center bg-cover bg-center bg-no-repeat p-10"
-        data-alt="A cozy, warm-lit library with floor-to-ceiling bookshelves"
-        style={{
-          backgroundImage:
-            'linear-gradient(rgba(0, 0, 0, 0.4) 0%, rgba(0, 0, 0, 0.6) 100%), url("https://lh3.googleusercontent.com/aida-public/AB6AXuBRpiMHb-ohFNYxVYcMNbN1ousKetK2a3Idj2dkDGjQgcaRZghpHt4aqXELmbtlQrHSDQSaZiJKmzQkpV7AKj7k4EZYu45O9xwB8N2yYw8VRA0OZ2Txg48qc7NqAnVJqovkj-hHkIgKr6QZDT5A35J8kLDusyWKxP-XedPPJvVuXU0KHdA1-kUtDshV55U4hc0sWrSNn4R0qz301FYA9j2yJ2I_tMPxSMB-9pCSGWZFqPeT7vVUfJjgqoiJVvVUblg9YrHyezkdrxI")',
-        }}
-      >
-        <div className="flex flex-col gap-4 text-center w-full max-w-3xl mx-auto">
-          <h1 className="text-white font-heading text-4xl font-black leading-tight tracking-tight md:text-6xl">
-            Discover Your Next Great Read
-          </h1>
-          <h2 className="text-white/90 text-base font-normal leading-normal md:text-lg">
-            Explore thousands of titles from beloved authors and new voices.
-          </h2>
+    <section className="bg-secondary py-16 md:py-24">
+      <div className="container mx-auto px-6">
+        <div className="grid md:grid-cols-2 gap-8 items-center">
+          <div className="animate-fade-in">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-display font-bold mb-6">
+              Khám phá thế giới
+              <br />
+              qua từng trang sách
+            </h1>
+            <p className="text-lg text-muted-foreground mb-8 max-w-lg">
+              Hàng ngàn đầu sách từ văn học đến khoa học, từ kinh tế đến phát
+              triển bản thân. Tìm cuốn sách hoàn hảo cho bạn.
+            </p>
+            <div className="flex gap-4">
+              <Link to="/booklist">
+                <button className="flex items-center gap-2 px-6 py-3 bg-primary text-white font-bold rounded-lg hover:bg-primary/90 transition-colors">
+                  Khám phá ngay
+                  <ArrowRight className="h-4 w-4" />
+                </button>
+              </Link>
+              <Link to="/about">
+                <button className="px-6 py-3 border border-border bg-card text-foreground font-bold rounded-lg hover:bg-secondary transition-colors">
+                  Về chúng tôi
+                </button>
+              </Link>
+            </div>
+          </div>
+          <div className="hidden md:block">
+            <img
+              src="https://images.unsplash.com/photo-1512820790803-83ca734da794?w=600"
+              alt="Books"
+              className="rounded-lg shadow-2xl"
+            />
+          </div>
         </div>
-        <button className="flex mx-auto min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-8 bg-primary text-primary-foreground text-base font-bold leading-normal tracking-wide hover:bg-primary/90 transition-colors">
-          <span className="truncate">Shop All Books</span>
-        </button>
       </div>
     </section>
   );
 };
 
 export default HeroSection;
-

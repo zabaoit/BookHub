@@ -2,9 +2,8 @@ import Header from "../components/Header";
 import Footer from "../components/Footer";
 import HeroSection from "../components/HeroSection";
 import SaleBanner from "../components/SaleBanner";
-import CategoriesSection from "../components/CategoriesSection";
-import FeaturedSection from "../components/FeaturedSection";
 import NewsLetter from "../components/NewsLetter";
+import NewArrivals from "../components/NewArrivals";
 
 const HomePage = () => {
   return (
@@ -17,9 +16,9 @@ const HomePage = () => {
         {/* <!-- Flash Sale Banner --> */}
         <SaleBanner />
         {/* <!-- Categories Section --> */}
-        <CategoriesSection />
+        {/* <CategoriesSection /> */}
         {/* <!-- Featured Books Section --> */}
-        <FeaturedSection />
+        <NewArrivals />
 
         {/* <!-- Newsletter Signup --> */}
         <NewsLetter />
@@ -30,4 +29,3 @@ const HomePage = () => {
 };
 
 export default HomePage;
-

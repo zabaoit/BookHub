@@ -1,47 +1,43 @@
+import { Clock, Headphones, Shield, Truck } from "lucide-react";
 const SaleBanner = () => {
   return (
-    <section className="w-full bg-secondary py-8 my-10">
-      <div className="container mx-auto flex flex-col md:flex-row items-center justify-between gap-6 px-4">
-        <div className="text-center md:text-left">
-          <h2 className="font-heading text-2xl md:text-3xl font-bold text-primary">
-            Flash Sale!
-          </h2>
-          <p className="text-lg text-secondary-foreground">
-            Limited Time: 25% Off All Fiction!
-          </p>
-        </div>
-        {/* <!-- Timer --> */}
-        <div className="flex gap-2 sm:gap-4">
-          <div className="flex w-20 flex-col items-stretch gap-2">
-            <div className="flex h-16 sm:h-20 items-center justify-center rounded-lg bg-card">
-              <p className="font-heading text-3xl sm:text-4xl font-bold">02</p>
+    <section className="py-12 border-b border-border">
+      <div className="container-custom">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+          <div className="flex items-center gap-3">
+            <div className="p-3 bg-secondary rounded-lg">
+              <Truck className="h-6 w-6" />
             </div>
-            <div className="flex items-center justify-center">
-              <p className="text-sm font-normal leading-normal">Days</p>
+            <div>
+              <p className="font-medium text-sm">Miễn phí vận chuyển</p>
+              <p className="text-xs text-muted-foreground">Đơn từ 300K</p>
             </div>
           </div>
-          <div className="flex w-20 flex-col items-stretch gap-2">
-            <div className="flex h-16 sm:h-20 items-center justify-center rounded-lg bg-card">
-              <p className="font-heading text-3xl sm:text-4xl font-bold">12</p>
+          <div className="flex items-center gap-3">
+            <div className="p-3 bg-secondary rounded-lg">
+              <Shield className="h-6 w-6" />
             </div>
-            <div className="flex items-center justify-center">
-              <p className="text-sm font-normal leading-normal">Hours</p>
-            </div>
-          </div>
-          <div className="flex w-20 flex-col items-stretch gap-2">
-            <div className="flex h-16 sm:h-20 items-center justify-center rounded-lg bg-card">
-              <p className="font-heading text-3xl sm:text-4xl font-bold">45</p>
-            </div>
-            <div className="flex items-center justify-center">
-              <p className="text-sm font-normal leading-normal">Minutes</p>
+            <div>
+              <p className="font-medium text-sm">Đảm bảo chất lượng</p>
+              <p className="text-xs text-muted-foreground">Sách chính hãng</p>
             </div>
           </div>
-          <div className="flex w-20 flex-col items-stretch gap-2">
-            <div className="flex h-16 sm:h-20 items-center justify-center rounded-lg bg-card">
-              <p className="font-heading text-3xl sm:text-4xl font-bold">33</p>
+          <div className="flex items-center gap-3">
+            <div className="p-3 bg-secondary rounded-lg">
+              <Headphones className="h-6 w-6" />
             </div>
-            <div className="flex items-center justify-center">
-              <p className="text-sm font-normal leading-normal">Seconds</p>
+            <div>
+              <p className="font-medium text-sm">Hỗ trợ 24/7</p>
+              <p className="text-xs text-muted-foreground">Hotline 1900 1234</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="p-3 bg-secondary rounded-lg">
+              <Clock className="h-6 w-6" />
+            </div>
+            <div>
+              <p className="font-medium text-sm">Giao hàng nhanh</p>
+              <p className="text-xs text-muted-foreground">2-3 ngày</p>
             </div>
           </div>
         </div>
@@ -51,4 +47,3 @@ const SaleBanner = () => {
 };
 
 export default SaleBanner;
-

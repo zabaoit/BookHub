@@ -43,7 +43,6 @@ const ForgotPassWord = () => {
                         className="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg border border-border-light dark:border-border-dark bg-white dark:bg-[#3a3a3a] text-text-light dark:text-text-dark placeholder:text-muted-light dark:placeholder:text-muted-dark focus:border-primary focus:ring-primary h-12 p-3 text-base font-normal leading-normal"
                         placeholder="you@example.com"
                         type="email"
-                        value=""
                       />
                     </label>
                   </div>
@@ -73,11 +72,11 @@ const ForgotPassWord = () => {
                   </div>
                   {/* <!-- MetaText --> */}
                   <Link
-                    className="text-muted-light dark:text-muted-dark text-sm font-normal leading-normal text-center hover:underline"
+                    className="text-muted-light dark:text-muted-dark text-sm font-normal leading-normal text-center "
                     to="/signin"
                   >
                     <span className="font-normal">Remember your password?</span>{" "}
-                    <span className="font-bold text-primary">
+                    <span className="font-bold text-primary hover:underline">
                       Back to Login
                     </span>
                   </Link>
@@ -92,4 +91,3 @@ const ForgotPassWord = () => {
 };
 
 export default ForgotPassWord;
-

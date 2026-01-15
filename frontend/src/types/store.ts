@@ -1,6 +1,8 @@
 import type { User } from "./user";
 import type { Book, BookFilters } from "./book";
 
+export type { BookFilters };
+
 export interface AuthState {
   accessToken: string | null;
   user: User | null;
