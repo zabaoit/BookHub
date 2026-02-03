@@ -26,11 +26,9 @@ const postBook = async (req, res) => {
 
     const existingBook = await Book.findOne({ slug });
     if (existingBook) {
-      return res
-        .status(400)
-        .json({
-          message: "Đường dẫn URL đã tồn tại, vui lòng chọn đường dẫn khác",
-        });
+      return res.status(400).json({
+        message: "Đường dẫn URL đã tồn tại, vui lòng chọn đường dẫn khác",
+      });
     }
     const newBook = await Book.create({
       title,
@@ -58,13 +56,53 @@ const postBook = async (req, res) => {
 
 const getAllBooks = async (req, res) => {
   try {
-    const books = await Book.find()
+    const {
+      page = 1,
+      limit = 12,
+      search,
+      category,
+      author,
+      sortBy,
+    } = req.query;
+
+    const queryObject = {};
+    if (search) {
+      queryObject.title = { $regex: search, $options: "i" };
+    }
+    if (category) {
+      queryObject.categories = category;
+    }
+    if (author) {
+      queryObject.author = author;
+    }
+
+    let sortOptions = { createdAt: -1 };
+    if (sortBy === "oldest") {
+      sortOptions = { createdAt: 1 };
+    } else if (sortBy === "price-low") {
+      sortOptions = { price: 1 };
+    } else if (sortBy === "price-high") {
+      sortOptions = { price: -1 };
+    }
+
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+    const limitNum = parseInt(limit);
+
+    const totalBooks = await Book.countDocuments(queryObject);
+    const books = await Book.find(queryObject)
       .populate("author", "name")
       .populate("categories", "name")
-      .sort({ createdAt: -1 });
-    return res
-      .status(200)
-      .json({ message: "Lấy danh sách sách thành công!", data: books });
+      .sort(sortOptions)
+      .skip(skip)
+      .limit(limitNum);
+
+    return res.status(200).json({
+      message: "Lấy danh sách sách thành công!",
+      data: books,
+      total: totalBooks,
+      page: parseInt(page),
+      totalPages: Math.ceil(totalBooks / limitNum),
+    });
   } catch (error) {
     return res
       .status(500)
