@@ -22,6 +22,9 @@ const ReviewPage = () => {
 
   const handleConfirmAndPay = async () => {
     setIsProcessing(true);
+    let orderSuccessfullyCreated = false;
+    let createdOrderId = null;
+
     try {
       // 1. Create the Order
       const orderResponse = await orderService.createOrder({
@@ -31,12 +34,12 @@ const ReviewPage = () => {
       });
 
       const orderData = orderResponse.data;
-      const orderId = Number(orderData._id);
+      createdOrderId = Number(orderData._id);
       const totalPayAmount = totalAmount + shippingFee;
+      
+      orderSuccessfullyCreated = true;
 
-      // 2. Clear Cart eagerly if COD, otherwise we clear it too (assuming they'll leave the page)
-      // If we want to keep it in case they cancel MoMo, we wouldn't clear here. 
-      // Assuming clearing here is fine since order is created.
+      // 2. Clear Cart eagerly since backend already deleted it
       await clearCart();
       clearCheckoutData();
 
@@ -49,7 +52,7 @@ const ReviewPage = () => {
       } else if (paymentMethod === "Momo") {
         toast.loading("Đang chuyển hướng sang MoMo...", { id: "payment-redirect" });
         const paymentRes = await paymentService.createMoMoPayment({
-          orderId,
+          orderId: createdOrderId,
           amount: totalPayAmount,
         });
         if (paymentRes.data && paymentRes.data.paymentUrl) {
@@ -60,7 +63,7 @@ const ReviewPage = () => {
       } else if (paymentMethod === "VNPAY") {
         toast.loading("Đang chuyển hướng sang VNPAY...", { id: "payment-redirect" });
         const paymentRes = await paymentService.createVNPayPayment({
-          orderId,
+          orderId: createdOrderId,
           amount: totalPayAmount,
         });
         if (paymentRes.data && paymentRes.data.paymentUrl) {
@@ -73,6 +76,14 @@ const ReviewPage = () => {
       console.error("Payment error:", error);
       toast.dismiss("payment-redirect");
       toast.error(error.response?.data?.message || error.message || "Lỗi khi xử lý thanh toán.");
+      
+      if (orderSuccessfullyCreated) {
+        // Đơn hàng đã tạo nhưng lỗi gọi cổng thanh toán, chuyển hướng về lịch sử đơn hàng
+        toast.info("Đơn hàng đã được ghi nhận. Vui lòng thanh toán sau trong trang Quản lý đơn hàng.", { duration: 5000 });
+        setTimeout(() => {
+          navigate("/account/order-history");
+        }, 1500);
+      }
     } finally {
       setIsProcessing(false);
     }
