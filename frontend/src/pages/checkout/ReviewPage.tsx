@@ -1,10 +1,16 @@
-import { Link, Navigate } from "react-router";
+import { useState } from "react";
+import { Link, Navigate, useNavigate } from "react-router";
 import Footer from "../../components/Footer";
 import Header from "../../components/Header";
 import { useCartStore } from "../../store/useCartStore";
+import { orderService } from "../../services/orderService";
+import { paymentService } from "../../services/paymentService";
+import { toast } from "sonner";
 
 const ReviewPage = () => {
-  const { items, totalAmount, checkoutData } = useCartStore();
+  const { items, totalAmount, checkoutData, clearCart, clearCheckoutData } = useCartStore();
+  const [isProcessing, setIsProcessing] = useState(false);
+  const navigate = useNavigate();
   const shippingFee = 30000;
 
   if (!checkoutData.shippingAddress) {
@@ -13,6 +19,65 @@ const ReviewPage = () => {
 
   const { fullName, phoneNumber, specificAddress, wardCommune, provinceCity } = checkoutData.shippingAddress;
   const fullAddressString = `${specificAddress}, ${wardCommune}, ${provinceCity}`;
+
+  const handleConfirmAndPay = async () => {
+    setIsProcessing(true);
+    try {
+      // 1. Create the Order
+      const orderResponse = await orderService.createOrder({
+        shippingAddress: fullAddressString,
+        buyerName: fullName,
+        buyerPhone: phoneNumber,
+      });
+
+      const orderData = orderResponse.data;
+      const orderId = orderData.id;
+      const totalPayAmount = totalAmount + shippingFee;
+
+      // 2. Clear Cart eagerly if COD, otherwise we clear it too (assuming they'll leave the page)
+      // If we want to keep it in case they cancel MoMo, we wouldn't clear here. 
+      // Assuming clearing here is fine since order is created.
+      await clearCart();
+      clearCheckoutData();
+
+      // 3. Handle Payment Routing
+      const paymentMethod = checkoutData.paymentMethod;
+
+      if (paymentMethod === "COD" || !paymentMethod) {
+        toast.success("Đặt hàng thành công!");
+        navigate("/order-success");
+      } else if (paymentMethod === "Momo") {
+        toast.loading("Đang chuyển hướng sang MoMo...", { id: "payment-redirect" });
+        const paymentRes = await paymentService.createMoMoPayment({
+          orderId,
+          amount: totalPayAmount,
+        });
+        if (paymentRes.data && paymentRes.data.paymentUrl) {
+          window.location.href = paymentRes.data.paymentUrl;
+        } else {
+          throw new Error("Không lấy được link thanh toán MoMo.");
+        }
+      } else if (paymentMethod === "VNPAY") {
+        toast.loading("Đang chuyển hướng sang VNPAY...", { id: "payment-redirect" });
+        const paymentRes = await paymentService.createVNPayPayment({
+          orderId,
+          amount: totalPayAmount,
+        });
+        if (paymentRes.data && paymentRes.data.paymentUrl) {
+          window.location.href = paymentRes.data.paymentUrl;
+        } else {
+          throw new Error("Không lấy được link thanh toán VNPAY.");
+        }
+      }
+    } catch (error: any) {
+      console.error("Payment error:", error);
+      toast.dismiss("payment-redirect");
+      toast.error(error.response?.data?.message || error.message || "Lỗi khi xử lý thanh toán.");
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
   return (
     <div>
       <Header />
@@ -216,12 +281,24 @@ const ReviewPage = () => {
                       </div>
                     </div>
                     <div className="flex flex-col mt-2 space-y-3">
-                      <Link
-                        to="/order-success"
-                        className="w-full bg-primary flex items-center justify-center text-white font-bold py-3 px-4 rounded-lg hover:bg-primary/90 transition-colors"
+                      <button
+                        onClick={handleConfirmAndPay}
+                        disabled={isProcessing}
+                        className={`w-full flex items-center justify-center text-white font-bold py-3 px-4 rounded-lg transition-colors ${
+                          isProcessing ? "bg-primary/70 cursor-not-allowed" : "bg-primary hover:bg-primary/90"
+                        }`}
                       >
-                        Confirm &amp; Pay
-                      </Link>
+                        {isProcessing ? (
+                          <span className="flex items-center gap-2">
+                            <span className="material-symbols-outlined animate-spin">
+                              progress_activity
+                            </span>
+                            Đang xử lý...
+                          </span>
+                        ) : (
+                          "Confirm & Pay"
+                        )}
+                      </button>
                       <Link
                         to="/cart"
                         className="w-full bg-transparent flex items-center justify-center border border-primary text-primary font-bold py-3 px-4 rounded-lg hover:bg-primary/10 transition-colors"
