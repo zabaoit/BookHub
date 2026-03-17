@@ -215,67 +215,75 @@ const AddressManagement = () => {
                 )}
               </div>
 
-              {/* Add/Edit Form */}
-              {showForm && (
-                <div className="bg-card-light dark:bg-card-dark p-6 rounded-lg shadow-sm border border-border-light dark:border-border-dark">
-                  <h3 className="text-lg font-bold text-text-light dark:text-text-dark mb-6">
-                    {editingId ? "Chỉnh sửa địa chỉ" : "Thêm địa chỉ mới"}
-                  </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                    {/* Full Name */}
-                    <div className="flex flex-col gap-1.5">
-                      <label className="text-sm font-semibold text-text-light dark:text-text-dark">Full Name</label>
-                      <input name="fullName" className={inputClass} placeholder="Jane Doe" value={form.fullName} onChange={handleChange} />
-                    </div>
-                    {/* Phone */}
-                    <div className="flex flex-col gap-1.5">
-                      <label className="text-sm font-semibold text-text-light dark:text-text-dark">Phone Number</label>
-                      <input name="phone" className={inputClass} placeholder="0901 234 567" value={form.phone} onChange={handleChange} />
-                    </div>
-                    {/* Province / City */}
-                    <div className="flex flex-col gap-1.5">
-                      <label className="text-sm font-semibold text-text-light dark:text-text-dark">Province / City</label>
-                      <select name="city" className={selectClass} value={form.city} onChange={handleChange}>
-                        <option value="">Add a new Province / City</option>
-                        {PROVINCES.map(p => <option key={p} value={p}>{p}</option>)}
-                      </select>
-                    </div>
-                    {/* Ward / Commune */}
-                    <div className="flex flex-col gap-1.5">
-                      <label className="text-sm font-semibold text-text-light dark:text-text-dark">Ward / Commune</label>
-                      <select name="ward" className={selectClass} value={form.ward} onChange={handleChange}>
-                        <option value="">Add a new Ward / Commune</option>
-                        {WARDS.map(w => <option key={w} value={w}>{w}</option>)}
-                      </select>
-                    </div>
-                    {/* Specific Address */}
-                    <div className="flex flex-col gap-1.5 md:col-span-2">
-                      <label className="text-sm font-semibold text-text-light dark:text-text-dark">Specific Address</label>
-                      <input name="specificAddress" className={inputClass} placeholder="123 Storybook Street" value={form.specificAddress} onChange={handleChange} />
-                    </div>
-                  </div>
-                  <div className="flex gap-3 mt-6">
-                    <button onClick={handleSubmit} disabled={isSaving} className="px-5 py-2.5 rounded-lg text-sm font-semibold text-white bg-primary hover:bg-primary/90 transition-colors disabled:opacity-60">
-                      {isSaving ? "Đang lưu..." : editingId ? "Lưu thay đổi" : "Thêm địa chỉ"}
-                    </button>
-                    <button onClick={() => setShowForm(false)} className="px-5 py-2.5 rounded-lg text-sm font-semibold border border-border-light dark:border-border-dark text-text-light dark:text-text-dark hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
-                      Huỷ
-                    </button>
-                  </div>
-                </div>
-              )}
-
-              {/* Add New Address Button */}
-              {!showForm && (
-                <button onClick={openAddForm} className="flex w-full cursor-pointer items-center justify-center gap-2 overflow-hidden rounded-lg h-12 px-6 bg-primary text-white text-base font-bold leading-normal shadow-sm hover:bg-primary/90 transition-colors">
-                  <span className="material-symbols-outlined">add</span>
-                  <span className="truncate">Thêm địa chỉ mới</span>
-                </button>
-              )}
             </div>
           </main>
         </div>
       </div>
+
+      {/* Modal Popup */}
+      {showForm && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
+          onClick={(e) => { if (e.target === e.currentTarget) setShowForm(false); }}
+        >
+          <div className="w-full max-w-2xl bg-card-light dark:bg-card-dark rounded-2xl shadow-2xl p-8 relative animate-in fade-in zoom-in-95 duration-200">
+            {/* Close button */}
+            <button
+              onClick={() => setShowForm(false)}
+              className="absolute top-4 right-4 flex items-center justify-center w-8 h-8 rounded-full hover:bg-black/10 dark:hover:bg-white/10 transition-colors"
+            >
+              <span className="material-symbols-outlined text-xl text-subtle-light dark:text-subtle-dark">close</span>
+            </button>
+
+            <h3 className="text-xl font-bold text-text-light dark:text-text-dark mb-6">
+              {editingId ? "Chỉnh sửa địa chỉ" : "Thêm địa chỉ mới"}
+            </h3>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              {/* Full Name */}
+              <div className="flex flex-col gap-1.5">
+                <label className="text-sm font-semibold text-text-light dark:text-text-dark">Full Name</label>
+                <input name="fullName" className={inputClass} placeholder="Jane Doe" value={form.fullName} onChange={handleChange} />
+              </div>
+              {/* Phone */}
+              <div className="flex flex-col gap-1.5">
+                <label className="text-sm font-semibold text-text-light dark:text-text-dark">Phone Number</label>
+                <input name="phone" className={inputClass} placeholder="0901 234 567" value={form.phone} onChange={handleChange} />
+              </div>
+              {/* Province / City */}
+              <div className="flex flex-col gap-1.5">
+                <label className="text-sm font-semibold text-text-light dark:text-text-dark">Province / City</label>
+                <select name="city" className={selectClass} value={form.city} onChange={handleChange}>
+                  <option value="">Add a new Province / City</option>
+                  {PROVINCES.map(p => <option key={p} value={p}>{p}</option>)}
+                </select>
+              </div>
+              {/* Ward / Commune */}
+              <div className="flex flex-col gap-1.5">
+                <label className="text-sm font-semibold text-text-light dark:text-text-dark">Ward / Commune</label>
+                <select name="ward" className={selectClass} value={form.ward} onChange={handleChange}>
+                  <option value="">Add a new Ward / Commune</option>
+                  {WARDS.map(w => <option key={w} value={w}>{w}</option>)}
+                </select>
+              </div>
+              {/* Specific Address */}
+              <div className="flex flex-col gap-1.5 md:col-span-2">
+                <label className="text-sm font-semibold text-text-light dark:text-text-dark">Specific Address</label>
+                <input name="specificAddress" className={inputClass} placeholder="123 Storybook Street" value={form.specificAddress} onChange={handleChange} />
+              </div>
+            </div>
+
+            <div className="flex gap-3 mt-6">
+              <button onClick={handleSubmit} disabled={isSaving} className="px-5 py-2.5 rounded-lg text-sm font-semibold text-white bg-primary hover:bg-primary/90 transition-colors disabled:opacity-60">
+                {isSaving ? "Đang lưu..." : editingId ? "Lưu thay đổi" : "Thêm địa chỉ"}
+              </button>
+              <button onClick={() => setShowForm(false)} className="px-5 py-2.5 rounded-lg text-sm font-semibold border border-border-light dark:border-border-dark text-text-light dark:text-text-dark hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
+                Huỷ
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       <Footer />
     </div>
   );
