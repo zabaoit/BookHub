@@ -147,7 +147,8 @@ const AddressManagement = () => {
 
   const inputClass =
     "form-input flex w-full rounded-lg text-text-light dark:text-text-dark focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-border-light dark:border-border-dark bg-card-light dark:bg-card-dark h-11 placeholder:text-subtle-light dark:placeholder:text-subtle-dark px-4 text-sm";
-  const selectClass = inputClass + " cursor-pointer appearance-none bg-[url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E\")] bg-no-repeat bg-[right_12px_center] bg-[length:16px]";
+  const selectClass =
+    "form-select flex w-full rounded-lg text-text-light dark:text-text-dark focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-border-light dark:border-border-dark bg-card-light dark:bg-card-dark h-11 px-4 text-sm cursor-pointer";
 
   return (
     <div>
@@ -214,6 +215,15 @@ const AddressManagement = () => {
                   ))
                 )}
               </div>
+
+              {/* Add New Address Button */}
+              <button
+                onClick={openAddForm}
+                className="flex w-full cursor-pointer items-center justify-center gap-2 overflow-hidden rounded-lg h-12 px-6 bg-primary text-white text-base font-bold leading-normal shadow-sm hover:bg-primary/90 transition-colors"
+              >
+                <span className="material-symbols-outlined">add</span>
+                <span className="truncate">Thêm địa chỉ mới</span>
+              </button>
 
             </div>
           </main>
