@@ -11,4 +11,9 @@ export const orderService = {
     const response = await api.post("/orders", orderData);
     return response.data;
   },
+
+  getUserOrders: async (params?: { page?: number; limit?: number; status?: string }) => {
+    const response = await api.get("/orders", { params });
+    return response.data;
+  },
 };

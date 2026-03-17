@@ -1,8 +1,96 @@
+import { useEffect, useState } from "react";
 import Footer from "../../components/Footer";
 import Header from "../../components/Header";
 import SideNavBarProfile from "../../components/SideNavBarProfile";
+import { orderService } from "../../services/orderService";
+
+interface OrderItem {
+  _id: string;
+  quantity: number;
+  priceAtPurchase: number;
+  book: {
+    title: string;
+  };
+}
+
+interface Order {
+  _id: string;
+  created_at: string;
+  totalAmount: number;
+  status: string;
+  paymentStatus: string;
+  items?: OrderItem[];
+}
 
 const OrderHistory = () => {
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [statusFilter, setStatusFilter] = useState<string>("");
+
+  useEffect(() => {
+    const fetchOrders = async () => {
+      setLoading(true);
+      try {
+        const response = await orderService.getUserOrders({
+          page,
+          limit: 10,
+          status: statusFilter || undefined,
+        });
+        setOrders(response.data);
+        setTotalPages(response.totalPages);
+      } catch (error) {
+        console.error("Lỗi khi tải lịch sử đơn hàng:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchOrders();
+  }, [page, statusFilter]);
+
+  const handleStatusFilter = (status: string) => {
+    setStatusFilter(status);
+    setPage(1); // Reset page on filter change
+  };
+
+  const getStatusNode = (status: string) => {
+    let colorClass = "bg-subtle-light dark:bg-subtle-dark";
+    let text = status;
+
+    switch (status) {
+      case "PENDING":
+        colorClass = "bg-warning";
+        text = "Pending";
+        break;
+      case "PROCESSING":
+        colorClass = "bg-blue-500";
+        text = "Processing";
+        break;
+      case "SHIPPED":
+        colorClass = "bg-blue-600";
+        text = "Shipped";
+        break;
+      case "COMPLETED":
+      case "DELIVERED":
+        colorClass = "bg-success";
+        text = "Completed";
+        break;
+      case "CANCELLED":
+        colorClass = "bg-error";
+        text = "Cancelled";
+        break;
+      default:
+        break;
+    }
+
+    return (
+      <div className="flex items-center gap-2">
+        <span className={`w-2 h-2 rounded-full ${colorClass}`}></span>
+        <span className="text-text-light dark:text-text-dark">{text}</span>
+      </div>
+    );
+  };
   return (
     <div>
       <Header />
@@ -23,28 +111,53 @@ const OrderHistory = () => {
               <div className="flex flex-col md:flex-row gap-6 justify-between py-4">
                 {/* <!-- Chips --> */}
                 <div className="flex gap-2 p-1 overflow-x-auto">
-                  <button className="flex h-10 shrink-0 items-center justify-center gap-x-2 rounded-lg px-4 bg-primary text-white">
-                    <p className="text-sm font-medium leading-normal">All</p>
+                  <button 
+                    onClick={() => handleStatusFilter("")}
+                    className={`flex h-10 shrink-0 items-center justify-center gap-x-2 rounded-lg px-4 border border-border-light dark:border-border-dark ${
+                      statusFilter === "" ? "bg-primary text-white" : "bg-white dark:bg-background-dark hover:bg-primary/10"
+                    }`}
+                  >
+                    <p className={`text-sm font-medium leading-normal ${statusFilter === "" ? "text-white" : "text-text-light dark:text-text-dark"}`}>All</p>
                   </button>
-                  <button className="flex h-10 shrink-0 items-center justify-center gap-x-2 rounded-lg px-4 bg-white dark:bg-background-dark border border-border-light dark:border-border-dark hover:bg-primary/10">
-                    <p className="text-text-light dark:text-text-dark text-sm font-medium leading-normal">
-                      Pending
-                    </p>
+                  <button 
+                    onClick={() => handleStatusFilter("PENDING")}
+                    className={`flex h-10 shrink-0 items-center justify-center gap-x-2 rounded-lg px-4 border border-border-light dark:border-border-dark ${
+                      statusFilter === "PENDING" ? "bg-primary text-white" : "bg-white dark:bg-background-dark hover:bg-primary/10"
+                    }`}
+                  >
+                    <p className={`text-sm font-medium leading-normal ${statusFilter === "PENDING" ? "text-white" : "text-text-light dark:text-text-dark"}`}>Pending</p>
                   </button>
-                  <button className="flex h-10 shrink-0 items-center justify-center gap-x-2 rounded-lg px-4 bg-white dark:bg-background-dark border border-border-light dark:border-border-dark hover:bg-primary/10">
-                    <p className="text-text-light dark:text-text-dark text-sm font-medium leading-normal">
-                      Shipped
-                    </p>
+                  <button 
+                    onClick={() => handleStatusFilter("PROCESSING")}
+                    className={`flex h-10 shrink-0 items-center justify-center gap-x-2 rounded-lg px-4 border border-border-light dark:border-border-dark ${
+                      statusFilter === "PROCESSING" ? "bg-primary text-white" : "bg-white dark:bg-background-dark hover:bg-primary/10"
+                    }`}
+                  >
+                    <p className={`text-sm font-medium leading-normal ${statusFilter === "PROCESSING" ? "text-white" : "text-text-light dark:text-text-dark"}`}>Processing</p>
                   </button>
-                  <button className="flex h-10 shrink-0 items-center justify-center gap-x-2 rounded-lg px-4 bg-white dark:bg-background-dark border border-border-light dark:border-border-dark hover:bg-primary/10">
-                    <p className="text-text-light dark:text-text-dark text-sm font-medium leading-normal">
-                      Delivered
-                    </p>
+                  <button 
+                    onClick={() => handleStatusFilter("SHIPPED")}
+                    className={`flex h-10 shrink-0 items-center justify-center gap-x-2 rounded-lg px-4 border border-border-light dark:border-border-dark ${
+                      statusFilter === "SHIPPED" ? "bg-primary text-white" : "bg-white dark:bg-background-dark hover:bg-primary/10"
+                    }`}
+                  >
+                    <p className={`text-sm font-medium leading-normal ${statusFilter === "SHIPPED" ? "text-white" : "text-text-light dark:text-text-dark"}`}>Shipped</p>
                   </button>
-                  <button className="flex h-10 shrink-0 items-center justify-center gap-x-2 rounded-lg px-4 bg-white dark:bg-background-dark border border-border-light dark:border-border-dark hover:bg-primary/10">
-                    <p className="text-text-light dark:text-text-dark text-sm font-medium leading-normal">
-                      Cancelled
-                    </p>
+                  <button 
+                    onClick={() => handleStatusFilter("COMPLETED")}
+                    className={`flex h-10 shrink-0 items-center justify-center gap-x-2 rounded-lg px-4 border border-border-light dark:border-border-dark ${
+                      statusFilter === "COMPLETED" ? "bg-primary text-white" : "bg-white dark:bg-background-dark hover:bg-primary/10"
+                    }`}
+                  >
+                    <p className={`text-sm font-medium leading-normal ${statusFilter === "COMPLETED" ? "text-white" : "text-text-light dark:text-text-dark"}`}>Completed</p>
+                  </button>
+                  <button 
+                    onClick={() => handleStatusFilter("CANCELLED")}
+                    className={`flex h-10 shrink-0 items-center justify-center gap-x-2 rounded-lg px-4 border border-border-light dark:border-border-dark ${
+                      statusFilter === "CANCELLED" ? "bg-primary text-white" : "bg-white dark:bg-background-dark hover:bg-primary/10"
+                    }`}
+                  >
+                    <p className={`text-sm font-medium leading-normal ${statusFilter === "CANCELLED" ? "text-white" : "text-text-light dark:text-text-dark"}`}>Cancelled</p>
                   </button>
                 </div>
                 {/* <!-- SearchBar --> */}
@@ -89,120 +202,85 @@ const OrderHistory = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    <tr className="border-t border-t-border-light dark:border-t-border-dark">
-                      <td className="h-[72px] px-4 py-2 text-subtle-light dark:text-subtle-dark text-sm font-normal leading-normal">
-                        #12345
-                      </td>
-                      <td className="h-[72px] px-4 py-2 text-subtle-light dark:text-subtle-dark text-sm font-normal leading-normal">
-                        Oct 26, 2023
-                      </td>
-                      <td className="h-[72px] px-4 py-2 text-subtle-light dark:text-subtle-dark text-sm font-normal leading-normal">
-                        $75.50
-                      </td>
-                      <td className="h-[72px] px-4 py-2 text-sm font-normal leading-normal">
-                        <div className="flex items-center gap-2">
-                          <span className="w-2 h-2 rounded-full bg-success"></span>
-                          <span className="text-text-light dark:text-text-dark">
-                            Delivered
-                          </span>
-                        </div>
-                      </td>
-                      <td className="h-[72px] px-4 py-2 text-primary text-sm font-bold leading-normal tracking-[0.015em] hover:underline cursor-pointer">
-                        View Details
-                      </td>
-                    </tr>
-                    <tr className="border-t border-t-border-light dark:border-t-border-dark">
-                      <td className="h-[72px] px-4 py-2 text-subtle-light dark:text-subtle-dark text-sm font-normal leading-normal">
-                        #12344
-                      </td>
-                      <td className="h-[72px] px-4 py-2 text-subtle-light dark:text-subtle-dark text-sm font-normal leading-normal">
-                        Oct 15, 2023
-                      </td>
-                      <td className="h-[72px] px-4 py-2 text-subtle-light dark:text-subtle-dark text-sm font-normal leading-normal">
-                        $42.00
-                      </td>
-                      <td className="h-[72px] px-4 py-2 text-sm font-normal leading-normal">
-                        <div className="flex items-center gap-2">
-                          <span className="w-2 h-2 rounded-full bg-success"></span>
-                          <span className="text-text-light dark:text-text-dark">
-                            Delivered
-                          </span>
-                        </div>
-                      </td>
-                      <td className="h-[72px] px-4 py-2 text-primary text-sm font-bold leading-normal tracking-[0.015em] hover:underline cursor-pointer">
-                        View Details
-                      </td>
-                    </tr>
-                    <tr className="border-t border-t-border-light dark:border-t-border-dark">
-                      <td className="h-[72px] px-4 py-2 text-subtle-light dark:text-subtle-dark text-sm font-normal leading-normal">
-                        #12343
-                      </td>
-                      <td className="h-[72px] px-4 py-2 text-subtle-light dark:text-subtle-dark text-sm font-normal leading-normal">
-                        Sep 30, 2023
-                      </td>
-                      <td className="h-[72px] px-4 py-2 text-subtle-light dark:text-subtle-dark text-sm font-normal leading-normal">
-                        $112.99
-                      </td>
-                      <td className="h-[72px] px-4 py-2 text-sm font-normal leading-normal">
-                        <div className="flex items-center gap-2">
-                          <span className="w-2 h-2 rounded-full bg-error"></span>
-                          <span className="text-text-light dark:text-text-dark">
-                            Cancelled
-                          </span>
-                        </div>
-                      </td>
-                      <td className="h-[72px] px-4 py-2 text-primary text-sm font-bold leading-normal tracking-[0.015em] hover:underline cursor-pointer">
-                        View Details
-                      </td>
-                    </tr>
-                    <tr className="border-t border-t-border-light dark:border-t-border-dark">
-                      <td className="h-[72px] px-4 py-2 text-subtle-light dark:text-subtle-dark text-sm font-normal leading-normal">
-                        #12342
-                      </td>
-                      <td className="h-[72px] px-4 py-2 text-subtle-light dark:text-subtle-dark text-sm font-normal leading-normal">
-                        Sep 05, 2023
-                      </td>
-                      <td className="h-[72px] px-4 py-2 text-subtle-light dark:text-subtle-dark text-sm font-normal leading-normal">
-                        $25.10
-                      </td>
-                      <td className="h-[72px] px-4 py-2 text-sm font-normal leading-normal">
-                        <div className="flex items-center gap-2">
-                          <span className="w-2 h-2 rounded-full bg-warning"></span>
-                          <span className="text-text-light dark:text-text-dark">
-                            Shipped
-                          </span>
-                        </div>
-                      </td>
-                      <td className="h-[72px] px-4 py-2 text-primary text-sm font-bold leading-normal tracking-[0.015em] hover:underline cursor-pointer">
-                        View Details
-                      </td>
-                    </tr>
+                    {loading ? (
+                      <tr>
+                        <td colSpan={5} className="h-32 text-center text-subtle-light dark:text-subtle-dark">
+                          Loading orders...
+                        </td>
+                      </tr>
+                    ) : orders.length === 0 ? (
+                      <tr>
+                        <td colSpan={5} className="h-32 text-center text-subtle-light dark:text-subtle-dark">
+                          No orders found.
+                        </td>
+                      </tr>
+                    ) : (
+                      orders.map((order) => (
+                        <tr key={order._id} className="border-t border-t-border-light dark:border-t-border-dark">
+                          <td className="h-[72px] px-4 py-2 text-subtle-light dark:text-subtle-dark text-sm font-normal leading-normal">
+                            #{order._id.substring(0, 8)}...
+                          </td>
+                          <td className="h-[72px] px-4 py-2 text-subtle-light dark:text-subtle-dark text-sm font-normal leading-normal">
+                            {new Date(order.created_at || new Date()).toLocaleDateString("vi-VN", {
+                              year: "numeric",
+                              month: "short",
+                              day: "numeric",
+                            })}
+                          </td>
+                          <td className="h-[72px] px-4 py-2 text-subtle-light dark:text-subtle-dark text-sm font-normal leading-normal">
+                            {order.totalAmount?.toLocaleString("vi-VN")}đ
+                          </td>
+                          <td className="h-[72px] px-4 py-2 text-sm font-normal leading-normal">
+                            {getStatusNode(order.status)}
+                          </td>
+                          <td className="h-[72px] px-4 py-2 text-primary text-sm font-bold leading-normal tracking-[0.015em] hover:underline cursor-pointer">
+                            View Details
+                          </td>
+                        </tr>
+                      ))
+                    )}
                   </tbody>
                 </table>
               </div>
 
               {/* <!-- Pagination --> */}
-              <div className="flex justify-center items-center gap-2 pt-6">
-                <button className="flex items-center justify-center h-10 w-10 rounded-lg bg-white dark:bg-background-dark border border-border-light dark:border-border-dark hover:bg-primary/10">
-                  <span className="material-symbols-outlined text-text-light dark:text-text-dark">
-                    chevron_left
-                  </span>
-                </button>
-                <button className="flex items-center justify-center h-10 w-10 rounded-lg bg-primary text-white">
-                  1
-                </button>
-                <button className="flex items-center justify-center h-10 w-10 rounded-lg bg-white dark:bg-background-dark border border-border-light dark:border-border-dark hover:bg-primary/10 text-text-light dark:text-text-dark">
-                  2
-                </button>
-                <button className="flex items-center justify-center h-10 w-10 rounded-lg bg-white dark:bg-background-dark border border-border-light dark:border-border-dark hover:bg-primary/10 text-text-light dark:text-text-dark">
-                  3
-                </button>
-                <button className="flex items-center justify-center h-10 w-10 rounded-lg bg-white dark:bg-background-dark border border-border-light dark:border-border-dark hover:bg-primary/10">
-                  <span className="material-symbols-outlined text-text-light dark:text-text-dark">
-                    chevron_right
-                  </span>
-                </button>
-              </div>
+              {totalPages > 1 && (
+                <div className="flex justify-center items-center gap-2 pt-6">
+                  <button 
+                    onClick={() => setPage((p) => Math.max(1, p - 1))}
+                    disabled={page === 1}
+                    className="flex items-center justify-center h-10 w-10 rounded-lg bg-white dark:bg-background-dark border border-border-light dark:border-border-dark hover:bg-primary/10 disabled:opacity-50"
+                  >
+                    <span className="material-symbols-outlined text-text-light dark:text-text-dark">
+                      chevron_left
+                    </span>
+                  </button>
+                  
+                  {Array.from({ length: totalPages }).map((_, idx) => (
+                    <button 
+                      key={idx}
+                      onClick={() => setPage(idx + 1)}
+                      className={`flex items-center justify-center h-10 w-10 rounded-lg ${
+                        page === idx + 1 
+                          ? "bg-primary text-white" 
+                          : "bg-white dark:bg-background-dark border border-border-light dark:border-border-dark hover:bg-primary/10 text-text-light dark:text-text-dark"
+                      }`}
+                    >
+                      {idx + 1}
+                    </button>
+                  ))}
+
+                  <button 
+                    onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                    disabled={page === totalPages}
+                    className="flex items-center justify-center h-10 w-10 rounded-lg bg-white dark:bg-background-dark border border-border-light dark:border-border-dark hover:bg-primary/10 disabled:opacity-50"
+                  >
+                    <span className="material-symbols-outlined text-text-light dark:text-text-dark">
+                      chevron_right
+                    </span>
+                  </button>
+                </div>
+              )}
             </div>
           </main>
         </div>
