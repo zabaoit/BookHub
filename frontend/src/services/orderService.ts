@@ -1,4 +1,4 @@
-import axiosClient from "../api/axiosClient";
+import api from "../libs/axios";
 
 export const orderService = {
   createOrder: async (orderData: {
@@ -8,7 +8,7 @@ export const orderService = {
     buyerEmail?: string;
     note?: string;
   }) => {
-    const response = await axiosClient.post("/orders", orderData);
+    const response = await api.post("/orders", orderData);
     return response.data;
   },
 };
