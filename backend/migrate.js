@@ -13,22 +13,20 @@ async function run() {
   });
   
   try {
+    // Add separate address component columns
     await connection.query(`
-      CREATE TABLE IF NOT EXISTS user_addresses (
-        id INT AUTO_INCREMENT PRIMARY KEY,
-        user_id INT NOT NULL,
-        full_name VARCHAR(255) NOT NULL,
-        phone VARCHAR(50) NOT NULL,
-        address TEXT NOT NULL,
-        is_default TINYINT(1) NOT NULL DEFAULT 0,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-        CONSTRAINT fk_user_addresses_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+      ALTER TABLE user_addresses 
+        ADD COLUMN city VARCHAR(255) NULL AFTER phone,
+        ADD COLUMN ward VARCHAR(255) NULL AFTER city,
+        ADD COLUMN specific_address TEXT NULL AFTER ward;
     `);
-    console.log('Successfully created user_addresses table!');
+    console.log('Successfully added city, ward, specific_address columns!');
   } catch (err) {
-    console.error(err);
+    if (err.code === 'ER_DUP_FIELDNAME') {
+      console.log('Columns already exist.');
+    } else {
+      console.error(err);
+    }
   } finally {
     await connection.end();
   }

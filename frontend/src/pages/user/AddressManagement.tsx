@@ -5,21 +5,50 @@ import Header from "../../components/Header";
 import SideNavBarProfile from "../../components/SideNavBarProfile";
 import { userService } from "../../services/userService";
 
+// Vietnamese Provinces
+const PROVINCES = [
+  "An Giang", "Bà Rịa - Vũng Tàu", "Bắc Giang", "Bắc Kạn", "Bạc Liêu",
+  "Bắc Ninh", "Bến Tre", "Bình Định", "Bình Dương", "Bình Phước",
+  "Bình Thuận", "Cà Mau", "Cần Thơ", "Cao Bằng", "Đà Nẵng",
+  "Đắk Lắk", "Đắk Nông", "Điện Biên", "Đồng Nai", "Đồng Tháp",
+  "Gia Lai", "Hà Giang", "Hà Nam", "Hà Nội", "Hà Tĩnh",
+  "Hải Dương", "Hải Phòng", "Hậu Giang", "Hòa Bình", "Hưng Yên",
+  "Khánh Hòa", "Kiên Giang", "Kon Tum", "Lai Châu", "Lâm Đồng",
+  "Lạng Sơn", "Lào Cai", "Long An", "Nam Định", "Nghệ An",
+  "Ninh Bình", "Ninh Thuận", "Phú Thọ", "Phú Yên", "Quảng Bình",
+  "Quảng Nam", "Quảng Ngãi", "Quảng Ninh", "Quảng Trị", "Sóc Trăng",
+  "Sơn La", "Tây Ninh", "Thái Bình", "Thái Nguyên", "Thanh Hóa",
+  "Thừa Thiên Huế", "Tiền Giang", "TP. Hồ Chí Minh", "Trà Vinh",
+  "Tuyên Quang", "Vĩnh Long", "Vĩnh Phúc", "Yên Bái",
+];
+
+// Example wards (generic — in a real app this would depend on the city selection)
+const WARDS = [
+  "Phường 1", "Phường 2", "Phường 3", "Phường 4", "Phường 5",
+  "Phường 6", "Phường 7", "Phường 8", "Phường 9", "Phường 10",
+  "Phường 11", "Phường 12", "Phường 13", "Phường 14", "Phường 15",
+  "Phường Bến Nghé", "Phường Bến Thành", "Phường Cầu Kho", "Phường Cầu Ông Lãnh",
+  "Phường Cô Giang", "Phường Nguyễn Cư Trinh", "Phường Nguyễn Thái Bình",
+  "Phường Phạm Ngũ Lão", "Phường Tân Định", "Phường Đa Kao",
+  "Xã An Phú", "Xã Bình An", "Xã Bình Trưng", "Xã Long Phước",
+  "Thị trấn Bến Lức", "Thị trấn Cần Giuộc", "Thị trấn Đức Hòa",
+];
+
 interface Address {
   _id: string;
   fullName: string;
   phone: string;
-  address: string;
+  city: string;
+  ward: string;
+  specificAddress: string;
   isDefault: boolean;
 }
 
-const emptyForm = { fullName: "", phone: "", address: "" };
+const emptyForm = { fullName: "", phone: "", city: "", ward: "", specificAddress: "" };
 
 const AddressManagement = () => {
   const [addresses, setAddresses] = useState<Address[]>([]);
   const [loading, setLoading] = useState(true);
-
-  // Form state for add/edit
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState(emptyForm);
@@ -36,9 +65,7 @@ const AddressManagement = () => {
     }
   };
 
-  useEffect(() => {
-    fetchAddresses();
-  }, []);
+  useEffect(() => { fetchAddresses(); }, []);
 
   const openAddForm = () => {
     setForm(emptyForm);
@@ -47,33 +74,51 @@ const AddressManagement = () => {
   };
 
   const openEditForm = (addr: Address) => {
-    setForm({ fullName: addr.fullName, phone: addr.phone, address: addr.address });
+    setForm({
+      fullName: addr.fullName,
+      phone: addr.phone,
+      city: addr.city,
+      ward: addr.ward,
+      specificAddress: addr.specificAddress,
+    });
     setEditingId(addr._id);
     setShowForm(true);
   };
 
-  const handleFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = async () => {
-    if (!form.fullName.trim() || !form.phone.trim() || !form.address.trim()) {
-      toast.error("Vui lòng điền đầy đủ thông tin địa chỉ!");
+    if (!form.fullName.trim() || !form.phone.trim() || !form.city || !form.specificAddress.trim()) {
+      toast.error("Vui lòng điền đầy đủ thông tin bắt buộc!");
       return;
     }
     setIsSaving(true);
     try {
       if (editingId) {
-        await userService.updateAddress(editingId, form);
+        await userService.updateAddress(editingId, {
+          fullName: form.fullName,
+          phone: form.phone,
+          city: form.city,
+          ward: form.ward,
+          specificAddress: form.specificAddress,
+        });
         toast.success("Cập nhật địa chỉ thành công!");
       } else {
-        await userService.createAddress({ ...form });
+        await userService.createAddress({
+          fullName: form.fullName,
+          phone: form.phone,
+          city: form.city,
+          ward: form.ward,
+          specificAddress: form.specificAddress,
+        });
         toast.success("Thêm địa chỉ thành công!");
       }
       setShowForm(false);
       await fetchAddresses();
     } catch (error: any) {
-      toast.error(error.response?.data?.message || "Thao tác thất bại. Vui lòng thử lại.");
+      toast.error(error.response?.data?.message || "Thao tác thất bại.");
     } finally {
       setIsSaving(false);
     }
@@ -101,7 +146,8 @@ const AddressManagement = () => {
   };
 
   const inputClass =
-    "form-input flex w-full rounded-lg text-text-light dark:text-text-dark focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-border-light dark:border-border-dark bg-card-light dark:bg-card-dark h-11 placeholder:text-subtle-light dark:placeholder:text-subtle-dark px-4 py-2 text-sm";
+    "form-input flex w-full rounded-lg text-text-light dark:text-text-dark focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-border-light dark:border-border-dark bg-card-light dark:bg-card-dark h-11 placeholder:text-subtle-light dark:placeholder:text-subtle-dark px-4 text-sm";
+  const selectClass = inputClass + " cursor-pointer appearance-none bg-[url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E\")] bg-no-repeat bg-[right_12px_center] bg-[length:16px]";
 
   return (
     <div>
@@ -127,52 +173,40 @@ const AddressManagement = () => {
                   <div className="flex flex-col items-center justify-center text-center p-10 border-2 border-dashed border-border-light dark:border-border-dark rounded-lg">
                     <span className="material-symbols-outlined text-6xl text-subtle-light dark:text-subtle-dark mb-4">location_off</span>
                     <h3 className="text-xl font-bold font-heading text-text-light dark:text-text-dark">Chưa có địa chỉ</h3>
-                    <p className="text-subtle-light dark:text-subtle-dark mt-2 mb-0 max-w-sm">Thêm địa chỉ giao hàng để thanh toán nhanh hơn!</p>
+                    <p className="text-subtle-light dark:text-subtle-dark mt-2 max-w-sm">Thêm địa chỉ giao hàng để thanh toán nhanh hơn!</p>
                   </div>
                 ) : (
-                  addresses.map((addr) => (
+                  addresses.map(addr => (
                     <div key={addr._id} className="flex flex-col gap-2 bg-card-light dark:bg-card-dark p-4 rounded-lg shadow-sm border border-border-light dark:border-border-dark">
-                      <div className="flex gap-4 justify-between">
-                        <div className="flex items-start gap-4">
-                          <div className={`flex items-center justify-center rounded-lg shrink-0 size-12 ${addr.isDefault ? "text-primary bg-primary/20" : "text-text-light dark:text-text-dark bg-black/5 dark:bg-white/5"}`}>
-                            <span className="material-symbols-outlined">{addr.isDefault ? "home" : "location_on"}</span>
+                      <div className="flex items-start gap-4">
+                        <div className={`flex items-center justify-center rounded-lg shrink-0 size-12 ${addr.isDefault ? "text-primary bg-primary/20" : "text-text-light dark:text-text-dark bg-black/5 dark:bg-white/5"}`}>
+                          <span className="material-symbols-outlined">{addr.isDefault ? "home" : "location_on"}</span>
+                        </div>
+                        <div className="flex flex-1 flex-col">
+                          <div className="flex items-center gap-2 mb-1">
+                            <p className="text-text-light dark:text-text-dark text-base font-bold">{addr.fullName}</p>
+                            {addr.isDefault && (
+                              <span className="inline-flex items-center rounded-full bg-green-100 dark:bg-green-900/40 px-2.5 py-0.5 text-xs font-semibold text-green-700 dark:text-green-400">
+                                Mặc định
+                              </span>
+                            )}
                           </div>
-                          <div className="flex flex-1 flex-col justify-center">
-                            <div className="flex items-center gap-2 mb-1">
-                              <p className="text-text-light dark:text-text-dark text-base font-bold leading-normal">
-                                {addr.fullName}
-                              </p>
-                              {addr.isDefault && (
-                                <span className="inline-flex items-center rounded-full bg-green-100 dark:bg-green-900/40 px-2.5 py-0.5 text-xs font-semibold text-green-700 dark:text-green-400">
-                                  Mặc định
-                                </span>
-                              )}
-                            </div>
-                            <p className="text-subtle-light dark:text-subtle-dark text-sm">{addr.phone}</p>
-                            <p className="text-subtle-light dark:text-subtle-dark text-sm">{addr.address}</p>
-                          </div>
+                          <p className="text-subtle-light dark:text-subtle-dark text-sm">{addr.phone}</p>
+                          <p className="text-subtle-light dark:text-subtle-dark text-sm">
+                            {[addr.specificAddress, addr.ward, addr.city].filter(Boolean).join(", ")}
+                          </p>
                         </div>
                       </div>
-                      {/* Button Group */}
                       <div className="flex justify-end pt-2 gap-2 flex-wrap">
                         {!addr.isDefault && (
-                          <button
-                            onClick={() => handleSetDefault(addr._id)}
-                            className="flex min-w-[84px] cursor-pointer items-center justify-center rounded-md h-9 px-3 text-primary text-sm font-semibold hover:bg-primary/10 transition-colors"
-                          >
+                          <button onClick={() => handleSetDefault(addr._id)} className="flex min-w-[84px] cursor-pointer items-center justify-center rounded-md h-9 px-3 text-primary text-sm font-semibold hover:bg-primary/10 transition-colors">
                             Đặt mặc định
                           </button>
                         )}
-                        <button
-                          onClick={() => openEditForm(addr)}
-                          className="flex min-w-[84px] cursor-pointer items-center justify-center rounded-md h-9 px-3 bg-black/5 dark:bg-white/10 text-text-light dark:text-text-dark text-sm font-semibold hover:bg-black/10 dark:hover:bg-white/20 transition-colors"
-                        >
+                        <button onClick={() => openEditForm(addr)} className="flex min-w-[84px] cursor-pointer items-center justify-center rounded-md h-9 px-3 bg-black/5 dark:bg-white/10 text-text-light dark:text-text-dark text-sm font-semibold hover:bg-black/10 dark:hover:bg-white/20 transition-colors">
                           Chỉnh sửa
                         </button>
-                        <button
-                          onClick={() => handleDelete(addr._id)}
-                          className="flex min-w-[84px] cursor-pointer items-center justify-center rounded-md h-9 px-3 text-red-500 text-sm font-semibold hover:bg-red-500/10 transition-colors"
-                        >
+                        <button onClick={() => handleDelete(addr._id)} className="flex min-w-[84px] cursor-pointer items-center justify-center rounded-md h-9 px-3 text-red-500 text-sm font-semibold hover:bg-red-500/10 transition-colors">
                           Xóa
                         </button>
                       </div>
@@ -184,35 +218,47 @@ const AddressManagement = () => {
               {/* Add/Edit Form */}
               {showForm && (
                 <div className="bg-card-light dark:bg-card-dark p-6 rounded-lg shadow-sm border border-border-light dark:border-border-dark">
-                  <h3 className="text-lg font-bold text-text-light dark:text-text-dark mb-4">
+                  <h3 className="text-lg font-bold text-text-light dark:text-text-dark mb-6">
                     {editingId ? "Chỉnh sửa địa chỉ" : "Thêm địa chỉ mới"}
                   </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <label className="flex flex-col gap-1">
-                      <span className="text-sm font-medium text-text-light dark:text-text-dark">Họ và tên *</span>
-                      <input name="fullName" className={inputClass} placeholder="Nguyễn Văn A" value={form.fullName} onChange={handleFormChange} />
-                    </label>
-                    <label className="flex flex-col gap-1">
-                      <span className="text-sm font-medium text-text-light dark:text-text-dark">Số điện thoại *</span>
-                      <input name="phone" className={inputClass} placeholder="0901234567" value={form.phone} onChange={handleFormChange} />
-                    </label>
-                    <label className="flex flex-col gap-1 md:col-span-2">
-                      <span className="text-sm font-medium text-text-light dark:text-text-dark">Địa chỉ đầy đủ *</span>
-                      <input name="address" className={inputClass} placeholder="Số nhà, tên đường, phường, quận, tỉnh/thành phố" value={form.address} onChange={handleFormChange} />
-                    </label>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    {/* Full Name */}
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-sm font-semibold text-text-light dark:text-text-dark">Full Name</label>
+                      <input name="fullName" className={inputClass} placeholder="Jane Doe" value={form.fullName} onChange={handleChange} />
+                    </div>
+                    {/* Phone */}
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-sm font-semibold text-text-light dark:text-text-dark">Phone Number</label>
+                      <input name="phone" className={inputClass} placeholder="0901 234 567" value={form.phone} onChange={handleChange} />
+                    </div>
+                    {/* Province / City */}
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-sm font-semibold text-text-light dark:text-text-dark">Province / City</label>
+                      <select name="city" className={selectClass} value={form.city} onChange={handleChange}>
+                        <option value="">Add a new Province / City</option>
+                        {PROVINCES.map(p => <option key={p} value={p}>{p}</option>)}
+                      </select>
+                    </div>
+                    {/* Ward / Commune */}
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-sm font-semibold text-text-light dark:text-text-dark">Ward / Commune</label>
+                      <select name="ward" className={selectClass} value={form.ward} onChange={handleChange}>
+                        <option value="">Add a new Ward / Commune</option>
+                        {WARDS.map(w => <option key={w} value={w}>{w}</option>)}
+                      </select>
+                    </div>
+                    {/* Specific Address */}
+                    <div className="flex flex-col gap-1.5 md:col-span-2">
+                      <label className="text-sm font-semibold text-text-light dark:text-text-dark">Specific Address</label>
+                      <input name="specificAddress" className={inputClass} placeholder="123 Storybook Street" value={form.specificAddress} onChange={handleChange} />
+                    </div>
                   </div>
-                  <div className="flex gap-3 mt-4">
-                    <button
-                      onClick={handleSubmit}
-                      disabled={isSaving}
-                      className="px-5 py-2.5 rounded-lg text-sm font-semibold text-white bg-primary hover:bg-primary/90 transition-colors disabled:opacity-60"
-                    >
+                  <div className="flex gap-3 mt-6">
+                    <button onClick={handleSubmit} disabled={isSaving} className="px-5 py-2.5 rounded-lg text-sm font-semibold text-white bg-primary hover:bg-primary/90 transition-colors disabled:opacity-60">
                       {isSaving ? "Đang lưu..." : editingId ? "Lưu thay đổi" : "Thêm địa chỉ"}
                     </button>
-                    <button
-                      onClick={() => setShowForm(false)}
-                      className="px-5 py-2.5 rounded-lg text-sm font-semibold border border-border-light dark:border-border-dark text-text-light dark:text-text-dark hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
-                    >
+                    <button onClick={() => setShowForm(false)} className="px-5 py-2.5 rounded-lg text-sm font-semibold border border-border-light dark:border-border-dark text-text-light dark:text-text-dark hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
                       Huỷ
                     </button>
                   </div>
@@ -221,15 +267,10 @@ const AddressManagement = () => {
 
               {/* Add New Address Button */}
               {!showForm && (
-                <div>
-                  <button
-                    onClick={openAddForm}
-                    className="flex w-full cursor-pointer items-center justify-center gap-2 overflow-hidden rounded-lg h-12 px-6 bg-primary text-white text-base font-bold leading-normal shadow-sm hover:bg-primary/90 transition-colors"
-                  >
-                    <span className="material-symbols-outlined">add</span>
-                    <span className="truncate">Thêm địa chỉ mới</span>
-                  </button>
-                </div>
+                <button onClick={openAddForm} className="flex w-full cursor-pointer items-center justify-center gap-2 overflow-hidden rounded-lg h-12 px-6 bg-primary text-white text-base font-bold leading-normal shadow-sm hover:bg-primary/90 transition-colors">
+                  <span className="material-symbols-outlined">add</span>
+                  <span className="truncate">Thêm địa chỉ mới</span>
+                </button>
               )}
             </div>
           </main>

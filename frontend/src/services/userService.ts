@@ -21,12 +21,12 @@ export const userService = {
     return response.data;
   },
 
-  createAddress: async (data: { fullName: string; phone: string; address: string; isDefault?: boolean }) => {
+  createAddress: async (data: { fullName: string; phone: string; city: string; ward?: string; specificAddress: string; isDefault?: boolean }) => {
     const response = await api.post("/users/addresses", data);
     return response.data;
   },
 
-  updateAddress: async (id: string, data: { fullName: string; phone: string; address: string }) => {
+  updateAddress: async (id: string, data: { fullName: string; phone: string; city: string; ward?: string; specificAddress: string }) => {
     const response = await api.put(`/users/addresses/${id}`, data);
     return response.data;
   },

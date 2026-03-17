@@ -4,7 +4,7 @@ const getAddresses = async (req, res) => {
   try {
     const userId = Number(req.user._id);
     const addresses = await query(
-      "SELECT id, full_name, phone, address, is_default, created_at FROM user_addresses WHERE user_id = ? ORDER BY is_default DESC, created_at DESC",
+      "SELECT id, full_name, phone, city, ward, specific_address, address, is_default, created_at FROM user_addresses WHERE user_id = ? ORDER BY is_default DESC, created_at DESC",
       [userId]
     );
     return res.status(200).json({
@@ -13,7 +13,9 @@ const getAddresses = async (req, res) => {
         _id: String(a.id),
         fullName: a.full_name,
         phone: a.phone,
-        address: a.address,
+        city: a.city || "",
+        ward: a.ward || "",
+        specificAddress: a.specific_address || a.address || "",
         isDefault: Boolean(a.is_default),
         createdAt: a.created_at,
       })),
@@ -26,24 +28,25 @@ const getAddresses = async (req, res) => {
 const createAddress = async (req, res) => {
   try {
     const userId = Number(req.user._id);
-    const { fullName, phone, address, isDefault } = req.body;
+    const { fullName, phone, city, ward, specificAddress, isDefault } = req.body;
 
-    if (!fullName || !phone || !address) {
+    if (!fullName || !phone || !city || !specificAddress) {
       return res.status(400).json({ message: "Vui lòng điền đầy đủ thông tin địa chỉ!" });
-    }
-
-    // If setting as default, clear all existing defaults
-    if (isDefault) {
-      await query("UPDATE user_addresses SET is_default = 0 WHERE user_id = ?", [userId]);
     }
 
     // If first address, force default
     const existingCount = await query("SELECT COUNT(*) AS count FROM user_addresses WHERE user_id = ?", [userId]);
     const forceDefault = existingCount[0].count === 0 ? 1 : (isDefault ? 1 : 0);
 
+    if (forceDefault || isDefault) {
+      await query("UPDATE user_addresses SET is_default = 0 WHERE user_id = ?", [userId]);
+    }
+
+    const fullAddress = [specificAddress, ward, city].filter(Boolean).join(", ");
+
     const result = await query(
-      "INSERT INTO user_addresses (user_id, full_name, phone, address, is_default) VALUES (?, ?, ?, ?, ?)",
-      [userId, fullName.trim(), phone.trim(), address.trim(), forceDefault]
+      "INSERT INTO user_addresses (user_id, full_name, phone, city, ward, specific_address, address, is_default) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+      [userId, fullName.trim(), phone.trim(), city.trim(), (ward || "").trim(), specificAddress.trim(), fullAddress, forceDefault]
     );
 
     return res.status(201).json({
@@ -52,7 +55,9 @@ const createAddress = async (req, res) => {
         _id: String(result.insertId),
         fullName: fullName.trim(),
         phone: phone.trim(),
-        address: address.trim(),
+        city: city.trim(),
+        ward: (ward || "").trim(),
+        specificAddress: specificAddress.trim(),
         isDefault: Boolean(forceDefault),
       },
     });
@@ -65,9 +70,9 @@ const updateAddress = async (req, res) => {
   try {
     const userId = Number(req.user._id);
     const addressId = Number(req.params.id);
-    const { fullName, phone, address } = req.body;
+    const { fullName, phone, city, ward, specificAddress } = req.body;
 
-    if (!fullName || !phone || !address) {
+    if (!fullName || !phone || !city || !specificAddress) {
       return res.status(400).json({ message: "Vui lòng điền đầy đủ thông tin địa chỉ!" });
     }
 
@@ -79,9 +84,11 @@ const updateAddress = async (req, res) => {
       return res.status(404).json({ message: "Không tìm thấy địa chỉ!" });
     }
 
+    const fullAddress = [specificAddress, ward, city].filter(Boolean).join(", ");
+
     await query(
-      "UPDATE user_addresses SET full_name = ?, phone = ?, address = ? WHERE id = ? AND user_id = ?",
-      [fullName.trim(), phone.trim(), address.trim(), addressId, userId]
+      "UPDATE user_addresses SET full_name = ?, phone = ?, city = ?, ward = ?, specific_address = ?, address = ? WHERE id = ? AND user_id = ?",
+      [fullName.trim(), phone.trim(), city.trim(), (ward || "").trim(), specificAddress.trim(), fullAddress, addressId, userId]
     );
 
     return res.status(200).json({ message: "Cập nhật địa chỉ thành công!" });
@@ -105,7 +112,6 @@ const deleteAddress = async (req, res) => {
 
     await query("DELETE FROM user_addresses WHERE id = ? AND user_id = ?", [addressId, userId]);
 
-    // If deleted was default, set next one as default
     if (existing[0].is_default) {
       const remaining = await query(
         "SELECT id FROM user_addresses WHERE user_id = ? ORDER BY created_at DESC LIMIT 1",
