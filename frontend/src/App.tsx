@@ -15,6 +15,7 @@ import LoginPage from "./pages/auth/LoginPage";
 import RegisterPage from "./pages/auth/RegisterPage";
 import ProfilePage from "./pages/user/ProfilePage";
 import OrderHistory from "./pages/user/OrderHistory";
+import OrderDetail from "./pages/user/OrderDetail";
 import AddressManagement from "./pages/user/AddressManagement";
 import ForgotPassWord from "./pages/auth/ForgotPassWord";
 import ResetPassword from "./pages/auth/ResetPassword";
@@ -76,6 +77,7 @@ const App = () => {
 
             <Route path="/account/profile" element={<ProfilePage />} />
             <Route path="/account/order-history" element={<OrderHistory />} />
+            <Route path="/account/order-history/:id" element={<OrderDetail />} />
             <Route
               path="/account/address-management"
               element={<AddressManagement />}

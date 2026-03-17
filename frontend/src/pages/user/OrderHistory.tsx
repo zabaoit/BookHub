@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router";
 import Footer from "../../components/Footer";
 import Header from "../../components/Header";
 import SideNavBarProfile from "../../components/SideNavBarProfile";
@@ -233,8 +234,10 @@ const OrderHistory = () => {
                           <td className="h-[72px] px-4 py-2 text-sm font-normal leading-normal">
                             {getStatusNode(order.status)}
                           </td>
-                          <td className="h-[72px] px-4 py-2 text-primary text-sm font-bold leading-normal tracking-[0.015em] hover:underline cursor-pointer">
-                            View Details
+                          <td className="h-[72px] px-4 py-2 text-sm font-bold leading-normal tracking-[0.015em] hover:underline cursor-pointer">
+                            <Link to={`/account/order-history/${order._id}`} className="text-primary">
+                              View Details
+                            </Link>
                           </td>
                         </tr>
                       ))
