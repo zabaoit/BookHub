@@ -10,6 +10,7 @@ import categoryRoute from "./src/routes/CategoryRoute.js";
 import cartRoute from "./src/routes/CartRoute.js";
 import orderRoute from "./src/routes/OrderRoute.js";
 import paymentRoute from "./src/routes/PaymentRoute.js";
+import userRoute from "./src/routes/UserRoute.js";
 dotenv.config({ path: "./.env" });
 
 const app = express();
@@ -38,6 +39,7 @@ app.use("/api/categories", categoryRoute);
 app.use("/api/cart", cartRoute);
 app.use("/api/orders", orderRoute);
 app.use("/api/payment", paymentRoute);
+app.use("/api/users", userRoute);
 
 const startServer = async () => {
   await connectDB();
