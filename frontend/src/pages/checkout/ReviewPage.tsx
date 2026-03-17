@@ -1,8 +1,18 @@
-import { Link } from "react-router";
+import { Link, Navigate } from "react-router";
 import Footer from "../../components/Footer";
 import Header from "../../components/Header";
+import { useCartStore } from "../../store/useCartStore";
 
 const ReviewPage = () => {
+  const { items, totalAmount, checkoutData } = useCartStore();
+  const shippingFee = 30000;
+
+  if (!checkoutData.shippingAddress) {
+    return <Navigate to="/checkout/shipping" replace />;
+  }
+
+  const { fullName, phoneNumber, specificAddress, wardCommune, provinceCity } = checkoutData.shippingAddress;
+  const fullAddressString = `${specificAddress}, ${wardCommune}, ${provinceCity}`;
   return (
     <div>
       <Header />
@@ -58,19 +68,19 @@ const ReviewPage = () => {
                       Full Name
                     </p>
                     <p className="text-text-light dark:text-text-dark text-sm font-medium">
-                      Jane Doe
+                      {fullName}
                     </p>
                     <p className="text-text-muted-light dark:text-text-muted-dark text-sm">
                       Phone
                     </p>
                     <p className="text-text-light dark:text-text-dark text-sm font-medium">
-                      (+1) 123-456-7890
+                      {phoneNumber}
                     </p>
                     <p className="text-text-muted-light dark:text-text-muted-dark text-sm">
                       Address
                     </p>
                     <p className="text-text-light dark:text-text-dark text-sm font-medium">
-                      123 Reading Lane, Booksville, BK 54321, USA
+                      {fullAddressString}
                     </p>
                     <p className="text-text-muted-light dark:text-text-muted-dark text-sm">
                       Method
@@ -101,15 +111,9 @@ const ReviewPage = () => {
                         account_balance_wallet
                       </span>
                       <p className="text-text-light dark:text-text-dark text-sm font-medium">
-                        Momo Payment
+                        {checkoutData.paymentMethod || "Not Selected"}
                       </p>
                     </div>
-                    <p className="text-text-muted-light dark:text-text-muted-dark text-sm">
-                      Details
-                    </p>
-                    <p className="text-text-light dark:text-text-dark text-sm font-medium">
-                      Phone: •••• •••• 1234
-                    </p>
                   </div>
                 </div>
               </div>
@@ -158,50 +162,30 @@ const ReviewPage = () => {
                     </div>
                   </div> */}
                     <div className="flex flex-col gap-4 max-h-56 overflow-y-auto pr-2">
-                      <div className="flex items-center gap-4">
-                        <img
-                          alt="The Midnight Library book cover"
-                          className="w-16 h-24 object-cover rounded"
-                          src="https://lh3.googleusercontent.com/aida-public/AB6AXuBS7lzuu0tmmlVGGNSCYTT4s-ArQKkJC_XbEdgUtCMzYZM2oR62NZQ0VvUwOgNvIg3BVhruTMB_vWnbDP7RCQ0YOhSUwcH18XKyo8qMDmZ3bDWsFMaCzFPObr9MPd-7fuC6ePzaVhAdZkRd746SuZ6LgMV3GhSVrKrEkXfOtFeZW8j41xPRm6aKwL5M7g6n9QvkzHA5DEtBY418LESX5-weWMwIx5yhy0y9oXPXoWT02ErWrXqDkwdErO28kmgDQKQyej736EXZ89eY"
-                        />
-                        <div className="flex-1">
-                          <p className="font-bold text-sm">
-                            The Midnight Library
-                          </p>
-                          <p className="text-sm text-muted-light dark:text-muted-dark">
-                            Qty: 1
-                          </p>
-                        </div>
-                        <p className="font-medium">$15.99</p>
-                      </div>
-                      <div className="flex items-center gap-4">
-                        <img
-                          alt="An open book with pages fanned out"
-                          className="w-16 h-24 object-cover rounded"
-                          src="https://lh3.googleusercontent.com/aida-public/AB6AXuDzO5yAEv4KMTJTBmJ3K5lqiUvHf8Jfj9FFWbJh129JFQRLXJxeOmvaMP5diOFB0Acogz_9jTRTpj4Lu16ar86PY0KBg8nM0uzDQxcZVw5RrQe3T16QNAa39Mgf6WiSif3pCBkkpSe5VoBncOtg7uLjEpnLruYZxBBsD7FOdyg_nfPPTDbkyW5BCEuch52LC3LIiQbUqnx6HBaQrrHk0PwS2OP2HICw_cUGd9spr7cEpIT_2sZiJwc4kQ-R9zbhLttmDonw0V-rePcR"
-                        />
-                        <div className="flex-1">
-                          <p className="font-bold text-sm">Dune</p>
-                          <p className="text-sm text-muted-light dark:text-muted-dark">
-                            Qty: 1
-                          </p>
-                        </div>
-                        <p className="font-medium">$12.50</p>
-                      </div>
-                      <div className="flex items-center gap-4">
-                        <img
-                          alt="An open book with pages fanned out"
-                          className="w-16 h-24 object-cover rounded"
-                          src="https://lh3.googleusercontent.com/aida-public/AB6AXuDzO5yAEv4KMTJTBmJ3K5lqiUvHf8Jfj9FFWbJh129JFQRLXJxeOmvaMP5diOFB0Acogz_9jTRTpj4Lu16ar86PY0KBg8nM0uzDQxcZVw5RrQe3T16QNAa39Mgf6WiSif3pCBkkpSe5VoBncOtg7uLjEpnLruYZxBBsD7FOdyg_nfPPTDbkyW5BCEuch52LC3LIiQbUqnx6HBaQrrHk0PwS2OP2HICw_cUGd9spr7cEpIT_2sZiJwc4kQ-R9zbhLttmDonw0V-rePcR"
-                        />
-                        <div className="flex-1">
-                          <p className="font-bold text-sm">Dune</p>
-                          <p className="text-sm text-muted-light dark:text-muted-dark">
-                            Qty: 1
-                          </p>
-                        </div>
-                        <p className="font-medium">$12.50</p>
-                      </div>
+                      {items.map((item) => {
+                        const title = item.book?.title || item.title || `Sách ID: ${item.book_id}`;
+                        const price = item.book?.price || item.price || 0;
+                        const imageUrl = item.book?.imageUrl || (item.book?.images && item.book?.images[0]?.url) || item.imageUrl || "/placeholder.jpg";
+                        
+                        return (
+                          <div key={item.book_id} className="flex items-center gap-4">
+                            <img
+                              alt={title}
+                              className="w-16 h-24 object-cover rounded"
+                              src={imageUrl}
+                            />
+                            <div className="flex-1">
+                              <p className="font-bold text-sm line-clamp-2">
+                                {title}
+                              </p>
+                              <p className="text-sm text-muted-light dark:text-muted-dark">
+                                Qty: {item.quantity}
+                              </p>
+                            </div>
+                            <p className="font-medium">{(price * item.quantity).toLocaleString("vi-VN")}đ</p>
+                          </div>
+                        );
+                      })}
                     </div>
                     {/*  */}
                     <div className="flex flex-col gap-3 pt-4 border-t border-border-light dark:border-border-dark">
@@ -210,7 +194,7 @@ const ReviewPage = () => {
                           Books Subtotal
                         </p>
                         <p className="text-text-light dark:text-text-dark">
-                          $34.49
+                          {totalAmount.toLocaleString("vi-VN")}đ
                         </p>
                       </div>
                       <div className="flex justify-between text-sm">
@@ -218,7 +202,7 @@ const ReviewPage = () => {
                           Shipping
                         </p>
                         <p className="text-text-light dark:text-text-dark">
-                          $5.00
+                          {shippingFee.toLocaleString("vi-VN")}đ
                         </p>
                       </div>
                       {/* Discount */}
@@ -228,7 +212,7 @@ const ReviewPage = () => {
                       </div> */}
                       <div className="flex justify-between text-lg font-bold pt-2 border-t border-border-light dark:border-border-dark mt-2 text-text-light dark:text-text-dark">
                         <p>TOTAL</p>
-                        <p>$37.45</p>
+                        <p>{(totalAmount + shippingFee).toLocaleString("vi-VN")}đ</p>
                       </div>
                     </div>
                     <div className="flex flex-col mt-2 space-y-3">

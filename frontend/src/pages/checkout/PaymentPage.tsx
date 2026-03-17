@@ -1,8 +1,13 @@
+import { useState } from "react";
 import { Link } from "react-router";
 import Footer from "../../components/Footer";
 import Header from "../../components/Header";
+import { useCartStore } from "../../store/useCartStore";
 
 const PaymentPage = () => {
+  const { items, totalAmount, setCheckoutData } = useCartStore();
+  const [paymentMethod, setPaymentMethod] = useState("VNPAY");
+  const shippingFee = 30000;
   return (
     <div>
       <Header />
@@ -61,6 +66,9 @@ const PaymentPage = () => {
                           className="h-5 w-5 border-2 border-border-light dark:border-border-dark bg-transparent text-transparent checked:border-primary checked:bg-[image:--radio-dot-svg] focus:outline-none focus:ring-2 focus:ring-primary/50 focus:ring-offset-2 focus:ring-offset-card-light dark:focus:ring-offset-card-dark"
                           name="payment-method"
                           type="radio"
+                          value="Momo"
+                          checked={paymentMethod === "Momo"}
+                          onChange={(e) => setPaymentMethod(e.target.value)}
                         />
                         <p className="text-text-light dark:text-text-dark text-sm font-medium leading-normal flex-grow">
                           Momo
@@ -71,6 +79,9 @@ const PaymentPage = () => {
                           className="h-5 w-5 border-2 border-border-light dark:border-border-dark bg-transparent text-transparent checked:border-primary checked:bg-[image:--radio-dot-svg] focus:outline-none focus:ring-2 focus:ring-primary/50 focus:ring-offset-2 focus:ring-offset-card-light dark:focus:ring-offset-card-dark"
                           name="payment-method"
                           type="radio"
+                          value="VNPAY"
+                          checked={paymentMethod === "VNPAY"}
+                          onChange={(e) => setPaymentMethod(e.target.value)}
                         />
                         <p className="text-text-light dark:text-text-dark text-sm font-medium leading-normal flex-grow">
                           VNPAY
@@ -82,6 +93,9 @@ const PaymentPage = () => {
                           className="h-5 w-5 border-2 border-border-light dark:border-border-dark bg-transparent text-transparent checked:border-primary checked:bg-[image:--radio-dot-svg] focus:outline-none focus:ring-2 focus:ring-primary/50 focus:ring-offset-2 focus:ring-offset-card-light dark:focus:ring-offset-card-dark"
                           name="payment-method"
                           type="radio"
+                          value="COD"
+                          checked={paymentMethod === "COD"}
+                          onChange={(e) => setPaymentMethod(e.target.value)}
                         />
                         <p className="text-text-light dark:text-text-dark text-sm font-medium leading-normal flex-grow">
                           Cash on Delivery (COD)
@@ -121,24 +135,27 @@ const PaymentPage = () => {
                         <span className="text-text-light/80 dark:text-text-dark/80">
                           Subtotal
                         </span>
-                        <span className="font-medium">$124.50</span>
+                        <span className="font-medium">{totalAmount.toLocaleString("vi-VN")}đ</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-text-light/80 dark:text-text-dark/80">
                           Shipping
                         </span>
-                        <span className="font-medium">$5.00</span>
+                        <span className="font-medium">{shippingFee.toLocaleString("vi-VN")}đ</span>
                       </div>
                     </div>
                     <div className="mt-6 pt-4 border-t border-border-light dark:border-border-dark">
                       <div className="flex justify-between items-baseline font-bold">
                         <span className="text-lg">Total</span>
-                        <span className="text-2xl text-primary">$139.88</span>
+                        <span className="text-2xl text-primary">{(totalAmount + shippingFee).toLocaleString("vi-VN")}đ</span>
                       </div>
                     </div>
                     <div className="mt-8">
                       <Link
                         to="/checkout/review"
+                        onClick={() => {
+                          setCheckoutData({ paymentMethod });
+                        }}
                         className="w-full flex items-center justify-center bg-primary text-white font-bold py-3 px-4 rounded-lg hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:ring-offset-2 focus:ring-offset-card-light dark:focus:ring-offset-card-dark transition-colors text-base"
                       >
                         Next: Review &amp; Pay

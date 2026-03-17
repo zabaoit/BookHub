@@ -4,13 +4,27 @@ import { cartService } from "../services/cartService";
 import { toast } from "sonner";
 import useAuthStore from "./useAuthStore";
 
+export interface CheckoutData {
+  shippingAddress: {
+    fullName: string;
+    phoneNumber: string;
+    provinceCity: string;
+    wardCommune: string;
+    specificAddress: string;
+  } | null;
+  paymentMethod: string | null;
+}
+
 interface CartState {
   items: CartItem[];
   totalAmount: number;
   isLoading: boolean;
   isOpen: boolean;
+  checkoutData: CheckoutData;
   
   // Actions
+  setCheckoutData: (data: Partial<CheckoutData>) => void;
+  clearCheckoutData: () => void;
   fetchCart: () => Promise<void>;
   addToCart: (bookId: number | string, quantity?: number) => Promise<void>;
   updateQuantity: (bookId: number | string, quantity: number) => Promise<void>;
@@ -39,6 +53,18 @@ export const useCartStore = create<CartState>((set, get) => ({
   totalAmount: 0,
   isLoading: false,
   isOpen: false,
+  checkoutData: {
+    shippingAddress: null,
+    paymentMethod: null,
+  },
+
+  setCheckoutData: (data) => 
+    set((state) => ({ 
+      checkoutData: { ...state.checkoutData, ...data } 
+    })),
+
+  clearCheckoutData: () => 
+    set({ checkoutData: { shippingAddress: null, paymentMethod: null } }),
 
   setIsOpen: (isOpen) => set({ isOpen }),
   toggleCart: () => set((state) => ({ isOpen: !state.isOpen })),

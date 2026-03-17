@@ -5,7 +5,7 @@ import Header from "../../components/Header";
 import { useCartStore } from "../../store/useCartStore";
 
 const ShippingAddressPage = () => {
-  const { items, totalAmount } = useCartStore();
+  const { items, totalAmount, setCheckoutData } = useCartStore();
   const shippingFee = 30000;
 
   const [formData, setFormData] = useState({
@@ -233,6 +233,16 @@ const ShippingAddressPage = () => {
                     onClick={(e) => {
                       if (!isFormValid) {
                         e.preventDefault();
+                      } else {
+                        setCheckoutData({
+                           shippingAddress: {
+                             fullName: formData.fullName,
+                             phoneNumber: formData.phoneNumber,
+                             provinceCity: formData.provinceCity,
+                             wardCommune: formData.wardCommune,
+                             specificAddress: formData.specificAddress
+                           }
+                        });
                       }
                     }}
                     className={`w-full flex items-center justify-center rounded-lg h-12 px-6 text-base font-bold focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 dark:focus:ring-offset-background-dark transition-colors ${
