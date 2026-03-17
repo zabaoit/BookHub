@@ -31,7 +31,7 @@ const ReviewPage = () => {
       });
 
       const orderData = orderResponse.data;
-      const orderId = orderData.id;
+      const orderId = Number(orderData._id);
       const totalPayAmount = totalAmount + shippingFee;
 
       // 2. Clear Cart eagerly if COD, otherwise we clear it too (assuming they'll leave the page)
