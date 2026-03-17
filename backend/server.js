@@ -28,8 +28,6 @@ app.use(
 app.use(express.json());
 app.use(cookieParser());
 
-connectDB();
-
 // public routes
 app.use("/api/auth", authRoute);
 
@@ -41,6 +39,12 @@ app.use("/api/cart", cartRoute);
 app.use("/api/orders", orderRoute);
 app.use("/api/payment", paymentRoute);
 
-app.listen(PORT, () => {
-  console.log(`Server started on port ${PORT}`);
-});
+const startServer = async () => {
+  await connectDB();
+
+  app.listen(PORT, () => {
+    console.log(`Server started on port ${PORT}`);
+  });
+};
+
+startServer();

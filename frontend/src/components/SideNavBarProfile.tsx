@@ -1,9 +1,11 @@
-import { Link, useNavigate } from "react-router";
+import { Link, useLocation, useNavigate } from "react-router";
 import useAuthStore from "../store/useAuthStore";
 
 const SideNavBarProfile = () => {
   const { user, logout } = useAuthStore();
   const navigate = useNavigate();
+  const location = useLocation();
+
   const handleLogout = async () => {
     try {
       await logout();
@@ -12,6 +14,9 @@ const SideNavBarProfile = () => {
       console.log(error);
     }
   };
+
+  const isActive = (path: string) => location.pathname === path;
+
   return (
     <div className="bg-background">
       <aside className="w-64 flex-shrink-0 p-6  hidden md:block  ">
@@ -36,36 +41,49 @@ const SideNavBarProfile = () => {
           </div>
           <nav className="flex flex-col gap-2">
             <Link
-              className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-primary/10 dark:hover:bg-primary/20 transition-colors"
+              className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${
+                isActive("/account/profile")
+                  ? "bg-primary/20 dark:bg-primary/30"
+                  : "hover:bg-primary/10 dark:hover:bg-primary/20"
+              }`}
               to="/account/profile"
             >
-              <span className="material-symbols-outlined text-text-muted-light dark:text-text-muted-dark">
+              <span className={`material-symbols-outlined ${isActive("/account/profile") ? "fill text-primary" : "text-text-muted-light dark:text-text-muted-dark"}`}>
                 person
               </span>
-              <p className="text-text-light dark:text-text-dark text-sm font-medium leading-normal">
+              <p className={`text-sm leading-normal ${isActive("/account/profile") ? "text-primary font-bold" : "text-text-light dark:text-text-dark font-medium"}`}>
                 Profile
               </p>
             </Link>
 
             <Link
-              className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-primary/10 dark:hover:bg-primary/20 transition-colors"
+              className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${
+                isActive("/account/address-management")
+                  ? "bg-primary/20 dark:bg-primary/30"
+                  : "hover:bg-primary/10 dark:hover:bg-primary/20"
+              }`}
               to="/account/address-management"
             >
-              <span className="material-symbols-outlined text-text-muted-light dark:text-text-muted-dark">
+              <span className={`material-symbols-outlined ${isActive("/account/address-management") ? "fill text-primary" : "text-text-muted-light dark:text-text-muted-dark"}`}>
                 home_pin
               </span>
-              <p className="text-text-light dark:text-text-dark text-sm font-medium leading-normal">
+              <p className={`text-sm leading-normal ${isActive("/account/address-management") ? "text-primary font-bold" : "text-text-light dark:text-text-dark font-medium"}`}>
                 Addresses
               </p>
             </Link>
+
             <Link
-              className="flex items-center gap-3 px-3 py-2 rounded-lg bg-primary/20 dark:bg-primary/30"
+              className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${
+                isActive("/account/order-history")
+                  ? "bg-primary/20 dark:bg-primary/30"
+                  : "hover:bg-primary/10 dark:hover:bg-primary/20"
+              }`}
               to="/account/order-history"
             >
-              <span className="material-symbols-outlined fill text-primary">
+              <span className={`material-symbols-outlined ${isActive("/account/order-history") ? "fill text-primary" : "text-text-muted-light dark:text-text-muted-dark"}`}>
                 receipt_long
               </span>
-              <p className="text-primary text-sm font-bold leading-normal">
+              <p className={`text-sm leading-normal ${isActive("/account/order-history") ? "text-primary font-bold" : "text-text-light dark:text-text-dark font-medium"}`}>
                 Order History
               </p>
             </Link>

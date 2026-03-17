@@ -1,8 +1,11 @@
 import { Link } from "react-router";
 import Footer from "../../components/Footer";
 import Header from "../../components/Header";
+import { useCartStore } from "../../store/useCartStore";
 
 const InfomationPage = () => {
+  const { items, updateQuantity, totalAmount } = useCartStore();
+
   return (
     <div>
       <Header />
@@ -47,216 +50,64 @@ const InfomationPage = () => {
                 </h2>
 
                 <div className="mt-6 flex flex-col divide-y divide-border-light dark:divide-border-dark">
-                  {/* <!-- ListItem 1 --> */}
-                  <div className="flex flex-col sm:flex-row gap-4 py-6">
-                    <div className="flex items-start gap-4 flex-grow">
-                      <div
-                        className="bg-center bg-no-repeat aspect-[2/3] bg-cover rounded h-32 w-auto flex-shrink-0"
-                        data-alt="Book cover for The Midnight Library"
-                        style={{
-                          backgroundImage:
-                            'url("https://lh3.googleusercontent.com/aida-public/AB6AXuCjNgLMkbawY0SIfD6oeVZjti-c61DK_u_GygA5f_xte1UPmU8x_dkaUXfzhSySVUO3sPrhgdNQ5Ff0xE98uJbkO-3hhaaykyYJdhBqDFLGOaCWaY0RgVHMwMdf-ZMzuhVFmk4wYmpMLlWl1FmeJEiLoksqSQuYKAp4IKeetkqd1VdAV3owxy7rvFAXmpaLzLGdNDj2F8MBKYUZ6yi3evCAzxsesd_jmk8h9xGTI9kOGNEUsvH0NK3XOTNC_FV84nFLuOHlIfAyYz0")',
-                        }}
-                      ></div>
-                      <div className="flex flex-1 flex-col justify-center">
-                        <p className="text-text-light dark:text-text-dark text-base font-bold leading-normal font-display">
-                          The Midnight Library
-                        </p>
-                        <p className="text-secondary-text-light dark:text-secondary-text-dark text-sm font-normal leading-normal mt-1">
-                          Matt Haig
-                        </p>
-                        <p className="text-primary text-sm font-medium leading-normal mt-2">
-                          $26.00
-                        </p>
-                      </div>
-                    </div>
-                    <div className="shrink-0 flex items-center justify-between sm:justify-center sm:flex-col sm:items-end gap-2">
-                      <div className="flex items-center gap-2 text-text-light dark:text-text-dark">
-                        <button className="text-base font-medium leading-normal flex h-7 w-7 items-center justify-center rounded-full bg-background-light dark:bg-background-dark cursor-pointer hover:bg-primary/20 transition-colors">
-                          -
-                        </button>
-                        <input
-                          className="text-base font-medium leading-normal w-6 p-0 text-center bg-transparent focus:outline-0 focus:ring-0 focus:border-none border-none [appearance:textfield] [&amp;::-webkit-inner-spin-button]:appearance-none [&amp;::-webkit-outer-spin-button]:appearance-none"
-                          type="number"
-                          value="1"
-                        />
-                        <button className="text-base font-medium leading-normal flex h-7 w-7 items-center justify-center rounded-full bg-background-light dark:bg-background-dark cursor-pointer hover:bg-primary/20 transition-colors">
-                          +
-                        </button>
-                      </div>
-                      <p className="text-text-light dark:text-text-dark text-base font-bold sm:hidden">
-                        $26.00
-                      </p>
-                    </div>
-                  </div>
-                  {/* <!-- ListItem 1 --> */}
-                  <div className="flex flex-col sm:flex-row gap-4 py-6">
-                    <div className="flex items-start gap-4 flex-grow">
-                      <div
-                        className="bg-center bg-no-repeat aspect-[2/3] bg-cover rounded h-32 w-auto flex-shrink-0"
-                        data-alt="Book cover for The Midnight Library"
-                        style={{
-                          backgroundImage:
-                            'url("https://lh3.googleusercontent.com/aida-public/AB6AXuCjNgLMkbawY0SIfD6oeVZjti-c61DK_u_GygA5f_xte1UPmU8x_dkaUXfzhSySVUO3sPrhgdNQ5Ff0xE98uJbkO-3hhaaykyYJdhBqDFLGOaCWaY0RgVHMwMdf-ZMzuhVFmk4wYmpMLlWl1FmeJEiLoksqSQuYKAp4IKeetkqd1VdAV3owxy7rvFAXmpaLzLGdNDj2F8MBKYUZ6yi3evCAzxsesd_jmk8h9xGTI9kOGNEUsvH0NK3XOTNC_FV84nFLuOHlIfAyYz0")',
-                        }}
-                      ></div>
-                      <div className="flex flex-1 flex-col justify-center">
-                        <p className="text-text-light dark:text-text-dark text-base font-bold leading-normal font-display">
-                          The Midnight Library
-                        </p>
-                        <p className="text-secondary-text-light dark:text-secondary-text-dark text-sm font-normal leading-normal mt-1">
-                          Matt Haig
-                        </p>
-                        <p className="text-primary text-sm font-medium leading-normal mt-2">
-                          $26.00
-                        </p>
-                      </div>
-                    </div>
-                    <div className="shrink-0 flex items-center justify-between sm:justify-center sm:flex-col sm:items-end gap-2">
-                      <div className="flex items-center gap-2 text-text-light dark:text-text-dark">
-                        <button className="text-base font-medium leading-normal flex h-7 w-7 items-center justify-center rounded-full bg-background-light dark:bg-background-dark cursor-pointer hover:bg-primary/20 transition-colors">
-                          -
-                        </button>
-                        <input
-                          className="text-base font-medium leading-normal w-6 p-0 text-center bg-transparent focus:outline-0 focus:ring-0 focus:border-none border-none [appearance:textfield] [&amp;::-webkit-inner-spin-button]:appearance-none [&amp;::-webkit-outer-spin-button]:appearance-none"
-                          type="number"
-                          value="1"
-                        />
-                        <button className="text-base font-medium leading-normal flex h-7 w-7 items-center justify-center rounded-full bg-background-light dark:bg-background-dark cursor-pointer hover:bg-primary/20 transition-colors">
-                          +
-                        </button>
-                      </div>
-                      <p className="text-text-light dark:text-text-dark text-base font-bold sm:hidden">
-                        $26.00
-                      </p>
-                    </div>
-                  </div>
-                  {/* <!-- ListItem 1 --> */}
-                  <div className="flex flex-col sm:flex-row gap-4 py-6">
-                    <div className="flex items-start gap-4 flex-grow">
-                      <div
-                        className="bg-center bg-no-repeat aspect-[2/3] bg-cover rounded h-32 w-auto flex-shrink-0"
-                        data-alt="Book cover for The Midnight Library"
-                        style={{
-                          backgroundImage:
-                            'url("https://lh3.googleusercontent.com/aida-public/AB6AXuCjNgLMkbawY0SIfD6oeVZjti-c61DK_u_GygA5f_xte1UPmU8x_dkaUXfzhSySVUO3sPrhgdNQ5Ff0xE98uJbkO-3hhaaykyYJdhBqDFLGOaCWaY0RgVHMwMdf-ZMzuhVFmk4wYmpMLlWl1FmeJEiLoksqSQuYKAp4IKeetkqd1VdAV3owxy7rvFAXmpaLzLGdNDj2F8MBKYUZ6yi3evCAzxsesd_jmk8h9xGTI9kOGNEUsvH0NK3XOTNC_FV84nFLuOHlIfAyYz0")',
-                        }}
-                      ></div>
-                      <div className="flex flex-1 flex-col justify-center">
-                        <p className="text-text-light dark:text-text-dark text-base font-bold leading-normal font-display">
-                          The Midnight Library
-                        </p>
-                        <p className="text-secondary-text-light dark:text-secondary-text-dark text-sm font-normal leading-normal mt-1">
-                          Matt Haig
-                        </p>
-                        <p className="text-primary text-sm font-medium leading-normal mt-2">
-                          $26.00
-                        </p>
-                      </div>
-                    </div>
-                    <div className="shrink-0 flex items-center justify-between sm:justify-center sm:flex-col sm:items-end gap-2">
-                      <div className="flex items-center gap-2 text-text-light dark:text-text-dark">
-                        <button className="text-base font-medium leading-normal flex h-7 w-7 items-center justify-center rounded-full bg-background-light dark:bg-background-dark cursor-pointer hover:bg-primary/20 transition-colors">
-                          -
-                        </button>
-                        <input
-                          className="text-base font-medium leading-normal w-6 p-0 text-center bg-transparent focus:outline-0 focus:ring-0 focus:border-none border-none [appearance:textfield] [&amp;::-webkit-inner-spin-button]:appearance-none [&amp;::-webkit-outer-spin-button]:appearance-none"
-                          type="number"
-                          value="1"
-                        />
-                        <button className="text-base font-medium leading-normal flex h-7 w-7 items-center justify-center rounded-full bg-background-light dark:bg-background-dark cursor-pointer hover:bg-primary/20 transition-colors">
-                          +
-                        </button>
-                      </div>
-                      <p className="text-text-light dark:text-text-dark text-base font-bold sm:hidden">
-                        $26.00
-                      </p>
-                    </div>
-                  </div>
-                  {/* <!-- ListItem 1 --> */}
-                  <div className="flex flex-col sm:flex-row gap-4 py-6">
-                    <div className="flex items-start gap-4 flex-grow">
-                      <div
-                        className="bg-center bg-no-repeat aspect-[2/3] bg-cover rounded h-32 w-auto flex-shrink-0"
-                        data-alt="Book cover for The Midnight Library"
-                        style={{
-                          backgroundImage:
-                            'url("https://lh3.googleusercontent.com/aida-public/AB6AXuCjNgLMkbawY0SIfD6oeVZjti-c61DK_u_GygA5f_xte1UPmU8x_dkaUXfzhSySVUO3sPrhgdNQ5Ff0xE98uJbkO-3hhaaykyYJdhBqDFLGOaCWaY0RgVHMwMdf-ZMzuhVFmk4wYmpMLlWl1FmeJEiLoksqSQuYKAp4IKeetkqd1VdAV3owxy7rvFAXmpaLzLGdNDj2F8MBKYUZ6yi3evCAzxsesd_jmk8h9xGTI9kOGNEUsvH0NK3XOTNC_FV84nFLuOHlIfAyYz0")',
-                        }}
-                      ></div>
-                      <div className="flex flex-1 flex-col justify-center">
-                        <p className="text-text-light dark:text-text-dark text-base font-bold leading-normal font-display">
-                          The Midnight Library
-                        </p>
-                        <p className="text-secondary-text-light dark:text-secondary-text-dark text-sm font-normal leading-normal mt-1">
-                          Matt Haig
-                        </p>
-                        <p className="text-primary text-sm font-medium leading-normal mt-2">
-                          $26.00
-                        </p>
-                      </div>
-                    </div>
-                    <div className="shrink-0 flex items-center justify-between sm:justify-center sm:flex-col sm:items-end gap-2">
-                      <div className="flex items-center gap-2 text-text-light dark:text-text-dark">
-                        <button className="text-base font-medium leading-normal flex h-7 w-7 items-center justify-center rounded-full bg-background-light dark:bg-background-dark cursor-pointer hover:bg-primary/20 transition-colors">
-                          -
-                        </button>
-                        <input
-                          className="text-base font-medium leading-normal w-6 p-0 text-center bg-transparent focus:outline-0 focus:ring-0 focus:border-none border-none [appearance:textfield] [&amp;::-webkit-inner-spin-button]:appearance-none [&amp;::-webkit-outer-spin-button]:appearance-none"
-                          type="number"
-                          value="1"
-                        />
-                        <button className="text-base font-medium leading-normal flex h-7 w-7 items-center justify-center rounded-full bg-background-light dark:bg-background-dark cursor-pointer hover:bg-primary/20 transition-colors">
-                          +
-                        </button>
-                      </div>
-                      <p className="text-text-light dark:text-text-dark text-base font-bold sm:hidden">
-                        $26.00
-                      </p>
-                    </div>
-                  </div>
-                  {/* <!-- ListItem 2 --> */}
-                  <div className="flex flex-col sm:flex-row gap-4 py-6">
-                    <div className="flex items-start gap-4 flex-grow">
-                      <div
-                        className="bg-center bg-no-repeat aspect-[2/3] bg-cover rounded h-32 w-auto flex-shrink-0"
-                        data-alt="Book cover for Project Hail Mary"
-                        style={{
-                          backgroundImage:
-                            'url("https://lh3.googleusercontent.com/aida-public/AB6AXuBtKj-O7dV2Ol6W7P-G4PR0c187KMDfW39uk6XdUB-Wgw1l5AlTzSUkjvwwcn6wVutbfyB6OJZoYkuAAwYliaph3wVKGZZ4Ur8lLeiUjvqcME72gtoPAy1mDhiWW_WdxgByUEzz7Hj0u1AfPOC0vGTEkNO8D-749iOjTT1Y0pYZN5u1w3dvOoZLZkQrA0PQlJLl3Ftk02HDwf4-_m38VCh37Z-JRVCphxEWi6WO8YFbCtG2MnSSyzHPoqmtlwgfbj_ASeoAaCP9eC8")',
-                        }}
-                      ></div>
-                      <div className="flex flex-1 flex-col justify-center">
-                        <p className="text-text-light dark:text-text-dark text-base font-bold leading-normal font-display">
-                          Project Hail Mary
-                        </p>
-                        <p className="text-secondary-text-light dark:text-secondary-text-dark text-sm font-normal leading-normal mt-1">
-                          Andy Weir
-                        </p>
-                        <p className="text-primary text-sm font-medium leading-normal mt-2">
-                          $17.99
-                        </p>
-                      </div>
-                    </div>
-                    <div className="shrink-0 flex items-center justify-between sm:justify-center sm:flex-col sm:items-end gap-2">
-                      <div className="flex items-center gap-2 text-text-light dark:text-text-dark">
-                        <button className="text-base font-medium leading-normal flex h-7 w-7 items-center justify-center rounded-full bg-background-light dark:bg-background-dark cursor-pointer hover:bg-primary/20 transition-colors">
-                          -
-                        </button>
-                        <input
-                          className="text-base font-medium leading-normal w-6 p-0 text-center bg-transparent focus:outline-0 focus:ring-0 focus:border-none border-none [appearance:textfield] [&amp;::-webkit-inner-spin-button]:appearance-none [&amp;::-webkit-outer-spin-button]:appearance-none"
-                          type="number"
-                          value="1"
-                        />
-                        <button className="text-base font-medium leading-normal flex h-7 w-7 items-center justify-center rounded-full bg-background-light dark:bg-background-dark cursor-pointer hover:bg-primary/20 transition-colors">
-                          +
-                        </button>
-                      </div>
-                      <p className="text-text-light dark:text-text-dark text-base font-bold sm:hidden">
-                        $17.99
-                      </p>
-                    </div>
-                  </div>
+                  {items.length === 0 ? (
+                    <div className="py-8 text-center text-gray-500">Giỏ hàng của bạn đang trống.</div>
+                  ) : (
+                    items.map((item) => {
+                      const title = item.book?.title || item.title || `Sách ID: ${item.book_id}`;
+                      const authorName = item.book?.author && Array.isArray(item.book.author) 
+                        ? item.book.author.map((a: any) => typeof a === 'string' ? a : a.name).join(', ') 
+                        : "Unknown Author";
+                      const price = item.book?.price || item.price || 0;
+                      const imageUrl = item.book?.imageUrl || (item.book?.images && item.book?.images[0]?.url) || item.imageUrl || "/placeholder.jpg";
+                      
+                      return (
+                        <div key={item.book_id} className="flex flex-col sm:flex-row gap-4 py-6">
+                          <div className="flex items-start gap-4 flex-grow">
+                            <div
+                              className="bg-center bg-no-repeat aspect-[2/3] bg-cover rounded h-32 w-auto flex-shrink-0"
+                              style={{
+                                backgroundImage: `url("${imageUrl}")`,
+                              }}
+                            ></div>
+                            <div className="flex flex-1 flex-col justify-center">
+                              <p className="text-text-light dark:text-text-dark text-base font-bold leading-normal font-display line-clamp-2">
+                                {title}
+                              </p>
+                              <p className="text-secondary-text-light dark:text-secondary-text-dark text-sm font-normal leading-normal mt-1 truncate">
+                                {authorName}
+                              </p>
+                              <p className="text-primary text-sm font-medium leading-normal mt-2">
+                                {price.toLocaleString("vi-VN")}đ
+                              </p>
+                            </div>
+                          </div>
+                          <div className="shrink-0 flex items-center justify-between sm:justify-center sm:flex-col sm:items-end gap-2">
+                            <div className="flex items-center gap-2 text-text-light dark:text-text-dark">
+                              <button 
+                                onClick={() => updateQuantity(item.book_id, Math.max(1, item.quantity - 1))}
+                                className="text-base font-medium leading-normal flex h-7 w-7 items-center justify-center rounded-full bg-background-light dark:bg-background-dark cursor-pointer hover:bg-primary/20 transition-colors"
+                              >
+                                -
+                              </button>
+                              <span className="text-base font-medium leading-normal w-6 p-0 text-center bg-transparent">
+                                {item.quantity}
+                              </span>
+                              <button 
+                                onClick={() => updateQuantity(item.book_id, item.quantity + 1)}
+                                className="text-base font-medium leading-normal flex h-7 w-7 items-center justify-center rounded-full bg-background-light dark:bg-background-dark cursor-pointer hover:bg-primary/20 transition-colors"
+                              >
+                                +
+                              </button>
+                            </div>
+                            <p className="text-text-light dark:text-text-dark text-base font-bold sm:hidden">
+                              {(price * item.quantity).toLocaleString("vi-VN")}đ
+                            </p>
+                          </div>
+                        </div>
+                      );
+                    })
+                  )}
                 </div>
               </div>
               {/* <!-- Right Column: Actions & Summary --> */}
@@ -282,7 +133,7 @@ const InfomationPage = () => {
                   <div className="bg-card-light dark:bg-card-dark rounded-xl shadow-sm p-6">
                     <div className="flex justify-between w-full max-w-xs  font-bold text-lg text-text-light dark:text-text-dark">
                       <p>Total:</p>
-                      <p>$43.99</p>
+                      <p>{totalAmount.toLocaleString('vi-VN')}đ</p>
                     </div>
                   </div>
                   {/* <!-- Primary Button --> */}

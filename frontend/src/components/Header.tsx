@@ -1,8 +1,17 @@
 import { Link } from "react-router";
+import { useEffect } from "react";
 import useAuthStore from "../store/useAuthStore";
+import { useCartStore } from "../store/useCartStore";
 
 const Header = () => {
   const { user } = useAuthStore();
+  const { items, fetchCart } = useCartStore();
+
+  useEffect(() => {
+    fetchCart();
+  }, [fetchCart]);
+
+  const cartItemCount = items.reduce((total, item) => total + (item.quantity || 1), 0);
 
   return (
     // <!-- TopNavBar -->
@@ -26,7 +35,7 @@ const Header = () => {
                 <input
                   className="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-foreground focus:outline-0 focus:ring-0 border-none bg-input focus:border-none h-full placeholder:text-muted-foreground px-4 rounded-l-none border-l-0 pl-2 text-base font-normal leading-normal font-body"
                   placeholder="Search"
-                  onChange={() => {}}
+                  onChange={() => { }}
                 />
               </div>
             </label>
@@ -47,25 +56,25 @@ const Header = () => {
               >
                 Book
               </Link>
+
               <Link
                 className="text-sm font-medium leading-normal hover:text-primary dark:hover:text-primary transition-colors"
-                to="#"
-              >
-                Categories
-              </Link>
-              <Link
-                className="text-sm font-medium leading-normal hover:text-primary dark:hover:text-primary transition-colors"
-                to="#"
+                to="/about"
               >
                 About
               </Link>
             </div>
             <div className="flex gap-2">
               <Link to="/cart">
-                <button className="flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 bg-secondary text-secondary-foreground hover:bg-secondary/80 gap-2 text-sm font-bold leading-normal tracking-[0.015em] min-w-0 px-2.5">
+                <button className="relative flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 bg-secondary text-secondary-foreground hover:bg-secondary/80 gap-2 text-sm font-bold leading-normal tracking-[0.015em] min-w-0 px-2.5">
                   <span className="material-symbols-outlined">
                     shopping_cart
                   </span>
+                  {cartItemCount > 0 && (
+                    <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[11px] font-bold text-white shadow-sm ring-2 ring-white dark:ring-gray-900 border-none">
+                      {cartItemCount > 99 ? '99+' : cartItemCount}
+                    </span>
+                  )}
                 </button>
               </Link>
 

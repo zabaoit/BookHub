@@ -4,12 +4,12 @@ import { protectedRoute, verifyAdmin } from "../middlewares/AuthMiddleWare.js";
 
 const router = express.Router();
 
-router.post("/", postAuthor);
 router.get("/", getAllAuthors);
+router.get("/:id", getAuthorById);
 
 router.use(protectedRoute, verifyAdmin);
 
-router.get("/:id", getAuthorById);
+router.post("/", postAuthor);
 router.put("/:id", updateAuthorById);
 router.delete("/:id", deleteAuthorById);
 export default router;

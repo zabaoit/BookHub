@@ -1,5 +1,5 @@
 import jwt from 'jsonwebtoken';
-import User from '../models/UserModel.js';
+import { query } from '../libs/db.js';
 
 // Middleware xác thực token
 const protectedRoute = async (req, res, next) => {
@@ -18,12 +18,22 @@ const protectedRoute = async (req, res, next) => {
             }
 
             // tim user
-            const user = await User.findById(decoded.userId).select('-hashedPassword');
+            const users = await query(
+                'SELECT id, username, email, role FROM users WHERE id = ? LIMIT 1',
+                [decoded.userId]
+            );
+            const user = users[0];
             if(!user){
                 return res.status(404).json({message: 'Người dùng không tồn tại'});
             }
 
-            req.user = user;
+            req.user = {
+                _id: String(user.id),
+                id: String(user.id),
+                username: user.username,
+                email: user.email,
+                role: user.role,
+            };
             next();
         });
     } catch (error) {

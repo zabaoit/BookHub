@@ -1,6 +1,72 @@
+import { useEffect, useState } from "react";
+import { useParams, Link } from "react-router";
 import Header from "../../components/Header";
+import { bookService } from "../../services/bookService";
+import type { Book } from "../../types/book";
 
 const BookDetailPage = () => {
+  const { id } = useParams<{ id: string }>();
+  const [book, setBook] = useState<Book | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [quantity, setQuantity] = useState(1);
+
+  useEffect(() => {
+    const fetchBook = async () => {
+      try {
+        if (!id) return;
+        setLoading(true);
+        const data = await bookService.fetchBookById(id);
+        setBook(data);
+      } catch (error) {
+        console.error("Failed to fetch book details", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchBook();
+  }, [id]);
+
+  if (loading) {
+    return (
+      <div>
+        <Header />
+        <main className="container mx-auto flex-1 p-4 flex items-center justify-center min-h-[50vh]">
+          <div className="w-8 h-8 rounded-full border-4 border-primary border-t-transparent animate-spin"></div>
+        </main>
+      </div>
+    );
+  }
+
+  if (!book) {
+    return (
+      <div>
+        <Header />
+        <main className="container mx-auto flex-1 p-4 flex flex-col items-center justify-center min-h-[50vh]">
+          <h2 className="text-2xl font-bold mb-4">Book not found</h2>
+          <Link to="/booklist" className="text-primary hover:underline">
+            Back to Book List
+          </Link>
+        </main>
+      </div>
+    );
+  }
+
+  const imageUrl =
+    book.imageUrl || (book.images && book.images[0]?.url) || "/placeholder.jpg";
+    
+  const authorName = Array.isArray(book.author)
+    ? book.author
+        .map((a: string | { _id: string; name: string }) =>
+          typeof a === "string" ? a : a.name
+        )
+        .join(", ")
+    : book.author || "Unknown Author";
+
+  const discountPercent = book.originalPrice
+    ? Math.round((1 - book.price / book.originalPrice) * 100)
+    : 0;
+
   return (
     <div>
       <Header />
@@ -9,63 +75,44 @@ const BookDetailPage = () => {
           {/* <!-- Breadcrumbs and Back Link --> */}
           <nav className="flex justify-between items-center">
             <div className="flex flex-wrap items-center gap-2 text-sm">
-              <a className="hover:text-primary" href="#">
+              <Link className="hover:text-primary" to="/">
                 Home
-              </a>
+              </Link>
               <span className="text-gray-400">/</span>
-              <a className="hover:text-primary" href="#">
-                Fiction
-              </a>
+              <Link className="hover:text-primary" to="/booklist">
+                Books
+              </Link>
               <span className="text-gray-400">/</span>
               <span className="font-medium text-text-light dark:text-text-dark">
-                The Midnight Library
+                {book.title}
               </span>
             </div>
-            <a
+            <Link
               className="flex items-center gap-1.5 text-sm font-medium text-primary hover:underline"
-              href="#"
+              to="/booklist"
             >
               <span className="material-symbols-outlined ">arrow_back</span>
               Back
-            </a>
+            </Link>
           </nav>
           {/* <!-- Book Details Section --> */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12">
             {/* <!-- Left Column: Image Gallery --> */}
             <div className="flex flex-col md:flex-row gap-4">
               <div className="flex md:flex-col gap-2 order-2 md:order-1">
+                {/* Thumbnails placeholder */}
                 <div
                   className="w-16 h-20 rounded-lg bg-center bg-no-repeat bg-cover cursor-pointer border-2 border-primary"
-                  data-alt="The Midnight Library book cover thumbnail"
                   style={{
-                    backgroundImage:
-                      "url('https://lh3.googleusercontent.com/aida-public/AB6AXuB0tMNlezPinrPg5RD4BVeqmuqDzQPamplkMg6CKv0QfyYHe0tn2edqH__vzrsYA9t-8SwWGFo-NAH3AzluU-zLSw3Ur-Fglf5TRWsvCI360uatryr-NfxOUQgdGyKgkUlN6nXjfzAb-sxkk2usbGAQIYV-YblFBIJvkHm1Kbd7duNS87UkQbz1qQWPVed0O7SXxcFpUbl9gSQEgyGilvZpold0CUGtm9SV7fb4oT7T_RZSDYHdIerjMxUwuFDBmFkU_PAeZWUHBVc')",
-                  }}
-                ></div>
-                <div
-                  className="w-16 h-20 rounded-lg bg-center bg-no-repeat bg-cover cursor-pointer border border-border-light dark:border-border-dark"
-                  data-alt="Book spine of The Midnight Library"
-                  style={{
-                    backgroundImage:
-                      "url('https://lh3.googleusercontent.com/aida-public/AB6AXuBM39lPkRba2QTgcvZtsRLBlOU4Sxvbn5Pft21gMYSz7cS7bmQr5b03JERPSPBLcPjaPFIPEeNyZbHJEopPd051L1ptlaDsb-7uJahoCYhRuQWAmA_f9RkmlOR6wb2qxcH6Dhc5dp-Jm4GJq-Cil3npeiZ6wCo0wtZDNhNVAbF8XCrf-rnp--PiOp_9AVz-T6b29v84XuNRVaHrQI7xkPQJXU1CNxVzMaXZ6M1aX3sSEmSnBhn9KH1vXJuKLFxt1ntE0NBQ5xqSJDA')",
-                  }}
-                ></div>
-                <div
-                  className="w-16 h-20 rounded-lg bg-center bg-no-repeat bg-cover cursor-pointer border border-border-light dark:border-border-dark"
-                  data-alt="Inside pages of a book"
-                  style={{
-                    backgroundImage:
-                      "url('https://lh3.googleusercontent.com/aida-public/AB6AXuBYa3rb-N363Moy3zBL-5HCkQmEdkWUYdRrg_EKisqPpA-OjDF20_R1DOknSfNpJbLdJ4z5XPJYibKTTCRbjRP15rJtS_T9D8mMolhbqOqnNePa1E_UsaacaBnmBwLfLtUXZr2cI1x-tr_TWPT1JVNpc1cEBuBRWiF3hIVfQC8TBHbOBMCIZBrj55qbmHC-SUZJdxvs6GC7_9HMPwnYReAxc9F3WR3RtkySCFEL_sWvosk-Tpkfc_-uKsOY7qLr3AyX5AK_ipJ8HsA')",
+                    backgroundImage: `url('${imageUrl}')`,
                   }}
                 ></div>
               </div>
               <div className="w-full flex-1 order-1 md:order-2">
                 <div
                   className="w-full h-auto aspect-[280/400] max-w-[280px] md:max-w-none mx-auto rounded-xl bg-center bg-no-repeat bg-cover"
-                  data-alt="Main book cover of The Midnight Library"
                   style={{
-                    backgroundImage:
-                      "url('https://lh3.googleusercontent.com/aida-public/AB6AXuB6sF0ZWuGr7sPJXuTefeaqoQplltn8HhupWbGvSdGeSrvh4qhverFH_FnmGimk0wd-oulDQgyzKDI_C2WyMusn50a-urHd27kMGVToSGaaePNiRS9CpwUzI8VXnIMcba23sZXND-TQHT0gfyNZOS0mBJolOtpqzKsFPIlCYvRypBlbQaySdE0sG4rx_dgFIi72HLfQVGPWZ67ny3_cP5r8_tGgPPgTyLRj_6xV9L6-e9Cll7xau2AaE9tDttY9sB2GrgjwdglOoKs')",
+                    backgroundImage: `url('${imageUrl}')`,
                   }}
                 ></div>
               </div>
@@ -74,91 +121,93 @@ const BookDetailPage = () => {
             <div className="flex flex-col gap-4">
               <div className="flex flex-col gap-2">
                 <h1 className="text-3xl lg:text-4xl font-black font-heading tracking-tight">
-                  The Midnight Library
+                  {book.title}
                 </h1>
                 <p className="text-lg text-gray-600 dark:text-gray-400">
-                  by Matt Haig
+                  by {authorName}
                 </p>
               </div>
               <div className="flex items-center gap-4">
-                <div className="flex items-center gap-1 text-amber-500">
-                  <span
-                    className="material-symbols-outlined"
-                    style={{ fontVariationSettings: "'FILL' 1" }}
-                  >
-                    star
-                  </span>
-                  <span
-                    className="material-symbols-outlined"
-                    style={{ fontVariationSettings: "'FILL' 1" }}
-                  >
-                    star
-                  </span>
-                  <span
-                    className="material-symbols-outlined"
-                    style={{ fontVariationSettings: "'FILL' 1" }}
-                  >
-                    star
-                  </span>
-                  <span
-                    className="material-symbols-outlined"
-                    style={{ fontVariationSettings: "'FILL' 1" }}
-                  >
-                    star
-                  </span>
-                  <span className="material-symbols-outlined">star_half</span>
+                <div className="flex items-center text-amber-500">
+                  {[...Array(5)].map((_, i) => (
+                    <span
+                      key={i}
+                      className="material-symbols-outlined"
+                      style={{ fontVariationSettings: i < Math.floor(book.rating || 0) ? "'FILL' 1" : "'FILL' 0" }}
+                    >
+                      star
+                    </span>
+                  ))}
                 </div>
                 <a
                   className="text-sm text-gray-500 hover:underline"
                   href="#reviews"
                 >
-                  (1,283 reviews)
+                  ({book.reviewCount || 0} reviews)
                 </a>
                 <span className="w-px h-4 bg-border-light dark:bg-border-dark"></span>
-                <div className="inline-flex items-center gap-2 rounded-full bg-success/10 px-3 py-1 text-sm font-medium text-success">
-                  <div className="size-2 rounded-full bg-success"></div>
-                  In Stock
+                <div className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-sm font-medium ${book.stock > 0 ? 'bg-success/10 text-success' : 'bg-error/10 text-error'}`}>
+                  <div className={`size-2 rounded-full ${book.stock > 0 ? 'bg-success' : 'bg-error'}`}></div>
+                  {book.stock > 0 ? 'In Stock' : 'Out of Stock'}
                 </div>
               </div>
               <div className="text-sm space-y-1 text-gray-600 dark:text-gray-400">
                 <p>
-                  <strong>Publisher:</strong> Viking
+                  <strong>Publisher:</strong> {book.publisher || "N/A"}
                 </p>
                 <p>
-                  <strong>Published:</strong> August 13, 2020
+                  <strong>ISBN:</strong> {book.isbn || "N/A"}
                 </p>
                 <p>
-                  <strong>ISBN:</strong> 978-0525559474
+                  <strong>Pages:</strong> {book.pages || "N/A"}
                 </p>
                 <p>
-                  <strong>Pages:</strong> 304
-                </p>
-                <p>
-                  <strong>Language:</strong> English
+                  <strong>Language:</strong> {book.language || "N/A"}
                 </p>
               </div>
               <div className="flex items-baseline gap-3 pt-4">
-                <p className="text-4xl font-bold text-error">$15.60</p>
-                <p className="text-xl text-gray-500 line-through">$26.00</p>
-                <div className="rounded bg-accent/50 px-2 py-0.5 text-sm font-bold text-primary">
-                  -40%
-                </div>
+                <p className="text-4xl font-bold text-error">{book.price?.toLocaleString("vi-VN")}đ</p>
+                {book.originalPrice && book.originalPrice > book.price && (
+                  <p className="text-xl text-gray-500 line-through">{book.originalPrice.toLocaleString("vi-VN")}đ</p>
+                )}
+                {discountPercent > 0 && (
+                  <div className="rounded bg-accent/50 px-2 py-0.5 text-sm font-bold text-primary">
+                    -{discountPercent}%
+                  </div>
+                )}
               </div>
               <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 pt-4 border-t border-border-light dark:border-border-dark">
                 <div className="flex items-center border border-border-light dark:border-border-dark rounded-lg">
-                  <button className="p-2 h-12 w-12 flex items-center justify-center text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-l-lg">
+                  <button 
+                    className="p-2 h-12 w-12 flex items-center justify-center text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-l-lg"
+                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                  >
                     <span className="material-symbols-outlined">remove</span>
                   </button>
                   <input
                     className="w-12 h-12 text-center border-y-0 border-x border-border-light dark:border-border-dark bg-transparent focus:ring-0"
                     type="text"
-                    value="1"
+                    value={quantity}
+                    readOnly
                   />
-                  <button className="p-2 h-12 w-12 flex items-center justify-center text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-r-lg">
+                  <button 
+                    className="p-2 h-12 w-12 flex items-center justify-center text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-r-lg"
+                    onClick={() => setQuantity(Math.min(book.stock, quantity + 1))}
+                  >
                     <span className="material-symbols-outlined">add</span>
                   </button>
                 </div>
-                <button className="w-full sm:w-auto flex-grow flex items-center justify-center gap-2 rounded-lg bg-primary h-12 px-6 text-white font-bold hover:bg-primary/90 transition-colors">
+                <button 
+                  className="w-full sm:w-auto flex-grow flex items-center justify-center gap-2 rounded-lg bg-primary h-12 px-6 text-white font-bold hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  disabled={book.stock <= 0}
+                  onClick={async (e) => {
+                    e.preventDefault();
+                    if (book._id) {
+                      const { useCartStore } = await import("../../store/useCartStore");
+                      await useCartStore.getState().addToCart(book._id, quantity);
+                    }
+                  }}
+                >
                   <span className="material-symbols-outlined">
                     add_shopping_cart
                   </span>
@@ -170,32 +219,6 @@ const BookDetailPage = () => {
                   </span>
                   Add to Wishlist
                 </button>
-              </div>
-              <div className="flex items-center gap-3 pt-4 text-sm text-gray-500">
-                <span>Share:</span>
-                <div className="flex gap-2">
-                  <button className="flex items-center justify-center w-8 h-8 rounded-full border border-border-light dark:border-border-dark hover:bg-gray-100 dark:hover:bg-gray-800">
-                    <img
-                      alt="facebook icon"
-                      className="w-4 h-4 opacity-60"
-                      src="https://lh3.googleusercontent.com/aida-public/AB6AXuCsentVZSB_5H0rUiBQWID6g6Mb_8MsbVEL7nZxAc5DK6MQ4icJS_6H8ZQa88KPeHNkFjlZ2eluZQAe6nnIB7yAMOhDvAiAaSK75PErL-vxIkws8xL_vkPFCVDa189fJn1-LHHIhdvqkfVwXxgYRkGMJGioH5-wtEjHONmMMcKPpPHdQCJTRPgkyFL1AtWY-NJy_8cz4aaHs3QsnkhIf7Ea9HTftnjONeTjJCYwGWL6T9bMs_7pQinf_wZ1K-JJ_kHt2leM0mJMW1A"
-                    />
-                  </button>
-                  <button className="flex items-center justify-center w-8 h-8 rounded-full border border-border-light dark:border-border-dark hover:bg-gray-100 dark:hover:bg-gray-800">
-                    <img
-                      alt="twitter icon"
-                      className="w-4 h-4 opacity-60"
-                      src="https://lh3.googleusercontent.com/aida-public/AB6AXuDMm7fPOKCRqJZ7w4NMKsjRuVNH0FoPyAyg2pe0uaTUjoDkfIWT8Oy07PzU7ASzwKACvUxPdELhyF2kuy7BjHrtTGCKf3INRy7nQw9cUMod8SjOt6GQEW-fZCL3qpmXIlGBcVCQbTNgjyNsfrhw66V9_85RAwEihlHWJfbuW6PeDKyz-Kv8Q3IOJs1E1i1jz-SYXgUw4TTMTcWVp9bSdGmprSPCLdK-Jxn8sDhv0kN58__KDpstkVGpLnllfkkATb7EP_z8dy0exB8"
-                    />
-                  </button>
-                  <button className="flex items-center justify-center w-8 h-8 rounded-full border border-border-light dark:border-border-dark hover:bg-gray-100 dark:hover:bg-gray-800">
-                    <img
-                      alt="pinterest icon"
-                      className="w-4 h-4 opacity-60"
-                      src="https://lh3.googleusercontent.com/aida-public/AB6AXuCS5s22XlzBh6u47w60TEhRPxaJhI8jNDgotcIXIHITFv-Vg_oubepuRFSPB6-2VWPWjRwy3_wc2kTKdTPbDx5apEJdGc_3bBpIstZ6XOVu6xVwwcZECwIt5ovyMJiFiwWOyhW69m-njiVNqj_0b2zBsILDvOGhVjy30d6S06VrcBThsV43I9LM80-Wn_Qocc34GNGRD1iS_H0qTzZfsB6aA7xK--IEUEzefvKNswRF5kd9crlcuYgNSd1RxIbbhDSdgAJmIm7ht80"
-                    />
-                  </button>
-                </div>
               </div>
             </div>
           </div>
@@ -209,41 +232,11 @@ const BookDetailPage = () => {
                 >
                   Description
                 </a>
-                <a
-                  className="border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm"
-                  href="#"
-                >
-                  PDF Preview
-                </a>
-                <a
-                  className="border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm"
-                  href="#reviews"
-                >
-                  Reviews (1,283)
-                </a>
               </nav>
             </div>
             <div className="py-6">
               <div className="prose dark:prose-invert max-w-none text-gray-700 dark:text-gray-300 space-y-4">
-                <p>
-                  Between life and death there is a library, and within that
-                  library, the shelves go on forever. Every book provides a
-                  chance to try another life you could have lived. To see how
-                  things would be if you had made other choices . . . Would you
-                  have done anything different, if you had the chance to undo
-                  your regrets?
-                </p>
-                <p>
-                  A dazzling novel about all the choices that go into a life
-                  well lived, from the internationally bestselling author of How
-                  To Stop Time and The Comfort Book.
-                </p>
-                <a
-                  className="text-primary font-medium hover:underline"
-                  href="#"
-                >
-                  Read More...
-                </a>
+                <p>{book.description || "No description available."}</p>
               </div>
             </div>
           </div>

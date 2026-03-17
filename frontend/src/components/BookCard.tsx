@@ -1,6 +1,7 @@
 import { Link } from "react-router";
 import { Heart, ShoppingCart, Star } from "lucide-react";
 import type { Book } from "@/types/book";
+import { useCartStore } from "@/store/useCartStore";
 
 interface BookCardProps {
   book: Book;
@@ -8,11 +9,12 @@ interface BookCardProps {
 }
 
 const BookCard = ({ book, className }: BookCardProps) => {
+  const addToCart = useCartStore((state) => state.addToCart);
   const discountPercent = book.originalPrice
     ? Math.round((1 - book.price / book.originalPrice) * 100)
     : 0;
 
-  // Get author name(s)
+  // ... (keep author and image url logic)
   const authorName = Array.isArray(book.author)
     ? book.author
         .map((a: string | { _id: string; name: string }) =>
@@ -21,7 +23,6 @@ const BookCard = ({ book, className }: BookCardProps) => {
         .join(", ")
     : book.author;
 
-  // Get image URL
   const imageUrl =
     book.imageUrl || (book.images && book.images[0]?.url) || "/placeholder.jpg";
 
@@ -102,9 +103,18 @@ const BookCard = ({ book, className }: BookCardProps) => {
                   </span>
                 )}
               </div>
-              <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-all">
+              <button 
+                className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-all cursor-pointer"
+                onClick={async (e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  if (book._id) {
+                    await addToCart(book._id, 1);
+                  }
+                }}
+              >
                 <ShoppingCart className="h-4 w-4" />
-              </div>
+              </button>
             </div>
 
             <button

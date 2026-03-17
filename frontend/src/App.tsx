@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { BrowserRouter, Route, Routes } from "react-router";
 import { Toaster } from "sonner";
 import HomePage from "./pages/HomePage";
+import AboutPage from "./pages/AboutPage";
 import BooksPage from "./pages/books/BooksPage";
 import BookDetailPage from "./pages/books/BookDetailPage";
 import CartPage from "./pages/checkout/CartPage";
@@ -20,13 +21,29 @@ import ResetPassword from "./pages/auth/ResetPassword";
 import VerifyEmail from "./pages/auth/VerifyEmail";
 import ProtectedRoute from "./pages/auth/ProtectedRoute ";
 import useAuthStore from "./store/useAuthStore";
+import { useCartStore } from "./store/useCartStore";
 
 const App = () => {
-  const initAuth = useAuthStore((state) => state.initAuth);
+  const { initAuth, isInitialized } = useAuthStore();
+  const { fetchCart } = useCartStore();
 
   useEffect(() => {
     initAuth();
   }, [initAuth]);
+
+  useEffect(() => {
+    if (isInitialized) {
+      fetchCart();
+    }
+  }, [isInitialized, fetchCart]);
+
+  if (!isInitialized) {
+    return (
+      <div className="flex h-screen w-screen items-center justify-center">
+        <div className="w-8 h-8 rounded-full border-4 border-primary border-t-transparent animate-spin"></div>
+      </div>
+    );
+  }
 
   return (
     <>
@@ -35,6 +52,7 @@ const App = () => {
         <Routes>
           {/* public routes */}
           <Route path="/" element={<HomePage />} />
+          <Route path="/about" element={<AboutPage />} />
           <Route path="/booklist" element={<BooksPage />} />
           <Route path="/bookdetail/:id" element={<BookDetailPage />} />
           <Route path="cart" element={<CartPage />} />

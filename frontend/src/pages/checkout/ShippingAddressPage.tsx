@@ -1,14 +1,17 @@
 import { Link } from "react-router";
 import Footer from "../../components/Footer";
 import Header from "../../components/Header";
+import { useCartStore } from "../../store/useCartStore";
 
 const ShippingAddressPage = () => {
+  const { items, totalAmount } = useCartStore();
+  const shippingFee = 5.00;
+
   return (
     <div>
       <Header />
 
       <main className="layout-container flex h-full grow flex-col">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
           <div className="layout-content-container flex flex-col w-full">
             {/* Page Heading */}
             <div className="flex flex-wrap justify-between gap-3 p-4">
@@ -43,7 +46,7 @@ const ShippingAddressPage = () => {
 
             <div className="mt-8 grid grid-cols-1 lg:grid-cols-3 gap-8 xl:gap-12">
               {/* <!-- Left Column: Shipping Details --> */}
-              <div className="lg:col-span-2 flex flex-col gap-10">
+              <div className="lg:col-span-2 flex flex-col gap-10 lg:pl-8">
                 <div className="flex flex-col gap-8">
                   {/* <!-- Shipping Address Form --> */}
                   <div className="bg-card-light dark:bg-card-dark p-6 rounded-lg border border-border-light dark:border-border-dark">
@@ -84,7 +87,7 @@ const ShippingAddressPage = () => {
                         <select className="form-input w-full rounded border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark focus:ring-primary focus:border-primary placeholder:text-muted-light dark:placeholder:text-muted-dark h-12 px-4 text-base">
                           <option value="">Add a new Province / City</option>
                           <option value="1">
-                            123 Bookworm Lane, Reading, PA 19601
+                            Hà Nội
                           </option>
                         </select>
                       </label>
@@ -93,7 +96,7 @@ const ShippingAddressPage = () => {
                         <select className="form-input w-full rounded border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark focus:ring-primary focus:border-primary placeholder:text-muted-light dark:placeholder:text-muted-dark h-12 px-4 text-base">
                           <option value="">Add a new Ward / Commune</option>
                           <option value="1">
-                            123 Bookworm Lane, Reading, PA 19601
+                            Phường 1
                           </option>
                         </select>
                       </label>
@@ -125,88 +128,54 @@ const ShippingAddressPage = () => {
               </div>
               {/* <!-- Right Column: Order Summary --> */}
 
-              <div className="lg:col-span-1">
+              <div className="lg:col-span-1 lg:pr-8">
                 <div className="sticky top-12">
                   <div className="bg-card-light dark:bg-card-dark p-6 rounded-lg border border-border-light dark:border-border-dark flex flex-col gap-6">
                     <h2 className="text-xl font-bold font-heading leading-tight tracking-tight border-b border-border-light dark:border-border-dark pb-4">
                       Order Summary
                     </h2>
                     <div className="flex flex-col gap-4 max-h-56 overflow-y-auto pr-2">
-                      <div className="flex items-center gap-4">
-                        <img
-                          alt="The Midnight Library book cover"
-                          className="w-16 h-24 object-cover rounded"
-                          src="https://lh3.googleusercontent.com/aida-public/AB6AXuBS7lzuu0tmmlVGGNSCYTT4s-ArQKkJC_XbEdgUtCMzYZM2oR62NZQ0VvUwOgNvIg3BVhruTMB_vWnbDP7RCQ0YOhSUwcH18XKyo8qMDmZ3bDWsFMaCzFPObr9MPd-7fuC6ePzaVhAdZkRd746SuZ6LgMV3GhSVrKrEkXfOtFeZW8j41xPRm6aKwL5M7g6n9QvkzHA5DEtBY418LESX5-weWMwIx5yhy0y9oXPXoWT02ErWrXqDkwdErO28kmgDQKQyej736EXZ89eY"
-                        />
-                        <div className="flex-1">
-                          <p className="font-bold text-sm">
-                            The Midnight Library
-                          </p>
-                          <p className="text-sm text-muted-light dark:text-muted-dark">
-                            Qty: 1
-                          </p>
-                        </div>
-                        <p className="font-medium">$15.99</p>
-                      </div>
-                      <div className="flex items-center gap-4">
-                        <img
-                          alt="An open book with pages fanned out"
-                          className="w-16 h-24 object-cover rounded"
-                          src="https://lh3.googleusercontent.com/aida-public/AB6AXuDzO5yAEv4KMTJTBmJ3K5lqiUvHf8Jfj9FFWbJh129JFQRLXJxeOmvaMP5diOFB0Acogz_9jTRTpj4Lu16ar86PY0KBg8nM0uzDQxcZVw5RrQe3T16QNAa39Mgf6WiSif3pCBkkpSe5VoBncOtg7uLjEpnLruYZxBBsD7FOdyg_nfPPTDbkyW5BCEuch52LC3LIiQbUqnx6HBaQrrHk0PwS2OP2HICw_cUGd9spr7cEpIT_2sZiJwc4kQ-R9zbhLttmDonw0V-rePcR"
-                        />
-                        <div className="flex-1">
-                          <p className="font-bold text-sm">Dune</p>
-                          <p className="text-sm text-muted-light dark:text-muted-dark">
-                            Qty: 1
-                          </p>
-                        </div>
-                        <p className="font-medium">$12.50</p>
-                      </div>
-                      {/* <div className="flex items-center gap-4">
-                        <img
-                          alt="An open book with pages fanned out"
-                          className="w-16 h-24 object-cover rounded"
-                          src="https://lh3.googleusercontent.com/aida-public/AB6AXuDzO5yAEv4KMTJTBmJ3K5lqiUvHf8Jfj9FFWbJh129JFQRLXJxeOmvaMP5diOFB0Acogz_9jTRTpj4Lu16ar86PY0KBg8nM0uzDQxcZVw5RrQe3T16QNAa39Mgf6WiSif3pCBkkpSe5VoBncOtg7uLjEpnLruYZxBBsD7FOdyg_nfPPTDbkyW5BCEuch52LC3LIiQbUqnx6HBaQrrHk0PwS2OP2HICw_cUGd9spr7cEpIT_2sZiJwc4kQ-R9zbhLttmDonw0V-rePcR"
-                        />
-                        <div className="flex-1">
-                          <p className="font-bold text-sm">Dune</p>
-                          <p className="text-sm text-muted-light dark:text-muted-dark">
-                            Qty: 1
-                          </p>
-                        </div>
-                        <p className="font-medium">$12.50</p>
-                      </div>
-                      <div className="flex items-center gap-4">
-                        <img
-                          alt="An open book with pages fanned out"
-                          className="w-16 h-24 object-cover rounded"
-                          src="https://lh3.googleusercontent.com/aida-public/AB6AXuDzO5yAEv4KMTJTBmJ3K5lqiUvHf8Jfj9FFWbJh129JFQRLXJxeOmvaMP5diOFB0Acogz_9jTRTpj4Lu16ar86PY0KBg8nM0uzDQxcZVw5RrQe3T16QNAa39Mgf6WiSif3pCBkkpSe5VoBncOtg7uLjEpnLruYZxBBsD7FOdyg_nfPPTDbkyW5BCEuch52LC3LIiQbUqnx6HBaQrrHk0PwS2OP2HICw_cUGd9spr7cEpIT_2sZiJwc4kQ-R9zbhLttmDonw0V-rePcR"
-                        />
-                        <div className="flex-1">
-                          <p className="font-bold text-sm">Dune</p>
-                          <p className="text-sm text-muted-light dark:text-muted-dark">
-                            Qty: 1
-                          </p>
-                        </div>
-                        <p className="font-medium">$12.50</p>
-                      </div> */}
+                      {items.map((item) => {
+                        const title = item.book?.title || item.title || `Sách ID: ${item.book_id}`;
+                        const price = item.book?.price || item.price || 0;
+                        const imageUrl = item.book?.imageUrl || (item.book?.images && item.book?.images[0]?.url) || item.imageUrl || "/placeholder.jpg";
+                        
+                        return (
+                          <div key={item.book_id} className="flex items-center gap-4">
+                            <img
+                              alt={title}
+                              className="w-16 h-24 object-cover rounded"
+                              src={imageUrl}
+                            />
+                            <div className="flex-1">
+                              <p className="font-bold text-sm line-clamp-2">
+                                {title}
+                              </p>
+                              <p className="text-sm text-muted-light dark:text-muted-dark">
+                                Qty: {item.quantity}
+                              </p>
+                            </div>
+                            <p className="font-medium">{(price * item.quantity).toLocaleString("vi-VN")}đ</p>
+                          </div>
+                        );
+                      })}
                     </div>
                     <div className="flex flex-col gap-3 pt-4 border-t border-border-light dark:border-border-dark">
                       <div className="flex justify-between text-sm">
                         <p className="text-muted-light dark:text-muted-dark">
                           Subtotal
                         </p>
-                        <p className="font-medium">$28.49</p>
+                        <p className="font-medium">{totalAmount.toLocaleString("vi-VN")}đ</p>
                       </div>
                       <div className="flex justify-between text-sm">
                         <p className="text-muted-light dark:text-muted-dark">
                           Shipping
                         </p>
-                        <p className="font-medium">$5.00</p>
+                        <p className="font-medium">{shippingFee.toLocaleString("vi-VN")}đ</p>
                       </div>
                       <div className="flex justify-between text-lg font-bold pt-3 border-t border-border-light dark:border-border-dark">
                         <p>Total</p>
-                        <p>$33.49</p>
+                        <p>{(totalAmount + shippingFee).toLocaleString("vi-VN")}đ</p>
                       </div>
                     </div>
                     <Link
@@ -220,7 +189,6 @@ const ShippingAddressPage = () => {
               </div>
             </div>
           </div>
-        </div>
       </main>
       <Footer />
     </div>

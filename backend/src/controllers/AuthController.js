@@ -1,7 +1,7 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
-import User from "../models/UserModel.js";
+import { query } from "../libs/db.js";
 
 const ACCESS_TOKEN_TTL = "12h";
 const REFRESH_TOKEN_TTL = 7 * 24 * 60 * 60 * 1000; // 7 ngày tính bằng milliseconds
@@ -17,8 +17,11 @@ const authRegister = async (req, res) => {
     }
 
     // check email đã tồn tại
-
-    const user = await User.findOne({ email });
+    const existingUsers = await query(
+      "SELECT id FROM users WHERE email = ? LIMIT 1",
+      [email]
+    );
+    const user = existingUsers[0];
     if (user) {
       return res.status(400).json({ message: "Email đã đăng ký!" });
     }
@@ -26,12 +29,10 @@ const authRegister = async (req, res) => {
     // Mã hóa mật khẩu
     const hashedPassword = await bcrypt.hash(password, 10);
     // Tạo user mới
-    await User.create({
-      username,
-      hashedPassword,
-      email,
-      role: "USER",
-    });
+    await query(
+      "INSERT INTO users (username, email, hashed_password, role) VALUES (?, ?, ?, 'USER')",
+      [username, email, hashedPassword]
+    );
 
     return res.status(201).json({ message: "Đăng ký thành công!" });
   } catch (error) {
@@ -50,7 +51,11 @@ const authlogin = async (req, res) => {
     }
 
     // check email tồn tại
-    const user = await User.findOne({ email });
+    const users = await query(
+      "SELECT id, username, email, hashed_password, role, refresh_token FROM users WHERE email = ? LIMIT 1",
+      [email]
+    );
+    const user = users[0];
     if (!user) {
       return res
         .status(401)
@@ -58,7 +63,7 @@ const authlogin = async (req, res) => {
     }
 
     // check password
-    const isPasswordValid = await bcrypt.compare(password, user.hashedPassword);
+    const isPasswordValid = await bcrypt.compare(password, user.hashed_password);
     if (!isPasswordValid) {
       return res
         .status(401)
@@ -67,7 +72,7 @@ const authlogin = async (req, res) => {
 
     // create accesstoken
     const accessToken = jwt.sign(
-      { userId: user._id },
+      { userId: String(user.id) },
       process.env.ACCESS_TOKEN_SECRET,
       { expiresIn: ACCESS_TOKEN_TTL }
     );
@@ -75,8 +80,10 @@ const authlogin = async (req, res) => {
     // create refreshtoken
     const refreshToken = crypto.randomBytes(64).toString("hex");
 
-    user.refreshToken = refreshToken;
-    await user.save();
+    await query("UPDATE users SET refresh_token = ? WHERE id = ?", [
+      refreshToken,
+      user.id,
+    ]);
 
     // set cookie (chỉ secure khi production)
     res.cookie("refreshToken", refreshToken, {
@@ -91,7 +98,8 @@ const authlogin = async (req, res) => {
       message: "Đăng nhập thành công!",
       accessToken,
       user: {
-        id: user._id,
+        id: String(user.id),
+        _id: String(user.id),
         username: user.username,
         email: user.email,
         role: user.role,
@@ -110,10 +118,13 @@ const authLogOut = async (req, res) => {
     }
 
     // tim user co refresh token set về null
-    const user = await User.findOne({ refreshToken });
+    const users = await query(
+      "SELECT id FROM users WHERE refresh_token = ? LIMIT 1",
+      [refreshToken]
+    );
+    const user = users[0];
     if (user) {
-      user.refreshToken = null;
-      await user.save();
+      await query("UPDATE users SET refresh_token = NULL WHERE id = ?", [user.id]);
     }
     // xóa cookie
     res.clearCookie("refreshToken", {
@@ -135,14 +146,18 @@ const authRefreshToken = async (req, res) => {
       return res.status(400).json({ message: "Đã có lỗi xảy ra!" });
     }
     // tim user co refresh token
-    const user = await User.findOne({ refreshToken });
+    const users = await query(
+      "SELECT id, username, email, role FROM users WHERE refresh_token = ? LIMIT 1",
+      [refreshToken]
+    );
+    const user = users[0];
     if (!user) {
       return res.status(403).json({ message: "Không có quyền truy cập!" });
     }
 
     // tạo access token mới
     const newAccessToken = jwt.sign(
-      { userId: user._id },
+      { userId: String(user.id) },
       process.env.ACCESS_TOKEN_SECRET,
       { expiresIn: ACCESS_TOKEN_TTL }
     );
@@ -150,7 +165,8 @@ const authRefreshToken = async (req, res) => {
     return res.status(200).json({
       accessToken: newAccessToken,
       user: {
-        id: user._id,
+        id: String(user.id),
+        _id: String(user.id),
         username: user.username,
         email: user.email,
         role: user.role,
