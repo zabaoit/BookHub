@@ -198,8 +198,8 @@ const BooksPage = () => {
                   <p className="text-gray-500 text-sm">
                     Hiển thị{" "}
                     <span className="font-semibold text-gray-900">
-                      {(currentPage - 1) * 12 + 1}-
-                      {Math.min(currentPage * 12, total)}
+                      {(currentPage - 1) * 16 + 1}-
+                      {Math.min(currentPage * 16, total)}
                     </span>{" "}
                     trong{" "}
                     <span className="font-semibold text-gray-900">{total}</span>{" "}

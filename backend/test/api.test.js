@@ -77,3 +77,34 @@ describe("BookHub API smoke test", function () {
     expect(res.body.data).to.have.property("status");
   });
 });
+
+describe("Books pagination normalization", function () {
+  this.timeout(10000);
+
+  it("should fallback to page 1 and limit 16 for empty params", async () => {
+    const res = await request(API_URL).get("/api/books?page=&limit=");
+
+    expect(res.status).to.equal(200);
+    expect(res.body).to.have.property("page", 1);
+    expect(res.body).to.have.property("limit", 16);
+    expect(res.body.data).to.be.an("array");
+  });
+
+  it("should fallback to defaults for non-numeric params", async () => {
+    const res = await request(API_URL).get("/api/books?page=abc&limit=xyz");
+
+    expect(res.status).to.equal(200);
+    expect(res.body).to.have.property("page", 1);
+    expect(res.body).to.have.property("limit", 16);
+    expect(res.body.data).to.be.an("array");
+  });
+
+  it("should cap limit at 50 when requested limit is too large", async () => {
+    const res = await request(API_URL).get("/api/books?page=1&limit=999");
+
+    expect(res.status).to.equal(200);
+    expect(res.body).to.have.property("page", 1);
+    expect(res.body).to.have.property("limit", 50);
+    expect(res.body.data).to.be.an("array");
+  });
+});

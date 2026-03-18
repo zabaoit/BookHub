@@ -5,12 +5,18 @@ export const bookService = {
   // Get all books with pagination and filters
   fetchAllBooks: async (
     page = 1,
-    limit = 12,
+    limit = 16,
     filters: BookFilters = {}
   ): Promise<BookListResponse> => {
+    const parsedPage = Number(page);
+    const parsedLimit = Number(limit);
+    const safePage = Number.isFinite(parsedPage) && parsedPage > 0 ? Math.floor(parsedPage) : 1;
+    const normalizedLimit = Number.isFinite(parsedLimit) && parsedLimit > 0 ? Math.floor(parsedLimit) : 16;
+    const safeLimit = Math.min(50, normalizedLimit);
+
     const params = new URLSearchParams({
-      page: page.toString(),
-      limit: limit.toString(),
+      page: safePage.toString(),
+      limit: safeLimit.toString(),
       ...Object.fromEntries(
         Object.entries(filters).filter(
           ([, value]) => value !== undefined && value !== ""
@@ -23,9 +29,9 @@ export const bookService = {
     // Handle backend response format: { message: '...', data: [...] }
     const books = res.data.data || res.data.books || [];
 
-    const currentPage = res.data.page || page;
+    const currentPage = res.data.page || safePage;
     const total = res.data.total || books.length;
-    const totalPagesCalc = res.data.totalPages || Math.ceil(total / limit) || 1;
+    const totalPagesCalc = res.data.totalPages || Math.ceil(total / safeLimit) || 1;
 
     return {
       books: books,
@@ -72,7 +78,7 @@ export const bookService = {
   searchBooks: async (
     query: string,
     page = 1,
-    limit = 12
+    limit = 16
   ): Promise<BookListResponse> => {
     return bookService.fetchAllBooks(page, limit, { search: query });
   },
@@ -81,7 +87,7 @@ export const bookService = {
   fetchBooksByCategory: async (
     category: string,
     page = 1,
-    limit = 12
+    limit = 16
   ): Promise<BookListResponse> => {
     return bookService.fetchAllBooks(page, limit, { category });
   },

@@ -35,7 +35,7 @@ const useBookStore = create<BookState>()((set, get) => ({
       const currentFilters = filters || get().filters;
       const response = await bookService.fetchAllBooks(
         page,
-        12,
+        16,
         currentFilters
       );
 
@@ -114,7 +114,7 @@ const useBookStore = create<BookState>()((set, get) => ({
   searchBooks: async (query: string) => {
     try {
       set({ loading: true, error: null });
-      const response = await bookService.searchBooks(query, 1, 12);
+      const response = await bookService.searchBooks(query, 1, 16);
       set({
         books: response.books,
         currentPage: response.page,

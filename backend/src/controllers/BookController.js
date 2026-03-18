@@ -87,9 +87,13 @@ const postBook = async (req, res) => {
 
 const getAllBooks = async (req, res) => {
   try {
-    const { page = 1, limit = 12, search, category, author, sortBy } = req.query;
-    const pageNum = parseInt(page, 10);
-    const limitNum = parseInt(limit, 10);
+    const { page = 1, limit = 16, search, category, author, sortBy } = req.query;
+
+    const parsedPage = Number.parseInt(page, 10);
+    const parsedLimit = Number.parseInt(limit, 10);
+    const pageNum = Number.isFinite(parsedPage) && parsedPage > 0 ? parsedPage : 1;
+    const normalizedLimit = Number.isFinite(parsedLimit) && parsedLimit > 0 ? parsedLimit : 16;
+    const limitNum = Math.min(50, normalizedLimit);
     const offset = (pageNum - 1) * limitNum;
 
     const whereParts = [];
@@ -143,6 +147,7 @@ const getAllBooks = async (req, res) => {
       data: books,
       total: totalBooks,
       page: pageNum,
+      limit: limitNum,
       totalPages: Math.ceil(totalBooks / limitNum) || 1,
     });
   } catch (error) {

@@ -1,11 +1,11 @@
-import { useState } from "react";
+import { useState, type CSSProperties } from "react";
 import { Link } from "react-router";
 import Footer from "../../components/Footer";
 import Header from "../../components/Header";
 import { useCartStore } from "../../store/useCartStore";
 
 const PaymentPage = () => {
-  const { items, totalAmount, setCheckoutData } = useCartStore();
+  const { totalAmount, setCheckoutData } = useCartStore();
   const [paymentMethod, setPaymentMethod] = useState("VNPAY");
   const shippingFee = 30000;
   return (
@@ -58,7 +58,7 @@ const PaymentPage = () => {
                         {
                           "--radio-dot-svg":
                             "url('data:image/svg+xml,%3csvg viewBox=%270 0 16 16%27 fill=%27%238B4513%27 xmlns=%27http://www.w3.org/2000/svg%27%3e%3ccircle cx=%278%27 cy=%278%27 r=%274%27/%3e%3c/svg%3e');",
-                        } as React.CSSProperties
+                        } as CSSProperties
                       }
                     >
                       <label className="flex items-center gap-4 rounded border border-solid border-border-light dark:border-border-dark p-4 cursor-pointer hover:border-primary/50 dark:hover:border-primary/50 has-[:checked]:border-primary has-[:checked]:bg-primary/5 has-[:checked]:dark:bg-primary/10 transition-colors">
