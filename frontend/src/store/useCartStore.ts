@@ -3,6 +3,7 @@ import type { CartItem } from "../services/cartService";
 import { cartService } from "../services/cartService";
 import { toast } from "sonner";
 import useAuthStore from "./useAuthStore";
+import useBookStore from "./useBookStore";
 
 export interface CheckoutData {
   shippingAddress: {
@@ -13,6 +14,7 @@ export interface CheckoutData {
     specificAddress: string;
   } | null;
   paymentMethod: string | null;
+  promoCode: string | null;
 }
 
 interface CartState {
@@ -56,6 +58,7 @@ export const useCartStore = create<CartState>((set, get) => ({
   checkoutData: {
     shippingAddress: null,
     paymentMethod: null,
+    promoCode: null,
   },
 
   setCheckoutData: (data) => 
@@ -64,7 +67,7 @@ export const useCartStore = create<CartState>((set, get) => ({
     })),
 
   clearCheckoutData: () => 
-    set({ checkoutData: { shippingAddress: null, paymentMethod: null } }),
+    set({ checkoutData: { shippingAddress: null, paymentMethod: null, promoCode: null } }),
 
   setIsOpen: (isOpen) => set({ isOpen }),
   toggleCart: () => set((state) => ({ isOpen: !state.isOpen })),
@@ -98,6 +101,14 @@ export const useCartStore = create<CartState>((set, get) => ({
   addToCart: async (bookIdRaw, quantity = 1) => {
     const isAuthenticated = !!useAuthStore.getState().user;
     const bookId = Number(bookIdRaw);
+    const currentBook = useBookStore.getState().books.find(
+      (book) => Number(book._id) === bookId || book._id === String(bookIdRaw)
+    );
+
+    if (currentBook && Number(currentBook.stock || 0) <= 0) {
+      toast.error("Sản phẩm đã hết hàng.");
+      return;
+    }
     
     set({ isLoading: true });
     try {
@@ -135,6 +146,17 @@ export const useCartStore = create<CartState>((set, get) => ({
   updateQuantity: async (bookIdRaw, quantity) => {
     const isAuthenticated = !!useAuthStore.getState().user;
     const bookId = Number(bookIdRaw);
+    const currentItem = get().items.find((item) => Number(item.book_id) === bookId);
+    const currentBook = useBookStore.getState().books.find(
+      (book) => Number(book._id) === bookId || book._id === String(bookIdRaw)
+    );
+    const stockSource =
+      currentItem?.stock ?? currentItem?.book?.stock ?? currentBook?.stock;
+
+    if (stockSource !== undefined && stockSource !== null && quantity > Number(stockSource)) {
+      toast.error("Số lượng vượt quá tồn kho hiện có.");
+      return;
+    }
     
     set({ isLoading: true });
     try {

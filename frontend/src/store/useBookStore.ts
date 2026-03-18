@@ -6,6 +6,7 @@ import { toast } from "sonner";
 const initialFilters: BookFilters = {
   search: "",
   category: "",
+  categories: [],
   author: "",
   minPrice: undefined,
   maxPrice: undefined,

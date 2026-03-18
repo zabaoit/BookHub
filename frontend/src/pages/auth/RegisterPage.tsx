@@ -37,8 +37,15 @@ const RegisterPage = () => {
   const onSubmit = async (data: RegisterFormValues) => {
     try {
       await signUp(data.username, data.email, data.password);
-
-      navigate("/signin");
+      localStorage.setItem(
+        "bookhub_auth_challenge",
+        JSON.stringify({ mode: "verify", email: data.email })
+      );
+      navigate("/verify-email", {
+        state: {
+          email: data.email,
+        },
+      });
     } catch (err: unknown) {
       if (err instanceof Error) {
         toast.error(err.message);

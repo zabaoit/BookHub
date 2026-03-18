@@ -1,15 +1,41 @@
 import { Link } from "react-router";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Footer from "../../components/Footer";
 import Header from "../../components/Header";
 import { useCartStore } from "../../store/useCartStore";
+import { bookService } from "../../services/bookService";
+import type { Book } from "../../types/book";
 
 const CartPage = () => {
-  const { items, totalAmount, fetchCart, updateQuantity, removeItem, isLoading } = useCartStore();
+  const { items, totalAmount, fetchCart, updateQuantity, removeItem, addToCart, clearCart, isLoading } = useCartStore();
+  const [recommendedBooks, setRecommendedBooks] = useState<Book[]>([]);
+  const [recommendedLoading, setRecommendedLoading] = useState(false);
+  const hasItems = items.length > 0;
 
   useEffect(() => {
     fetchCart();
   }, [fetchCart]);
+
+  useEffect(() => {
+    const fetchRecommendedBooks = async () => {
+      try {
+        setRecommendedLoading(true);
+        const response = await bookService.fetchAllBooks(1, 16, {});
+        const cartBookIds = new Set(items.map((item) => Number(item.book_id)));
+        const books = (response.books || [])
+          .filter((book) => !cartBookIds.has(Number(book._id)))
+          .slice(0, 5);
+        setRecommendedBooks(books);
+      } catch (error) {
+        console.error("Failed to fetch recommended books", error);
+        setRecommendedBooks([]);
+      } finally {
+        setRecommendedLoading(false);
+      }
+    };
+
+    fetchRecommendedBooks();
+  }, [items]);
 
   return (
     <div>
@@ -31,32 +57,58 @@ const CartPage = () => {
               </div>
             </div>
             
-            <div className="flex flex-col lg:flex-row gap-8 mt-8">
+            <div
+              className={`mt-8 flex ${
+                hasItems ? "flex-col lg:flex-row gap-8" : "flex-col gap-8"
+              }`}
+            >
               {/* <!-- Left Column: Cart Items --> */}
-              <div className="w-full lg:w-2/3">
-                <h2 className="font-display text-text-light dark:text-text-dark text-[22px] font-bold leading-tight tracking-tight px-4 pb-3 pt-5 border-b border-border-light dark:border-border-dark">
-                  CART ITEMS ({items.length})
-                </h2>
+              <div className={`w-full ${hasItems ? "lg:w-2/3" : ""}`}>
+                <div className="flex items-center justify-between gap-4 px-4 pb-3 pt-5 border-b border-border-light dark:border-border-dark">
+                  <h2 className="font-display text-text-light dark:text-text-dark text-[22px] font-bold leading-tight tracking-tight">
+                    CART ITEMS ({items.length})
+                  </h2>
+                  {hasItems && (
+                    <button
+                      type="button"
+                      onClick={() => clearCart()}
+                      className="text-sm font-semibold text-red-500 hover:text-red-600 transition-colors"
+                    >
+                      Xóa tất cả
+                    </button>
+                  )}
+                </div>
                 
                 <div className="divide-y divide-border-light dark:divide-border-dark">
                   {isLoading ? (
-                    <div className="py-8 text-center text-gray-500">Đang tải giỏ hàng...</div>
+                    <div className="w-full py-8 text-center text-gray-500">
+                      Đang tải giỏ hàng...
+                    </div>
                   ) : items.length === 0 ? (
-                    <div className="py-12 text-center text-gray-500 flex flex-col items-center">
-                      <span className="material-symbols-outlined text-6xl text-gray-300 mb-4">shopping_cart</span>
-                      <p className="text-xl mb-4">Giỏ hàng của bạn đang trống.</p>
-                      <Link
-                        to="/booklist"
-                        className="bg-primary text-white px-6 py-2 rounded-lg hover:bg-primary/90 transition-colors"
-                      >
-                        Khám phá sách ngay
-                      </Link>
+                    <div className="flex w-full min-h-[280px] items-center justify-center py-12 text-center text-gray-500">
+                      <div className="flex flex-col items-center">
+                        <span className="material-symbols-outlined text-6xl text-gray-300 mb-4">
+                          shopping_cart
+                        </span>
+                        <p className="text-xl mb-4">Giỏ hàng của bạn đang trống.</p>
+                        <Link
+                          to="/booklist"
+                          className="bg-primary text-white px-6 py-2 rounded-lg hover:bg-primary/90 transition-colors"
+                        >
+                          Khám phá sách ngay
+                        </Link>
+                      </div>
                     </div>
                   ) : (
                     items.map((item) => {
                       // Xử lý dữ liệu sách với guest cart fallback
                       const title = item.book?.title || item.title || `Sách ID: ${item.book_id}`;
                       const price = item.book?.price || item.price || 0;
+                      const stockSource = item.book?.stock ?? item.stock;
+                      const canIncreaseQuantity =
+                        stockSource === undefined || stockSource === null
+                          ? true
+                          : item.quantity < Number(stockSource);
                       const imageUrl = item.book?.imageUrl || (item.book?.images && item.book?.images[0]?.url) || item.imageUrl || "/placeholder.jpg";
                       
                       return (
@@ -98,7 +150,8 @@ const CartPage = () => {
                               </span>
                               <button 
                                 onClick={() => updateQuantity(item.book_id, item.quantity + 1)}
-                                className="text-base font-medium leading-normal flex h-8 w-8 items-center justify-center hover:bg-primary hover:text-white cursor-pointer transition-colors"
+                                disabled={!canIncreaseQuantity}
+                                className="text-base font-medium leading-normal flex h-8 w-8 items-center justify-center hover:bg-primary hover:text-white cursor-pointer transition-colors disabled:cursor-not-allowed disabled:text-gray-300 disabled:hover:bg-transparent disabled:hover:text-gray-300"
                               >
                                 +
                               </button>
@@ -112,7 +165,7 @@ const CartPage = () => {
               </div>
               
               {/* <!-- Right Column: Order Summary --> */}
-              {items.length > 0 && (
+              {hasItems && (
                 <div className="w-full lg:w-1/3">
                   <div className="sticky top-18">
                     <div className="bg-surface-light dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-lg p-6">
@@ -156,101 +209,46 @@ const CartPage = () => {
                 YOU MIGHT ALSO LIKE
               </h2>
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 px-4">
-                {/* <!-- Recommended Book 1 --> */}
-                <div className="flex flex-col items-center text-center gap-2 group h-full">
-                  <div className="w-full  aspect-[2/3] bg-cover bg-center rounded-lg overflow-hidden shadow-md">
-                    <img
-                      alt="Book cover for The Lincoln Highway"
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                      src="https://lh3.googleusercontent.com/aida-public/AB6AXuCvtd71QO9KMfrRbcK9hfHXFuXm8M4GFDV5hIZJ8xEEGZQgftP02vicg91P85yLXkG7wVgHDwgUZfPCJB5-BlsvZPr4IqN6W0R267PC483AWWv_oSoAgqUIFlg14BCnOje1-eiDQ0Z5PoDNTXdA-N6c7G0ceQPqkx5B09ELTnvplC5DOkznjs6dVJFjSF3P4hxhf3JCppUrvTrBxt7MtkvA4MKYzuUzLvs-bmmlb-XUzdFLOqxu5Zsf5vPg6NLkC9iaj0RHPgrcAoQ"
-                    />
-                  </div>
-                  <h3 className="font-semibold mt-2 text-text-light dark:text-text-dark">
-                    The Lincoln Highway
-                  </h3>
-                  <p className="text-sm text-muted-light dark:text-muted-dark">
-                    $29.99
-                  </p>
-                  <button className="w-full mt-auto text-sm bg-transparent border border-primary dark:border-accent text-primary dark:text-accent font-semibold py-2 px-4 rounded hover:bg-primary dark:hover:bg-accent hover:text-white dark:hover:text-text-light transition-colors">
-                    Add to Cart
-                  </button>
-                </div>
-                {/* <!-- Recommended Book 2 --> */}
-                <div className="flex flex-col items-center text-center gap-2 group h-full">
-                  <div className="w-full aspect-[2/3] bg-cover bg-center rounded-lg overflow-hidden shadow-md">
-                    <img
-                      alt="Book cover for The Maid"
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                      src="https://lh3.googleusercontent.com/aida-public/AB6AXuB-RydwatbiTgKIaemuOiZZzdsJ77T8JgWRVbC5I-P7fk9_ZkbGaxjR-afYQrE9bYm9lRMoAIdGaRUVkZOOoc_-LUqLH6pMoeVO86ML00VQPFO8aqLPL56EeF6X9nm2IUQ3_-aCwW0-gUX4JFzIs_yXb0xowp3jts33QXztcdQOJECjXWkxijUqeYmxRKL0GX1oxNVb_odcBOS-ymg1XByQ2kgoHvEdTgKHxWBUmD1eypn2B1vtBSAoxR9aWfb6JUMg1HCwsDTITks"
-                    />
-                  </div>
-                  <h3 className="font-semibold mt-2  text-text-light dark:text-text-dark">
-                    The Maid
-                  </h3>
-                  <p className="text-sm text-muted-light dark:text-muted-dark">
-                    $18.50
-                  </p>
-                  <button className="w-full mt-auto text-sm bg-transparent border border-primary dark:border-accent text-primary dark:text-accent font-semibold py-2 px-4 rounded hover:bg-primary dark:hover:bg-accent hover:text-white dark:hover:text-text-light transition-colors">
-                    Add to Cart
-                  </button>
-                </div>
-                {/* <!-- Recommended Book 3 --> */}
-                <div className="flex flex-col items-center text-center gap-2 group h-full">
-                  <div className="w-full aspect-[2/3] bg-cover bg-center rounded-lg overflow-hidden shadow-md">
-                    <img
-                      alt="Book cover for The Invisible Life of Addie LaRue"
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                      src="https://lh3.googleusercontent.com/aida-public/AB6AXuD-KX1iVVDKUPkN6io41s8Cci2d1M6qbVvR0hXiFKaC2mmzhK818z1fLk3ZYaO2sde6tyA3PyLdgs8SZiCpYvHOkLMq6wp_kv_Lq7GGoqJzNNGp7vHN7d2UfPoqxOQOCnF4jdp7t36qfkMOHXMVjs6rMdjdicNEWkUXAw9dQl4aiuf20L7gLsqMPMpp6WhcHUFIBn_XnL6-WQNxTO8gfXIDpGqE8FT67scPp_qSmS70DwFqMhQNcecD1bC5K04oDEL-AQD2NAMyCeY"
-                    />
-                  </div>
-                  <h3 className="font-semibold mt-2  text-text-light dark:text-text-dark">
-                    The Invisible Life of Addie LaRue
-                  </h3>
-                  <p className="text-sm text-muted-light dark:text-muted-dark">
-                    $22.00
-                  </p>
-                  <button className="w-full mt-auto text-sm bg-transparent border border-primary dark:border-accent text-primary dark:text-accent font-semibold py-2 px-4 rounded hover:bg-primary dark:hover:bg-accent hover:text-white dark:hover:text-text-light transition-colors">
-                    Add to Cart
-                  </button>
-                </div>
-                {/* <!-- Recommended Book 4 --> */}
-                <div className="flex flex-col items-center text-center gap-2 group h-full">
-                  <div className="w-full aspect-[2/3] bg-cover bg-center rounded-lg overflow-hidden shadow-md">
-                    <img
-                      alt="Book cover for Tomorrow, and Tomorrow, and Tomorrow"
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                      src="https://lh3.googleusercontent.com/aida-public/AB6AXuD6bfxr0Tt-T3KTtd69LoiauIjHbCro9BzFHXZr_XkkxCnjEN2e74yOz87UvUy35QANr2xQCxf7kjlrEifmgWAZ-BLNgC8gnT6a2m0hQM6eru3UodzRwMkDKgd2wMac0EmhDPY6_Yi5tna4tmvWoJEJ9pDEXmdNcWb8erVjAK_-nTXX9_LvstA1dPQfoe9cR1RG7bXk0UOgplk5RAYWqkNsqEUaNWjOQq4fatK09c-QnTX07dTkqKsdzCERB5_jPM-VqqR3r2ZGRfs"
-                    />
-                  </div>
-                  <h3 className="font-semibold mt-2 text-text-light dark:text-text-dark">
-                    Tomorrow, and Tomorrow, and Tomorrow
-                  </h3>
-                  <p className="text-sm text-muted-light dark:text-muted-dark">
-                    $25.00
-                  </p>
-                  <button className="w-full mt-auto text-sm bg-transparent border border-primary dark:border-accent text-primary dark:text-accent font-semibold py-2 px-4 rounded hover:bg-primary dark:hover:bg-accent hover:text-white dark:hover:text-text-light transition-colors">
-                    Add to Cart
-                  </button>
-                </div>
-                {/* <!-- Recommended Book 5 --> */}
-                <div className="flex flex-col items-center text-center gap-2 group h-full">
-                  <div className="w-full aspect-[2/3] bg-cover bg-center rounded-lg overflow-hidden shadow-md">
-                    <img
-                      alt="Book cover for The Seven Husbands of Evelyn Hugo"
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                      src="https://lh3.googleusercontent.com/aida-public/AB6AXuDa64GPSrFMc9-L4IWe94LDzrC_4RSa09Gn-9SiZFmb8c6qmNtBnv4_nIjXxJLA3KMxa7GXFUPz1OWlnCVmhyzA1iyvzlqKuWSQ4ExRpkhw5zYtEYxEsik09_apNDMXoZgWUQMefY10olTFBd3_pGkkOvcTqxQ_LlgaGxGYvNIQP893-AZyJipuI3jEPxsvtxKH8y4xANyEYtJu1GhOipEJIy2VEF23dUrHoCnwjunMutXAv1jTU4iLLNTNJByvn0xheHysiNpsJ3Y"
-                    />
-                  </div>
-                  <h3 className="font-semibold mt-2  text-text-light dark:text-text-dark">
-                    The Seven Husbands of Evelyn Hugo
-                  </h3>
-                  <p className="text-sm text-muted-light dark:text-muted-dark">
-                    $17.00
-                  </p>
-                  <button className="w-full mt-auto text-sm bg-transparent border border-primary dark:border-accent text-primary dark:text-accent font-semibold py-2 px-4 rounded hover:bg-primary dark:hover:bg-accent hover:text-white dark:hover:text-text-light transition-colors">
-                    Add to Cart
-                  </button>
-                </div>
+                {recommendedLoading ? (
+                  <div className="col-span-full py-8 text-center text-gray-500">Đang tải gợi ý sách...</div>
+                ) : recommendedBooks.length === 0 ? (
+                  <div className="col-span-full py-8 text-center text-gray-500">Chưa có sách gợi ý phù hợp.</div>
+                ) : (
+                  recommendedBooks.map((book) => {
+                    const imageUrl =
+                      book.imageUrl ||
+                      (Array.isArray(book.images) && book.images[0]?.url) ||
+                      "/placeholder.jpg";
+
+                    return (
+                      <div key={book._id} className="flex flex-col items-center text-center gap-2 group h-full">
+                        <Link
+                          to={`/bookdetail/${book._id}`}
+                          className="w-full aspect-[2/3] bg-cover bg-center rounded-lg overflow-hidden shadow-md"
+                        >
+                          <img
+                            alt={`Book cover for ${book.title}`}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                            src={imageUrl}
+                          />
+                        </Link>
+                        <h3 className="font-semibold mt-2 text-text-light dark:text-text-dark line-clamp-2 min-h-[3rem]">
+                          {book.title}
+                        </h3>
+                        <p className="text-sm text-muted-light dark:text-muted-dark">
+                          {Number(book.price || 0).toLocaleString("vi-VN")}đ
+                        </p>
+                        <button
+                          className="w-full mt-auto text-sm bg-transparent border border-primary dark:border-accent text-primary dark:text-accent font-semibold py-2 px-4 rounded hover:bg-primary dark:hover:bg-accent hover:text-white dark:hover:text-text-light transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                          disabled={(book.stock || 0) <= 0}
+                          onClick={() => addToCart(book._id, 1)}
+                        >
+                          {(book.stock || 0) > 0 ? "Add to Cart" : "Out of Stock"}
+                        </button>
+                      </div>
+                    );
+                  })
+                )}
               </div>
             </div>
           </div>

@@ -1,7 +1,11 @@
+import { useEffect, useState, type MouseEvent } from "react";
 import { Link } from "react-router";
-import { Heart, ShoppingCart, Star } from "lucide-react";
+import { ShoppingCart, Star } from "lucide-react";
 import type { Book } from "@/types/book";
+import { toast } from "sonner";
 import { useCartStore } from "@/store/useCartStore";
+import { userService } from "@/services/userService";
+import useAuthStore from "@/store/useAuthStore";
 
 interface BookCardProps {
   book: Book;
@@ -10,6 +14,10 @@ interface BookCardProps {
 
 const BookCard = ({ book, className }: BookCardProps) => {
   const addToCart = useCartStore((state) => state.addToCart);
+  const accessToken = useAuthStore((state) => state.accessToken);
+  const [isWishlisted, setIsWishlisted] = useState(false);
+  const [wishlistLoading, setWishlistLoading] = useState(false);
+  const isOutOfStock = Number(book.stock || 0) <= 0;
   const discountPercent = book.originalPrice
     ? Math.round((1 - book.price / book.originalPrice) * 100)
     : 0;
@@ -25,6 +33,57 @@ const BookCard = ({ book, className }: BookCardProps) => {
 
   const imageUrl =
     book.imageUrl || (book.images && book.images[0]?.url) || "/placeholder.jpg";
+
+  useEffect(() => {
+    const fetchWishlistStatus = async () => {
+      if (!book._id || !accessToken) {
+        setIsWishlisted(false);
+        return;
+      }
+
+      try {
+        setWishlistLoading(true);
+        const response = await userService.getWishlistStatus(book._id);
+        setIsWishlisted(Boolean(response?.data?.isWishlisted));
+      } catch {
+        setIsWishlisted(false);
+      } finally {
+        setWishlistLoading(false);
+      }
+    };
+
+    fetchWishlistStatus();
+  }, [book._id, accessToken]);
+
+  const handleWishlistToggle = async (e: MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (!book._id) return;
+
+    if (!accessToken) {
+      toast.error("Vui lòng đăng nhập để sử dụng Wishlist.");
+      return;
+    }
+
+    try {
+      setWishlistLoading(true);
+      if (isWishlisted) {
+        await userService.removeFromWishlist(book._id);
+        setIsWishlisted(false);
+        toast.success("Đã xóa khỏi Wishlist!");
+      } else {
+        await userService.addToWishlist(book._id);
+        setIsWishlisted(true);
+        toast.success("Đã thêm vào Wishlist!");
+      }
+    } catch (error) {
+      console.error("Wishlist toggle failed", error);
+      toast.error("Không thể cập nhật Wishlist.");
+    } finally {
+      setWishlistLoading(false);
+    }
+  };
 
   return (
     <Link
@@ -47,15 +106,6 @@ const BookCard = ({ book, className }: BookCardProps) => {
               </span>
             )}
           </div>
-          {/* Wishlist button */}
-          <button
-            className="absolute top-3 right-3 h-8 w-8 bg-white/80 backdrop-blur-md rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-white hover:scale-110 shadow-sm"
-            onClick={(e) => {
-              e.preventDefault();
-            }}
-          >
-            <Heart className="h-4 w-4 text-gray-600" />
-          </button>
         </div>
 
         {/* Content */}
@@ -103,18 +153,51 @@ const BookCard = ({ book, className }: BookCardProps) => {
                   </span>
                 )}
               </div>
-              <button 
-                className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-all cursor-pointer"
-                onClick={async (e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  if (book._id) {
-                    await addToCart(book._id, 1);
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  className={`h-8 w-8 rounded-full flex items-center justify-center transition-all cursor-pointer ${
+                    isWishlisted
+                      ? "bg-pink-500 text-white hover:bg-pink-600"
+                      : "bg-pink-50 text-pink-500 hover:bg-pink-500 hover:text-white"
+                  }`}
+                  onClick={handleWishlistToggle}
+                  disabled={wishlistLoading}
+                  aria-label={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
+                >
+                  <span
+                    className={`material-symbols-outlined text-[18px] leading-none ${
+                      isWishlisted ? "fill" : ""
+                    }`}
+                  >
+                    favorite
+                  </span>
+                </button>
+                <button
+                  type="button"
+                  className={`h-8 w-8 rounded-full flex items-center justify-center transition-all ${
+                    isOutOfStock
+                      ? "bg-gray-100 text-gray-300 cursor-not-allowed"
+                      : "bg-primary/10 text-primary hover:bg-primary hover:text-white cursor-pointer"
+                  }`}
+                  onClick={async (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    if (book._id && !isOutOfStock) {
+                      await addToCart(book._id, 1);
+                    }
+                  }}
+                  disabled={isOutOfStock}
+                  aria-label={
+                    isOutOfStock
+                      ? "Out of stock"
+                      : "Add to cart"
                   }
-                }}
-              >
-                <ShoppingCart className="h-4 w-4" />
-              </button>
+                  title={isOutOfStock ? "Hết hàng" : "Thêm vào giỏ hàng"}
+                >
+                  <ShoppingCart className="h-4 w-4" />
+                </button>
+              </div>
             </div>
 
             <button

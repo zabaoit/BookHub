@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { BrowserRouter, Route, Routes } from "react-router";
+import { Navigate } from "react-router";
 import { Toaster } from "sonner";
 import HomePage from "./pages/HomePage";
 import AboutPage from "./pages/AboutPage";
@@ -18,6 +19,8 @@ import OrderHistory from "./pages/user/OrderHistory";
 import OrderDetail from "./pages/user/OrderDetail";
 import AddressManagement from "./pages/user/AddressManagement";
 import WishlistPage from "./pages/user/WishlistPage";
+import AdminRoute from "./pages/admin/AdminRoute";
+import AdminPage from "./pages/admin/AdminPage";
 import ForgotPassWord from "./pages/auth/ForgotPassWord";
 import ResetPassword from "./pages/auth/ResetPassword";
 import VerifyEmail from "./pages/auth/VerifyEmail";
@@ -67,6 +70,7 @@ const App = () => {
 
           {/* private routes */}
           <Route element={<ProtectedRoute />}>
+            <Route path="/account" element={<Navigate to="/account/profile" replace />} />
             <Route path="/checkout/information" element={<InfomationPage />} />
             <Route
               path="/checkout/shipping"
@@ -84,6 +88,11 @@ const App = () => {
               element={<AddressManagement />}
             />
             <Route path="/account/wishlist" element={<WishlistPage />} />
+
+            <Route element={<AdminRoute />}>
+              <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
+              <Route path="/admin/:section" element={<AdminPage />} />
+            </Route>
           </Route>
         </Routes>
       </BrowserRouter>

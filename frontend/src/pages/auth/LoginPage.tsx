@@ -4,6 +4,7 @@ import useAuthStore from "../../store/useAuthStore";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
+import { authService } from "../../services/authService";
 
 const LoginSchema = z.object({
   email: z
@@ -32,6 +33,30 @@ const LoginPage = () => {
 
       navigate("/");
     } catch (err: unknown) {
+      const error = err as Error & { status?: number; data?: { email?: string; verificationSent?: boolean } };
+
+      if (error?.status === 403 && /xác minh/i.test(error.message)) {
+        if (!error.data?.verificationSent) {
+          try {
+            await authService.requestEmailVerification(data.email);
+          } catch (requestError) {
+            console.error("Failed to request verification email", requestError);
+          }
+        }
+
+        localStorage.setItem(
+          "bookhub_auth_challenge",
+          JSON.stringify({ mode: "verify", email: data.email })
+        );
+        navigate("/verify-email", {
+          state: {
+            email: data.email,
+          },
+        });
+        toast.info("Mã xác minh đã được gửi về Gmail của bạn.");
+        return;
+      }
+
       if (err instanceof Error) {
         toast.error(err.message);
       } else {

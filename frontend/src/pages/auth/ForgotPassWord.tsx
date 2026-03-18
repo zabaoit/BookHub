@@ -1,89 +1,102 @@
-import { Link } from "react-router";
+import { useState } from "react";
+import type { FormEvent } from "react";
+import { Link, useNavigate } from "react-router";
+import { toast } from "sonner";
+import { authService } from "../../services/authService";
+
+const getApiErrorMessage = (error: unknown, fallback: string) => {
+  if (typeof error === "object" && error !== null) {
+    const maybeError = error as { response?: { data?: { message?: unknown } } };
+    const message = maybeError.response?.data?.message;
+    if (typeof message === "string" && message.trim()) {
+      return message;
+    }
+  }
+
+  if (error instanceof Error && error.message.trim()) {
+    return error.message;
+  }
+
+  return fallback;
+};
 
 const ForgotPassWord = () => {
+  const navigate = useNavigate();
+  const [email, setEmail] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    if (!email.trim()) {
+      toast.error("Vui lòng nhập email.");
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const response = await authService.forgotPassword(email.trim());
+      localStorage.setItem(
+        "bookhub_auth_challenge",
+        JSON.stringify({ mode: "reset", email: email.trim() })
+      );
+
+      toast.success(response.message || "Đã tạo mã đặt lại mật khẩu.");
+      navigate("/verify-email", {
+        state: {
+          email: email.trim(),
+          mode: "reset",
+        },
+      });
+    } catch (error) {
+      toast.error(getApiErrorMessage(error, "Không thể tạo mã đặt lại mật khẩu."));
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
-    <div className="font-display bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark">
-      <div className="relative flex h-auto min-h-screen w-full flex-col group/design-root overflow-x-hidden ">
-        <div className="layout-container flex h-full grow flex-col">
-          <div className="flex flex-1 justify-center items-center py-5 px-4 sm:px-6 lg:px-8">
-            <div className="layout-content-container flex flex-col max-w-[480px] w-full flex-1">
-              {/* <!-- Header/Logo --> */}
-              <header className="flex items-center justify-center whitespace-nowrap px-10 py-8">
-                <div className="flex items-center gap-3 text-text-light dark:text-text-dark">
-                  <span className="material-symbols-outlined text-4xl text-primary">
-                    auto_stories
-                  </span>
-                  <h1 className="font-display text-2xl font-bold leading-tight tracking-tight">
-                    BookHub
-                  </h1>
-                </div>
-              </header>
-              <div className="bg-white dark:bg-[#2c2c2c] p-8 sm:p-10 rounded-xl shadow-sm border border-border-light dark:border-border-dark">
-                {/* <!-- PageHeading --> */}
-                <div className="flex flex-wrap justify-between gap-3 mb-6 text-center">
-                  <div className="flex w-full flex-col gap-2">
-                    <p className="font-display text-3xl font-bold leading-tight tracking-tight text-text-light dark:text-text-dark">
-                      Forgot Your Password?
-                    </p>
-                    <p className="text-muted-light dark:text-muted-dark text-base font-normal leading-normal">
-                      No problem. Enter the email address associated with your
-                      account, and we'll send you a link to reset your password.
-                    </p>
-                  </div>
-                </div>
-                {/* <!-- Form Container --> */}
-                <div className="flex flex-col gap-6">
-                  {/* <!-- TextField --> */}
-                  <div className="flex flex-col gap-4">
-                    <label className="flex flex-col w-full">
-                      <p className="text-sm font-medium leading-normal pb-2 text-text-light dark:text-text-dark">
-                        Email Address
-                      </p>
-                      <input
-                        className="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg border border-border-light dark:border-border-dark bg-white dark:bg-[#3a3a3a] text-text-light dark:text-text-dark placeholder:text-muted-light dark:placeholder:text-muted-dark focus:border-primary focus:ring-primary h-12 p-3 text-base font-normal leading-normal"
-                        placeholder="you@example.com"
-                        type="email"
-                      />
-                    </label>
-                  </div>
-                  {/* <!-- SingleButton --> */}
-                  <div className="flex justify-center">
-                    <Link
-                      to="/verify-email"
-                      className="flex min-w-[84px] w-full cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-5 bg-primary text-white text-base font-bold leading-normal tracking-[0.015em] hover:opacity-90 transition-opacity"
-                    >
-                      <span className="truncate">Send Reset Link</span>
-                    </Link>
-                  </div>
-                  {/* <!-- Success Message (hidden by default) --> */}
-                  {/* <!-- To show this, remove the 'hidden' className and add 'flex' --> */}
-                  <div className="hidden items-start gap-3 rounded-lg border border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-900/20 p-4">
-                    <span className="material-symbols-outlined text-accent-success mt-0.5">
-                      check_circle
-                    </span>
-                    <div className="flex flex-col">
-                      <p className="font-medium text-green-800 dark:text-green-300">
-                        Check your inbox!
-                      </p>
-                      <p className="text-sm text-green-700 dark:text-green-400">
-                        We've sent a password reset link to your email address.
-                      </p>
-                    </div>
-                  </div>
-                  {/* <!-- MetaText --> */}
-                  <Link
-                    className="text-muted-light dark:text-muted-dark text-sm font-normal leading-normal text-center "
-                    to="/signin"
-                  >
-                    <span className="font-normal">Remember your password?</span>{" "}
-                    <span className="font-bold text-primary hover:underline">
-                      Back to Login
-                    </span>
-                  </Link>
-                </div>
-              </div>
+    <div className="bg-background font-display text-foreground">
+      <div className="flex min-h-screen items-center justify-center p-4">
+        <div className="w-full max-w-md rounded-[28px] border border-border bg-card p-8 shadow-sm">
+          <div className="mb-8 text-center">
+            <div className="mb-4 flex items-center justify-center gap-2">
+              <span className="material-symbols-outlined text-4xl text-primary">auto_stories</span>
+              <h1 className="text-2xl font-bold">BookHub</h1>
             </div>
+            <h2 className="text-3xl font-black tracking-tight">Forgot Password</h2>
+            <p className="mt-3 text-sm text-muted-foreground">
+              Nhập email của bạn, mình sẽ tạo mã để đặt lại mật khẩu.
+            </p>
           </div>
+
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <label className="grid gap-2">
+              <span className="text-sm font-medium text-muted-foreground">Email</span>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="you@example.com"
+                className="h-12 rounded-2xl border border-border bg-background px-4 text-sm outline-none placeholder:text-muted-foreground focus:border-primary"
+              />
+            </label>
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="flex h-12 w-full items-center justify-center rounded-2xl bg-primary text-sm font-semibold text-primary-foreground hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {loading ? "Sending..." : "Send Reset Code"}
+            </button>
+          </form>
+
+          <p className="mt-6 text-center text-sm text-muted-foreground">
+            Remember your password?{" "}
+            <Link className="font-semibold text-primary hover:underline" to="/signin">
+              Back to Login
+            </Link>
+          </p>
         </div>
       </div>
     </div>

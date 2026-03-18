@@ -13,7 +13,7 @@ export interface AuthState {
     username: string,
     email: string,
     password: string
-  ) => Promise<boolean>;
+  ) => Promise<{ email: string; message?: string }>;
 
   login: (email: string, password: string) => Promise<boolean>;
   logout: () => Promise<void>;

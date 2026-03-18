@@ -11,6 +11,8 @@ node_modules
 dist
 dist-ssr
 *.local
+/scripts/test-frontend.mjs
+/scripts/test-frontend-browser.mjs
 
 # Editor directories and files
 .vscode/*

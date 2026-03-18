@@ -12,16 +12,48 @@ export const bookService = {
     const parsedLimit = Number(limit);
     const safePage = Number.isFinite(parsedPage) && parsedPage > 0 ? Math.floor(parsedPage) : 1;
     const normalizedLimit = Number.isFinite(parsedLimit) && parsedLimit > 0 ? Math.floor(parsedLimit) : 16;
-    const safeLimit = Math.min(50, normalizedLimit);
+    const safeLimit = Math.min(50, Math.max(16, normalizedLimit));
+    const safeFilters: Record<string, string> = {};
+    const categoryValues = Array.isArray(filters.categories)
+      ? filters.categories
+      : filters.category
+        ? [filters.category]
+        : [];
+
+    Object.entries(filters).forEach(([key, value]) => {
+      if (value === undefined || value === "") {
+        return;
+      }
+
+      if (key === "category" || key === "author") {
+        const parsedId = Number.parseInt(String(value), 10);
+        if (Number.isFinite(parsedId) && parsedId > 0) {
+          safeFilters[key] = parsedId.toString();
+        }
+        return;
+      }
+
+      if (key === "categories") {
+        return;
+      }
+
+      safeFilters[key] = String(value);
+    });
+
+    if (categoryValues.length > 0) {
+      const parsedCategoryIds = categoryValues
+        .map((value) => Number.parseInt(String(value), 10))
+        .filter((value) => Number.isFinite(value) && value > 0);
+
+      if (parsedCategoryIds.length > 0) {
+        safeFilters.categories = parsedCategoryIds.join(",");
+      }
+    }
 
     const params = new URLSearchParams({
       page: safePage.toString(),
       limit: safeLimit.toString(),
-      ...Object.fromEntries(
-        Object.entries(filters).filter(
-          ([, value]) => value !== undefined && value !== ""
-        )
-      ),
+      ...safeFilters,
     });
 
     const res = await api.get(`/books?${params.toString()}`);
@@ -85,10 +117,12 @@ export const bookService = {
 
   // Get books by category
   fetchBooksByCategory: async (
-    category: string,
+    category: string | string[],
     page = 1,
     limit = 16
   ): Promise<BookListResponse> => {
-    return bookService.fetchAllBooks(page, limit, { category });
+    return Array.isArray(category)
+      ? bookService.fetchAllBooks(page, limit, { categories: category })
+      : bookService.fetchAllBooks(page, limit, { category });
   },
 };

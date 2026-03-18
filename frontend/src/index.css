@@ -136,6 +136,16 @@
     border-color: hsl(var(--border));
   }
 
+  button:not(:disabled):hover,
+  input[type="button"]:not(:disabled):hover,
+  input[type="submit"]:not(:disabled):hover,
+  input[type="reset"]:not(:disabled):hover,
+  a[href]:hover,
+  summary:hover,
+  [role="button"]:not([aria-disabled="true"]):hover {
+    cursor: pointer;
+  }
+
   body {
     @apply bg-background text-foreground antialiased;
     font-family: var(--font-body);

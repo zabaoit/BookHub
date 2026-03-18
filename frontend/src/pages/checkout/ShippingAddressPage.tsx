@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router";
+import { Link, useLocation } from "react-router";
 import { toast } from "sonner";
 import Footer from "../../components/Footer";
 import Header from "../../components/Header";
 import { useCartStore } from "../../store/useCartStore";
 import { userService } from "../../services/userService";
+import { calculatePromoDiscount } from "../../libs/promo";
 
 // Vietnamese Provinces
 const PROVINCES = [
@@ -46,17 +47,21 @@ interface Address {
 }
 
 const ShippingAddressPage = () => {
-  const { items, totalAmount, setCheckoutData } = useCartStore();
+  const { items, totalAmount, checkoutData, setCheckoutData } = useCartStore();
+  const location = useLocation();
+  const returnToReview = Boolean((location.state as { returnToReview?: boolean } | null)?.returnToReview);
   const shippingFee = 30000;
+  const promoDiscount = calculatePromoDiscount(totalAmount, checkoutData.promoCode);
+  const finalTotal = Math.max(0, totalAmount - promoDiscount + shippingFee);
 
   const [addresses, setAddresses] = useState<Address[]>([]);
   const [formData, setFormData] = useState({
     savedAddress: "",
-    fullName: "",
-    phoneNumber: "",
-    provinceCity: "",
-    wardCommune: "",
-    specificAddress: "",
+    fullName: checkoutData.shippingAddress?.fullName || "",
+    phoneNumber: checkoutData.shippingAddress?.phoneNumber || "",
+    provinceCity: checkoutData.shippingAddress?.provinceCity || "",
+    wardCommune: checkoutData.shippingAddress?.wardCommune || "",
+    specificAddress: checkoutData.shippingAddress?.specificAddress || "",
   });
 
   useEffect(() => {
@@ -65,23 +70,35 @@ const ShippingAddressPage = () => {
         const res = await userService.getAddresses();
         const addressData: Address[] = Array.isArray(res.data) ? res.data : [];
         setAddresses(addressData);
-        const defaultAddress = addressData.find((a) => a.isDefault);
-        if (defaultAddress) {
-          setFormData({
-            savedAddress: defaultAddress._id,
-            fullName: defaultAddress.fullName,
-            phoneNumber: defaultAddress.phone,
-            provinceCity: defaultAddress.city,
-            wardCommune: defaultAddress.ward,
-            specificAddress: defaultAddress.specificAddress
-          });
+        if (checkoutData.shippingAddress) {
+          setFormData((prev) => ({
+            ...prev,
+            savedAddress: "",
+            fullName: checkoutData.shippingAddress?.fullName || "",
+            phoneNumber: checkoutData.shippingAddress?.phoneNumber || "",
+            provinceCity: checkoutData.shippingAddress?.provinceCity || "",
+            wardCommune: checkoutData.shippingAddress?.wardCommune || "",
+            specificAddress: checkoutData.shippingAddress?.specificAddress || "",
+          }));
+        } else {
+          const defaultAddress = addressData.find((a) => a.isDefault);
+          if (defaultAddress) {
+            setFormData({
+              savedAddress: defaultAddress._id,
+              fullName: defaultAddress.fullName,
+              phoneNumber: defaultAddress.phone,
+              provinceCity: defaultAddress.city,
+              wardCommune: defaultAddress.ward,
+              specificAddress: defaultAddress.specificAddress
+            });
+          }
         }
       } catch {
         toast.error("Không thể tải danh sách địa chỉ.");
       }
     };
     fetchAddresses();
-  }, []);
+  }, [checkoutData.shippingAddress]);
 
   const isFormValid =
     formData.savedAddress !== "" ||
@@ -311,13 +328,19 @@ const ShippingAddressPage = () => {
                       </p>
                       <p className="font-medium">{shippingFee.toLocaleString("vi-VN")}đ</p>
                     </div>
+                    <div className="flex justify-between text-sm text-green-600">
+                      <p className="text-muted-light dark:text-muted-dark">
+                        Discount
+                      </p>
+                      <p className="font-medium">-{promoDiscount.toLocaleString("vi-VN")}đ</p>
+                    </div>
                     <div className="flex justify-between text-lg font-bold pt-3 border-t border-border-light dark:border-border-dark">
                       <p>Total</p>
-                      <p>{(totalAmount + shippingFee).toLocaleString("vi-VN")}đ</p>
+                      <p>{finalTotal.toLocaleString("vi-VN")}đ</p>
                     </div>
                   </div>
                   <Link
-                    to={isFormValid ? "/checkout/payment" : "#"}
+                    to={isFormValid ? (returnToReview ? "/checkout/review" : "/checkout/payment") : "#"}
                     onClick={(e) => {
                       if (!isFormValid) {
                         e.preventDefault();
@@ -354,7 +377,7 @@ const ShippingAddressPage = () => {
                         : "bg-primary/50 text-white/70 cursor-not-allowed pointer-events-none"
                     }`}
                   >
-                    Next: Payment
+                    {returnToReview ? "Save & Return to Review" : "Next: Payment"}
                   </Link>
                 </div>
               </div>

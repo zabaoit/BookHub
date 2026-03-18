@@ -1,13 +1,20 @@
 import { useState, type CSSProperties } from "react";
-import { Link } from "react-router";
+import { Link, useLocation } from "react-router";
 import Footer from "../../components/Footer";
 import Header from "../../components/Header";
 import { useCartStore } from "../../store/useCartStore";
+import { calculatePromoDiscount } from "../../libs/promo";
 
 const PaymentPage = () => {
-  const { totalAmount, setCheckoutData } = useCartStore();
-  const [paymentMethod, setPaymentMethod] = useState("VNPAY");
+  const { totalAmount, checkoutData, setCheckoutData } = useCartStore();
+  const location = useLocation();
+  const returnToReview = Boolean((location.state as { returnToReview?: boolean } | null)?.returnToReview);
+  const [paymentMethod, setPaymentMethod] = useState(
+    checkoutData.paymentMethod || "VNPAY"
+  );
   const shippingFee = 30000;
+  const promoDiscount = calculatePromoDiscount(totalAmount, checkoutData.promoCode);
+  const finalTotal = Math.max(0, totalAmount - promoDiscount + shippingFee);
   return (
     <div>
       <Header />
@@ -143,11 +150,17 @@ const PaymentPage = () => {
                         </span>
                         <span className="font-medium">{shippingFee.toLocaleString("vi-VN")}đ</span>
                       </div>
+                      <div className="flex justify-between text-green-600">
+                        <span className="text-text-light/80 dark:text-text-dark/80">
+                          Discount
+                        </span>
+                        <span className="font-medium">-{promoDiscount.toLocaleString("vi-VN")}đ</span>
+                      </div>
                     </div>
                     <div className="mt-6 pt-4 border-t border-border-light dark:border-border-dark">
                       <div className="flex justify-between items-baseline font-bold">
                         <span className="text-lg">Total</span>
-                        <span className="text-2xl text-primary">{(totalAmount + shippingFee).toLocaleString("vi-VN")}đ</span>
+                        <span className="text-2xl text-primary">{finalTotal.toLocaleString("vi-VN")}đ</span>
                       </div>
                     </div>
                     <div className="mt-8">
@@ -158,7 +171,7 @@ const PaymentPage = () => {
                         }}
                         className="w-full flex items-center justify-center bg-primary text-white font-bold py-3 px-4 rounded-lg hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:ring-offset-2 focus:ring-offset-card-light dark:focus:ring-offset-card-dark transition-colors text-base"
                       >
-                        Next: Review &amp; Pay
+                        {returnToReview ? "Save & Return to Review" : "Next: Review & Pay"}
                       </Link>
                     </div>
                   </div>

@@ -1,121 +1,204 @@
+import { useEffect, useMemo, useState } from "react";
+import type { FormEvent } from "react";
+import { Link, useLocation, useNavigate, useSearchParams } from "react-router";
+import { toast } from "sonner";
+import { authService } from "../../services/authService";
+
+type VerifyMode = "verify" | "reset";
+
+const getApiErrorMessage = (error: unknown, fallback: string) => {
+  if (typeof error === "object" && error !== null) {
+    const maybeError = error as { response?: { data?: { message?: unknown } } };
+    const message = maybeError.response?.data?.message;
+    if (typeof message === "string" && message.trim()) {
+      return message;
+    }
+  }
+
+  if (error instanceof Error && error.message.trim()) {
+    return error.message;
+  }
+
+  return fallback;
+};
+
 const VerifyEmail = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [searchParams] = useSearchParams();
+  const locationState = location.state as { email?: string; mode?: VerifyMode; code?: string } | null;
+  const mode =
+    (searchParams.get("mode") as VerifyMode) ||
+    locationState?.mode ||
+    "verify";
+  const queryEmail = searchParams.get("email") || "";
+  const cachedChallenge = (() => {
+    try {
+      const raw = localStorage.getItem("bookhub_auth_challenge");
+      return raw ? (JSON.parse(raw) as { mode?: string; email?: string; code?: string }) : null;
+    } catch {
+      return null;
+    }
+  })();
+
+  const initialEmail = useMemo(
+    () => queryEmail || locationState?.email || cachedChallenge?.email || "",
+    [cachedChallenge?.email, locationState?.email, queryEmail]
+  );
+
+  const [email, setEmail] = useState(initialEmail);
+  const [code, setCode] = useState(locationState?.code || cachedChallenge?.code || "");
+  const [loading, setLoading] = useState(false);
+  const [resending, setResending] = useState(false);
+
+  useEffect(() => {
+    if (queryEmail) {
+      setEmail(queryEmail);
+      return;
+    }
+
+    if (locationState?.email) {
+      setEmail(locationState.email);
+      return;
+    }
+
+    if (cachedChallenge?.email) {
+      setEmail(cachedChallenge.email);
+    }
+  }, [cachedChallenge?.email, locationState?.email, queryEmail]);
+
+  const title = mode === "reset" ? "Verify Reset Code" : "Verify Your Email";
+  const description =
+    mode === "reset"
+      ? "Nhập mã vừa tạo để chuyển sang bước đặt lại mật khẩu."
+      : "Nhập mã xác minh để hoàn tất kích hoạt tài khoản.";
+
+  const handleResend = async () => {
+    if (!email.trim()) {
+      toast.error("Vui lòng nhập email trước.");
+      return;
+    }
+
+    try {
+      setResending(true);
+      const response =
+        mode === "reset"
+          ? await authService.forgotPassword(email.trim())
+          : await authService.requestEmailVerification(email.trim());
+      toast.success(response.message || "Đã gửi lại mã.");
+    } catch (error) {
+      toast.error(getApiErrorMessage(error, "Không thể gửi lại mã."));
+    } finally {
+      setResending(false);
+    }
+  };
+
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    if (!email.trim() || !code.trim()) {
+      toast.error("Vui lòng nhập đầy đủ mã xác minh.");
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      if (mode === "reset") {
+        await authService.verifyResetCode(email.trim(), code.trim());
+        toast.success("Đã xác minh mã đặt lại mật khẩu.");
+        localStorage.setItem(
+          "bookhub_auth_challenge",
+          JSON.stringify({ mode: "reset", email: email.trim(), code: code.trim() })
+        );
+        navigate("/reset-password", {
+          state: {
+            email: email.trim(),
+            code: code.trim(),
+            mode: "reset",
+          },
+          replace: true,
+        });
+        return;
+      }
+
+      const response = await authService.verifyEmail(email.trim(), code.trim());
+      toast.success(response.message || "Xác minh email thành công!");
+      localStorage.removeItem("bookhub_auth_challenge");
+      navigate("/signin");
+    } catch (error) {
+      toast.error(getApiErrorMessage(error, "Xác minh thất bại."));
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
-    <div className="font-display bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark">
-      <div className="relative flex h-auto min-h-screen w-full flex-col group/design-root overflow-x-hidden ">
-        <div className="layout-container flex h-full grow flex-col">
-          <div className="flex flex-1 justify-center items-center py-5 px-4 sm:px-6 lg:px-8">
-            <div className="layout-content-container flex flex-col max-w-[480px] w-full flex-1">
-              {/* <!-- Header/Logo --> */}
-              <header className="flex items-center justify-center whitespace-nowrap px-10 py-4">
-                <div className="flex items-center gap-3 text-text-light dark:text-text-dark">
-                  <span className="material-symbols-outlined text-4xl text-primary">
-                    auto_stories
-                  </span>
-                  <h1 className="font-display text-2xl font-bold leading-tight tracking-tight">
-                    BookHub
-                  </h1>
-                </div>
-              </header>
-              <main className="flex flex-1 items-center justify-center py-4 px-4 sm:px-6 lg:px-8">
-                <div className="w-full max-w-md space-y-8">
-                  <div className="bg-white p-8 shadow-md rounded-xl  ">
-                    <div className="flex flex-col items-center text-center">
-                      <div className="mb-4">
-                        <span
-                          className="material-symbols-outlined text-5xl text-primary"
-                          data-icon="mark_email_unread"
-                        ></span>
-                      </div>
-                      <h1 className="font-heading text-3xl font-bold tracking-tight text-text-primary">
-                        Verify Your Email
-                      </h1>
-                      <p className="mt-4 text-base font-normal leading-normal text-text-secondary">
-                        We sent a verification link to:
-                      </p>
-                      <p className="text-base font-bold leading-normal text-primary">
-                        example@email.com
-                      </p>
-                      <p className="mt-2 text-sm text-text-secondary">
-                        Click the link in the email to complete your
-                        registration.
-                      </p>
-                      <div className="w-full mt-4">
-                        <button className="flex w-full min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-5 bg-primary hover:bg-primary-light text-white text-base font-bold leading-normal tracking-[0.015em] transition-colors">
-                          <span className="truncate">Open Email App</span>
-                        </button>
-                      </div>
-                      <div className="mt-4 text-center w-full">
-                        <p className="text-sm text-text-secondary">
-                          Didn't receive the email?
-                        </p>
-                        <button
-                          className="flex w-full min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-transparent text-text-secondary text-sm font-bold leading-normal tracking-[0.015em] mt-2 opacity-50 cursor-not-allowed"
-                          //   disabled=""
-                        >
-                          <span className="truncate">Resend Link (30s)</span>
-                        </button>
-                      </div>
-                      <div className="relative mt-4 w-full">
-                        <div
-                          aria-hidden="true"
-                          className="absolute inset-0 flex items-center"
-                        >
-                          <div className="w-full border-t border-border"></div>
-                        </div>
-                        <div className="relative flex justify-center text-sm">
-                          <span className="bg-white px-2 text-text-secondary">
-                            Or
-                          </span>
-                        </div>
-                      </div>
-                      <div className="w-full mt-4 text-center">
-                        <label
-                          className="block text-sm font-medium text-text-secondary"
-                          htmlFor="code-input"
-                        >
-                          Enter verification code:
-                        </label>
-                        <div
-                          className="mt-2 flex justify-center gap-2"
-                          id="code-input"
-                        >
-                          <input
-                            className="h-12 w-10 rounded-md  text-center text-lg font-semibold shadow-sm focus-within:ring-2 focus-within:border-primary focus-within:ring-primary/20 transition-all"
-                            maxLength={1}
-                            type="text"
-                          />
-                          <input
-                            className="h-12 w-10 rounded-md  text-center text-lg font-semibold shadow-sm focus-within:ring-2 focus-within:border-primary focus-within:ring-primary/20 transition-all"
-                            maxLength={1}
-                            type="text"
-                          />
-                          <input
-                            className="h-12 w-10 rounded-md  text-center text-lg font-semibold shadow-sm focus-within:ring-2 focus-within:border-primary focus-within:ring-primary/20 transition-all"
-                            maxLength={1}
-                            type="text"
-                          />
-                          <input
-                            className="h-12 w-10 rounded-md  text-center text-lg font-semibold shadow-sm focus-within:ring-2 focus-within:border-primary focus-within:ring-primary/20 transition-all"
-                            maxLength={1}
-                            type="text"
-                          />
-                          <input
-                            className="h-12 w-10 rounded-md  text-center text-lg font-semibold shadow-sm focus-within:ring-2 focus-within:border-primary focus-within:ring-primary/20 transition-all"
-                            maxLength={1}
-                            type="text"
-                          />
-                          <input
-                            className="h-12 w-10 rounded-md  text-center text-lg font-semibold shadow-sm focus-within:ring-2 focus-within:border-primary focus-within:ring-primary/20 transition-all"
-                            maxLength={1}
-                            type="text"
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </main>
+    <div className="bg-background font-display text-foreground">
+      <div className="flex min-h-screen items-center justify-center p-4">
+        <div className="w-full max-w-md rounded-[28px] border border-border bg-card p-8 shadow-sm">
+          <div className="mb-8 text-center">
+            <div className="mb-4 flex items-center justify-center gap-2">
+              <span className="material-symbols-outlined text-4xl text-primary">auto_stories</span>
+              <h1 className="text-2xl font-bold">BookHub</h1>
             </div>
+            <h2 className="text-3xl font-black tracking-tight">{title}</h2>
+            <p className="mt-3 text-sm text-muted-foreground">{description}</p>
+          </div>
+
+          <form onSubmit={handleSubmit} className="space-y-5">
+            {!email.trim() && (
+              <label className="grid gap-2">
+                <span className="text-sm font-medium text-muted-foreground">Email</span>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="you@example.com"
+                  className="h-12 rounded-2xl border border-border bg-background px-4 text-sm outline-none placeholder:text-muted-foreground focus:border-primary"
+                />
+              </label>
+            )}
+
+            <label className="grid gap-2">
+              <span className="text-sm font-medium text-muted-foreground">Verification Code</span>
+              <input
+                type="text"
+                value={code}
+                onChange={(e) => setCode(e.target.value)}
+                placeholder="Enter 6-digit code"
+                className="h-12 rounded-2xl border border-border bg-background px-4 text-sm outline-none placeholder:text-muted-foreground focus:border-primary"
+              />
+            </label>
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="flex h-12 w-full items-center justify-center rounded-2xl bg-primary text-sm font-semibold text-primary-foreground hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {loading ? "Checking..." : mode === "reset" ? "Continue to Reset Password" : "Verify Email"}
+            </button>
+          </form>
+
+          {email && (
+            <p className="mt-4 text-center text-xs text-muted-foreground">
+              Mã đã được gửi tới email của bạn.
+            </p>
+          )}
+
+          <div className="mt-5 grid gap-3">
+            <button
+              type="button"
+              onClick={handleResend}
+              disabled={resending}
+              className="flex h-12 w-full items-center justify-center rounded-2xl border border-border bg-secondary text-sm font-semibold text-foreground hover:bg-accent disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {resending ? "Sending..." : "Resend Code"}
+            </button>
+
+            <Link className="text-center text-sm text-muted-foreground hover:text-foreground" to="/signin">
+              Back to Login
+            </Link>
           </div>
         </div>
       </div>
@@ -124,4 +207,3 @@ const VerifyEmail = () => {
 };
 
 export default VerifyEmail;
-

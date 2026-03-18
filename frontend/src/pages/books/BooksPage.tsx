@@ -1,10 +1,11 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router";
 import Footer from "../../components/Footer";
 import Header from "../../components/Header";
 import BookCard from "../../components/BookCard";
 import useBookStore from "../../store/useBookStore";
 import type { BookFilters } from "../../types/book";
+import { categoryService, type CategorySummary } from "../../services/categoryService";
 import {
   Search,
   RotateCcw,
@@ -28,14 +29,61 @@ const BooksPage = () => {
     setPage,
     clearFilters,
   } = useBookStore();
+  const [availableCategories, setAvailableCategories] = useState<CategorySummary[]>([]);
+  const [priceDraft, setPriceDraft] = useState({
+    minPrice: "",
+    maxPrice: "",
+  });
 
   useEffect(() => {
     const querySearch = (searchParams.get("search") || "").trim();
     fetchBooks(1, { ...filters, search: querySearch });
   }, [fetchBooks, searchParams]);
 
+  useEffect(() => {
+    const loadCategories = async () => {
+      try {
+        const categories = await categoryService.getAllCategories(1, 100);
+        setAvailableCategories(categories);
+      } catch (error) {
+        console.error("Failed to load categories", error);
+        setAvailableCategories([]);
+      }
+    };
+
+    loadCategories();
+  }, []);
+
   const handleFilterChange = (newFilters: Partial<typeof filters>) => {
     setFilters(newFilters);
+  };
+
+  const applyPriceFilter = (field: "minPrice" | "maxPrice") => {
+    const rawValue = priceDraft[field].trim();
+    const parsedValue = rawValue === "" ? undefined : Number(rawValue);
+
+    handleFilterChange({
+      [field]: Number.isFinite(parsedValue as number)
+        ? parsedValue
+        : undefined,
+    });
+  };
+
+  const selectedCategoryIds = filters.categories?.length
+    ? filters.categories
+    : filters.category
+      ? [filters.category]
+      : [];
+
+  const handleCategoryToggle = (categoryId: string) => {
+    const updatedCategoryIds = selectedCategoryIds.includes(categoryId)
+      ? selectedCategoryIds.filter((id) => id !== categoryId)
+      : [...selectedCategoryIds, categoryId];
+
+    handleFilterChange({
+      category: "",
+      categories: updatedCategoryIds,
+    });
   };
 
   const handlePageChange = (page: number) => {
@@ -43,6 +91,10 @@ const BooksPage = () => {
   };
 
   const handleClearFilters = () => {
+    setPriceDraft({
+      minPrice: "",
+      maxPrice: "",
+    });
     clearFilters();
   };
 
@@ -84,25 +136,43 @@ const BooksPage = () => {
                 <div className="space-y-4">
                   <div className="flex items-center gap-2">
                     <input
-                      type="number"
+                      type="text"
+                      inputMode="numeric"
                       placeholder="Từ"
                       className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm outline-none"
+                      value={priceDraft.minPrice}
                       onChange={(e) =>
-                        handleFilterChange({
-                          minPrice: Number(e.target.value) || undefined,
-                        })
+                        setPriceDraft((current) => ({
+                          ...current,
+                          minPrice: e.target.value.replace(/[^\d]/g, ""),
+                        }))
                       }
+                      onBlur={() => applyPriceFilter("minPrice")}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          e.currentTarget.blur();
+                        }
+                      }}
                     />
                     <span className="text-gray-400">-</span>
                     <input
-                      type="number"
+                      type="text"
+                      inputMode="numeric"
                       placeholder="Đến"
                       className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm outline-none"
+                      value={priceDraft.maxPrice}
                       onChange={(e) =>
-                        handleFilterChange({
-                          maxPrice: Number(e.target.value) || undefined,
-                        })
+                        setPriceDraft((current) => ({
+                          ...current,
+                          maxPrice: e.target.value.replace(/[^\d]/g, ""),
+                        }))
                       }
+                      onBlur={() => applyPriceFilter("maxPrice")}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          e.currentTarget.blur();
+                        }
+                      }}
                     />
                   </div>
                 </div>
@@ -112,32 +182,25 @@ const BooksPage = () => {
               <div className="mb-6">
                 <p className="text-sm font-semibold mb-3">Thể loại</p>
                 <div className="space-y-2 max-h-48 overflow-y-auto pr-2 custom-scrollbar">
-                  {[
-                    "Văn học",
-                    "Kinh tế",
-                    "Kỹ năng sống",
-                    "Thiếu nhi",
-                    "Ngoại ngữ",
-                  ].map((cat) => (
+                  {availableCategories.map((cat) => (
                     <label
-                      key={cat}
+                      key={cat._id}
                       className="flex items-center gap-2 cursor-pointer group"
                     >
                       <input
                         type="checkbox"
                         className="rounded border-gray-300 text-primary focus:ring-primary"
-                        checked={filters.category === cat}
-                        onChange={() =>
-                          handleFilterChange({
-                            category: filters.category === cat ? "" : cat,
-                          })
-                        }
+                        checked={selectedCategoryIds.includes(cat._id)}
+                        onChange={() => handleCategoryToggle(cat._id)}
                       />
                       <span className="text-sm text-gray-600 group-hover:text-primary transition-colors">
-                        {cat}
+                        {cat.name}
                       </span>
                     </label>
                   ))}
+                  {availableCategories.length === 0 && (
+                    <p className="text-xs text-gray-400">Đang tải thể loại...</p>
+                  )}
                 </div>
               </div>
 

@@ -69,6 +69,7 @@ const AddressManagement = () => {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState(emptyForm);
   const [isSaving, setIsSaving] = useState(false);
+  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
 
   const fetchAddresses = async () => {
     try {
@@ -161,6 +162,8 @@ const AddressManagement = () => {
     }
   };
 
+  void handleDelete;
+
   const inputClass =
     "form-input flex w-full rounded-lg text-text-light dark:text-text-dark focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-border-light dark:border-border-dark bg-white dark:bg-zinc-800 h-11 placeholder:text-subtle-light dark:placeholder:text-subtle-dark px-4 text-sm";
   const selectClass =
@@ -223,7 +226,7 @@ const AddressManagement = () => {
                         <button onClick={() => openEditForm(addr)} className="flex min-w-[84px] cursor-pointer items-center justify-center rounded-md h-9 px-3 bg-black/5 dark:bg-white/10 text-text-light dark:text-text-dark text-sm font-semibold hover:bg-black/10 dark:hover:bg-white/20 transition-colors">
                           Chỉnh sửa
                         </button>
-                        <button onClick={() => handleDelete(addr._id)} className="flex min-w-[84px] cursor-pointer items-center justify-center rounded-md h-9 px-3 text-red-500 text-sm font-semibold hover:bg-red-500/10 transition-colors">
+                        <button onClick={() => setPendingDeleteId(addr._id)} className="flex min-w-[84px] cursor-pointer items-center justify-center rounded-md h-9 px-3 text-red-500 text-sm font-semibold hover:bg-red-500/10 transition-colors">
                           Xóa
                         </button>
                       </div>
@@ -305,6 +308,51 @@ const AddressManagement = () => {
               </button>
               <button onClick={() => setShowForm(false)} className="px-5 py-2.5 rounded-lg text-sm font-semibold border border-border-light dark:border-border-dark text-text-light dark:text-text-dark hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
                 Huỷ
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {pendingDeleteId && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) {
+              setPendingDeleteId(null);
+            }
+          }}
+        >
+          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl dark:bg-zinc-900">
+            <h3 className="mb-3 text-xl font-bold text-text-light dark:text-text-dark">
+              Xác nhận xóa
+            </h3>
+            <p className="text-sm text-subtle-light dark:text-subtle-dark">
+              Bạn có chắc muốn xóa địa chỉ này không? Hành động này không thể hoàn tác.
+            </p>
+            <div className="mt-6 flex justify-end gap-3">
+              <button
+                onClick={() => setPendingDeleteId(null)}
+                className="rounded-lg border border-border-light px-5 py-2.5 text-sm font-semibold text-text-light transition-colors hover:bg-black/5 dark:border-border-dark dark:text-text-dark dark:hover:bg-white/5"
+              >
+                Hủy
+              </button>
+              <button
+                onClick={async () => {
+                  const id = pendingDeleteId;
+                  setPendingDeleteId(null);
+                  if (!id) return;
+                  try {
+                    await userService.deleteAddress(id);
+                    toast.success("Đã xóa địa chỉ!");
+                    await fetchAddresses();
+                  } catch (error: unknown) {
+                    toast.error(getErrorMessage(error, "Xóa thất bại."));
+                  }
+                }}
+                className="rounded-lg bg-red-500 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-red-600"
+              >
+                Xóa
               </button>
             </div>
           </div>

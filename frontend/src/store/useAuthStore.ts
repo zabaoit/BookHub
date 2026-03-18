@@ -20,9 +20,10 @@ const useAuthStore = create<AuthState>()((set, get) => ({
       set({ loading: true });
 
       // API call to register user
-      const { message } = await authService.register(username, email, password);
+      const response = await authService.register(username, email, password);
+      const { message } = response;
       toast.success(message || "Đăng ký thành công!");
-      return true;
+      return response;
     } catch (error) {
       // Extract error message from backend response
       if (error instanceof AxiosError && error.response?.data?.message) {
@@ -52,7 +53,13 @@ const useAuthStore = create<AuthState>()((set, get) => ({
     } catch (error) {
       // Extract error message from backend response
       if (error instanceof AxiosError && error.response?.data?.message) {
-        throw new Error(error.response.data.message);
+        const enhancedError = new Error(error.response.data.message) as Error & {
+          status?: number;
+          data?: unknown;
+        };
+        enhancedError.status = error.response.status;
+        enhancedError.data = error.response.data;
+        throw enhancedError;
       }
       throw new Error("Đăng nhập thất bại. Vui lòng thử lại.");
     } finally {

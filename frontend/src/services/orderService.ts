@@ -7,6 +7,7 @@ export const orderService = {
     buyerPhone: string;
     buyerEmail?: string;
     note?: string;
+    promoCode?: string;
   }) => {
     const response = await api.post("/orders", orderData);
     return response.data;

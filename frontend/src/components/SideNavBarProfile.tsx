@@ -98,7 +98,7 @@ const SideNavBarProfile = () => {
 
       <aside className="w-64 flex-shrink-0 p-6  hidden md:block  ">
         <div className="flex flex-col gap-8 shadow-sm p-4 bg-card rounded-lg border border-border ">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 min-w-0">
             <div
               className="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-12"
               data-alt="User profile picture"
@@ -107,15 +107,26 @@ const SideNavBarProfile = () => {
                   'url("https://lh3.googleusercontent.com/aida-public/AB6AXuCvD-0XQYPGv_MADtOUbhQKVexag3WyuWft5bWTQk7Olcj4PynoJSQwlPhsTO0nG5WIWGs2FwO4igwSr1URYMMLDSWo40R5BUiV2ExwbliSC_v0Jz-oNVWaKZ6lcL9H3tNQp6UX34Le1eQ_wA2FjVhVgFXl-u0AjAhYdQXC2Rssch1IWpgUUGXwHE3NWGMV63xVXxsBA1RchU_Ab7tuCjr60X3Wq2dLb8dQ_xR5ZGcKin0sT8E2ZQNSprk-BcGISpOX-HWw2J_A7mLv")',
               }}
             ></div>
-            <div className="flex flex-col ">
-              <h1 className="text-card-foreground text-base font-bold leading-normal">
+            <div className="flex min-w-0 flex-col">
+              <h1 className="text-card-foreground text-base font-bold leading-normal truncate">
                 {user?.username}
               </h1>
-              <p className="text-text-muted-light dark:text-text-muted-dark text-sm font-normal leading-normal">
+              <p className="min-w-0 truncate text-text-muted-light dark:text-text-muted-dark text-sm font-normal leading-normal">
                 {user?.email}
               </p>
             </div>
           </div>
+          {user?.role === "ADMIN" && (
+            <div className="grid grid-cols-1 gap-2">
+              <Link
+                to="/admin"
+                className="flex items-center justify-center gap-2 rounded-lg border border-primary/20 bg-primary/10 px-3 py-2 text-sm font-semibold text-primary transition-colors hover:bg-primary/15"
+              >
+                <span className="material-symbols-outlined text-[18px] fill">admin_panel_settings</span>
+                Admin
+              </Link>
+            </div>
+          )}
           <nav className="flex flex-col gap-2">
             <Link
               className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${

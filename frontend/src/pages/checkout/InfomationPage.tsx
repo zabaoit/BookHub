@@ -1,10 +1,45 @@
 import { Link } from "react-router";
+import { useMemo, useState } from "react";
+import { toast } from "sonner";
 import Footer from "../../components/Footer";
 import Header from "../../components/Header";
 import { useCartStore } from "../../store/useCartStore";
+import { calculatePromoDiscount, findPromo } from "../../libs/promo";
 
 const InfomationPage = () => {
-  const { items, updateQuantity, totalAmount } = useCartStore();
+  const { items, updateQuantity, totalAmount, checkoutData, setCheckoutData } = useCartStore();
+  const [promoInput, setPromoInput] = useState(checkoutData.promoCode || "");
+  const shippingFee = 30000;
+
+  const promoDiscount = useMemo(
+    () => calculatePromoDiscount(totalAmount, checkoutData.promoCode),
+    [totalAmount, checkoutData.promoCode]
+  );
+  const finalTotal = Math.max(0, totalAmount - promoDiscount + shippingFee);
+
+  const handleApplyPromo = () => {
+    const promo = findPromo(promoInput);
+    if (!promo) {
+      toast.error("Mã khuyến mãi không hợp lệ.");
+      return;
+    }
+
+    const discount = calculatePromoDiscount(totalAmount, promo.code);
+    if (discount <= 0) {
+      toast.error("Đơn hàng chưa đủ điều kiện áp dụng mã này.");
+      return;
+    }
+
+    setCheckoutData({ promoCode: promo.code });
+    setPromoInput(promo.code);
+    toast.success(`Đã áp dụng mã ${promo.code}`);
+  };
+
+  const handleRemovePromo = () => {
+    setCheckoutData({ promoCode: null });
+    setPromoInput("");
+    toast.success("Đã gỡ mã khuyến mãi.");
+  };
 
   return (
     <div>
@@ -122,18 +157,48 @@ const InfomationPage = () => {
                       <input
                         className="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-text-light dark:text-text-dark focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark h-12 placeholder:text-secondary-text-light dark:placeholder:text-secondary-text-dark px-4 text-base font-normal leading-normal font-body"
                         placeholder="Enter code"
-                        value=""
+                        value={promoInput}
+                        onChange={(e) => setPromoInput(e.target.value)}
                       />
-                      <button className="flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 bg-primary/20 text-primary gap-2 text-sm font-bold leading-normal tracking-[0.015em] min-w-0 px-6 hover:bg-primary/30 transition-colors">
-                        Apply
-                      </button>
+                      {checkoutData.promoCode ? (
+                        <button
+                          onClick={handleRemovePromo}
+                          className="flex max-w-[480px] items-center justify-center overflow-hidden rounded-lg h-12 bg-red-100 text-red-600 gap-2 text-sm font-bold leading-normal tracking-[0.015em] min-w-0 px-6 hover:bg-red-200 transition-colors"
+                        >
+                          Remove
+                        </button>
+                      ) : (
+                        <button
+                          onClick={handleApplyPromo}
+                          className="flex max-w-[480px] items-center justify-center overflow-hidden rounded-lg h-12 bg-primary/20 text-primary gap-2 text-sm font-bold leading-normal tracking-[0.015em] min-w-0 px-6 hover:bg-primary/30 transition-colors"
+                        >
+                          Apply
+                        </button>
+                      )}
                     </div>
+                    <p className="mt-3 text-sm text-muted-light dark:text-muted-dark">
+                      Mã test: <span className="font-semibold text-primary">BOOKHUB10</span> (giảm 10%, tối đa 50.000đ)
+                    </p>
                   </div>
                   {/* <!-- Summary Totals --> */}
                   <div className="bg-card-light dark:bg-card-dark rounded-xl shadow-sm p-6">
-                    <div className="flex justify-between w-full max-w-xs  font-bold text-lg text-text-light dark:text-text-dark">
+                    <div className="space-y-2 text-sm text-text-light dark:text-text-dark">
+                      <div className="flex justify-between">
+                        <p>Subtotal:</p>
+                        <p>{totalAmount.toLocaleString("vi-VN")}đ</p>
+                      </div>
+                      <div className="flex justify-between">
+                        <p>Shipping:</p>
+                        <p>{shippingFee.toLocaleString("vi-VN")}đ</p>
+                      </div>
+                      <div className="flex justify-between text-green-600">
+                        <p>Discount:</p>
+                        <p>-{promoDiscount.toLocaleString("vi-VN")}đ</p>
+                      </div>
+                    </div>
+                    <div className="flex justify-between w-full max-w-xs font-bold text-lg text-text-light dark:text-text-dark mt-4 pt-3 border-t border-border-light dark:border-border-dark">
                       <p>Total:</p>
-                      <p>{totalAmount.toLocaleString('vi-VN')}đ</p>
+                      <p>{finalTotal.toLocaleString("vi-VN")}đ</p>
                     </div>
                   </div>
                   {/* <!-- Primary Button --> */}

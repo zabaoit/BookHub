@@ -35,6 +35,7 @@ export interface Book {
 export interface BookFilters {
   search?: string;
   category?: string;
+  categories?: string[];
   author?: string;
   minPrice?: number;
   maxPrice?: number;

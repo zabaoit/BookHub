@@ -6,12 +6,15 @@ import { useCartStore } from "../../store/useCartStore";
 import { orderService } from "../../services/orderService";
 import { paymentService } from "../../services/paymentService";
 import { toast } from "sonner";
+import { calculatePromoDiscount } from "../../libs/promo";
 
 const ReviewPage = () => {
   const { items, totalAmount, checkoutData, clearCart, clearCheckoutData } = useCartStore();
   const [isProcessing, setIsProcessing] = useState(false);
   const navigate = useNavigate();
   const shippingFee = 30000;
+  const promoDiscount = calculatePromoDiscount(totalAmount, checkoutData.promoCode);
+  const totalPayAmount = Math.max(0, totalAmount - promoDiscount + shippingFee);
 
   if (!checkoutData.shippingAddress) {
     return <Navigate to="/checkout/shipping" replace />;
@@ -31,11 +34,11 @@ const ReviewPage = () => {
         shippingAddress: fullAddressString,
         buyerName: fullName,
         buyerPhone: phoneNumber,
+        promoCode: checkoutData.promoCode || undefined,
       });
 
       const orderData = orderResponse.data;
       createdOrderId = Number(orderData._id);
-      const totalPayAmount = totalAmount + shippingFee;
       
       orderSuccessfullyCreated = true;
 
@@ -132,12 +135,13 @@ const ReviewPage = () => {
                     <h2 className="font-heading text-xl font-bold text-text-light dark:text-text-dark">
                       Shipping Information
                     </h2>
-                    <a
+                    <Link
                       className="text-sm font-medium text-primary hover:underline"
-                      href="#"
+                      to="/checkout/shipping"
+                      state={{ returnToReview: true }}
                     >
                       Edit
-                    </a>
+                    </Link>
                   </div>
                   <div className="grid grid-cols-[120px_1fr] gap-x-6 gap-y-4">
                     <p className="text-text-muted-light dark:text-text-muted-dark text-sm">
@@ -171,12 +175,13 @@ const ReviewPage = () => {
                     <h2 className="font-heading text-xl font-bold text-text-light dark:text-text-dark">
                       Payment Method
                     </h2>
-                    <a
+                    <Link
                       className="text-sm font-medium text-primary hover:underline"
-                      href="#"
+                      to="/checkout/payment"
+                      state={{ returnToReview: true }}
                     >
                       Edit
-                    </a>
+                    </Link>
                   </div>
                   <div className="grid grid-cols-[120px_1fr] gap-x-6 gap-y-4">
                     <p className="text-text-muted-light dark:text-text-muted-dark text-sm">
@@ -281,14 +286,13 @@ const ReviewPage = () => {
                           {shippingFee.toLocaleString("vi-VN")}đ
                         </p>
                       </div>
-                      {/* Discount */}
-                      {/* <div className="flex justify-between text-sm text-green-600">
-                      <p>Discount</p>
-                      <p>-$5.00</p>
-                      </div> */}
+                      <div className="flex justify-between text-sm text-green-600">
+                        <p>Discount</p>
+                        <p>-{promoDiscount.toLocaleString("vi-VN")}đ</p>
+                      </div>
                       <div className="flex justify-between text-lg font-bold pt-2 border-t border-border-light dark:border-border-dark mt-2 text-text-light dark:text-text-dark">
                         <p>TOTAL</p>
-                        <p>{(totalAmount + shippingFee).toLocaleString("vi-VN")}đ</p>
+                        <p>{totalPayAmount.toLocaleString("vi-VN")}đ</p>
                       </div>
                     </div>
                     <div className="flex flex-col mt-2 space-y-3">
