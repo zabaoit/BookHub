@@ -46,6 +46,22 @@ interface Address {
 
 const emptyForm = { fullName: "", phone: "", city: "", ward: "", specificAddress: "" };
 
+const getErrorMessage = (error: unknown, fallback: string): string => {
+  if (typeof error === "object" && error !== null) {
+    const err = error as { response?: { data?: { message?: unknown } } };
+    const apiMessage = err.response?.data?.message;
+    if (typeof apiMessage === "string" && apiMessage.trim() !== "") {
+      return apiMessage;
+    }
+  }
+
+  if (error instanceof Error && error.message.trim() !== "") {
+    return error.message;
+  }
+
+  return fallback;
+};
+
 const AddressManagement = () => {
   const [addresses, setAddresses] = useState<Address[]>([]);
   const [loading, setLoading] = useState(true);
@@ -117,8 +133,8 @@ const AddressManagement = () => {
       }
       setShowForm(false);
       await fetchAddresses();
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || "Thao tác thất bại.");
+    } catch (error: unknown) {
+      toast.error(getErrorMessage(error, "Thao tác thất bại."));
     } finally {
       setIsSaving(false);
     }
@@ -130,8 +146,8 @@ const AddressManagement = () => {
       await userService.deleteAddress(id);
       toast.success("Đã xóa địa chỉ!");
       await fetchAddresses();
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || "Xóa thất bại.");
+    } catch (error: unknown) {
+      toast.error(getErrorMessage(error, "Xóa thất bại."));
     }
   };
 
@@ -140,15 +156,15 @@ const AddressManagement = () => {
       await userService.setDefaultAddress(id);
       toast.success("Đã đặt làm địa chỉ mặc định!");
       await fetchAddresses();
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || "Thao tác thất bại.");
+    } catch (error: unknown) {
+      toast.error(getErrorMessage(error, "Thao tác thất bại."));
     }
   };
 
   const inputClass =
-    "form-input flex w-full rounded-lg text-text-light dark:text-text-dark focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-border-light dark:border-border-dark bg-card-light dark:bg-card-dark h-11 placeholder:text-subtle-light dark:placeholder:text-subtle-dark px-4 text-sm";
+    "form-input flex w-full rounded-lg text-text-light dark:text-text-dark focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-border-light dark:border-border-dark bg-white dark:bg-zinc-800 h-11 placeholder:text-subtle-light dark:placeholder:text-subtle-dark px-4 text-sm";
   const selectClass =
-    "form-select flex w-full rounded-lg text-text-light dark:text-text-dark focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-border-light dark:border-border-dark bg-card-light dark:bg-card-dark h-11 px-4 text-sm cursor-pointer";
+    "flex w-full rounded-lg text-text-light dark:text-text-dark focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-border-light dark:border-border-dark bg-white dark:bg-zinc-800 h-11 px-4 text-sm cursor-pointer appearance-none";
 
   return (
     <div>
@@ -233,10 +249,10 @@ const AddressManagement = () => {
       {/* Modal Popup */}
       {showForm && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
           onClick={(e) => { if (e.target === e.currentTarget) setShowForm(false); }}
         >
-          <div className="w-full max-w-2xl bg-card-light dark:bg-card-dark rounded-2xl shadow-2xl p-8 relative animate-in fade-in zoom-in-95 duration-200">
+          <div className="w-full max-w-2xl bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl p-8 relative animate-in fade-in zoom-in-95 duration-200">
             {/* Close button */}
             <button
               onClick={() => setShowForm(false)}

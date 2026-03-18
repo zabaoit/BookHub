@@ -17,6 +17,7 @@ import ProfilePage from "./pages/user/ProfilePage";
 import OrderHistory from "./pages/user/OrderHistory";
 import OrderDetail from "./pages/user/OrderDetail";
 import AddressManagement from "./pages/user/AddressManagement";
+import WishlistPage from "./pages/user/WishlistPage";
 import ForgotPassWord from "./pages/auth/ForgotPassWord";
 import ResetPassword from "./pages/auth/ResetPassword";
 import VerifyEmail from "./pages/auth/VerifyEmail";
@@ -82,6 +83,7 @@ const App = () => {
               path="/account/address-management"
               element={<AddressManagement />}
             />
+            <Route path="/account/wishlist" element={<WishlistPage />} />
           </Route>
         </Routes>
       </BrowserRouter>

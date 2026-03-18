@@ -114,6 +114,18 @@ const createSchema = async () => {
     `);
 
     await connection.query(`
+      CREATE TABLE IF NOT EXISTS user_wishlists (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        user_id INT NOT NULL,
+        book_id INT NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE KEY uq_user_wishlist_book (user_id, book_id),
+        CONSTRAINT fk_user_wishlists_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+        CONSTRAINT fk_user_wishlists_book FOREIGN KEY (book_id) REFERENCES books(id) ON DELETE CASCADE
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+    `);
+
+    await connection.query(`
       CREATE TABLE IF NOT EXISTS orders (
         id INT AUTO_INCREMENT PRIMARY KEY,
         user_id INT NOT NULL,

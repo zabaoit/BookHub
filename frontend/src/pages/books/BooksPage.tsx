@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { useSearchParams } from "react-router";
 import Footer from "../../components/Footer";
 import Header from "../../components/Header";
 import BookCard from "../../components/BookCard";
@@ -14,6 +15,7 @@ import {
 } from "lucide-react";
 
 const BooksPage = () => {
+  const [searchParams] = useSearchParams();
   const {
     books,
     loading,
@@ -28,8 +30,9 @@ const BooksPage = () => {
   } = useBookStore();
 
   useEffect(() => {
-    fetchBooks(); // Load books when component mounts
-  }, [fetchBooks]);
+    const querySearch = (searchParams.get("search") || "").trim();
+    fetchBooks(1, { ...filters, search: querySearch });
+  }, [fetchBooks, searchParams]);
 
   const handleFilterChange = (newFilters: Partial<typeof filters>) => {
     setFilters(newFilters);

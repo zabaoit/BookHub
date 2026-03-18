@@ -1,14 +1,36 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router";
+import { toast } from "sonner";
 import Header from "../../components/Header";
 import { bookService } from "../../services/bookService";
+import { userService } from "../../services/userService";
+import useAuthStore from "../../store/useAuthStore";
 import type { Book } from "../../types/book";
+
+const getErrorMessage = (error: unknown, fallback: string): string => {
+  if (typeof error === "object" && error !== null) {
+    const err = error as { response?: { data?: { message?: unknown } } };
+    const apiMessage = err.response?.data?.message;
+    if (typeof apiMessage === "string" && apiMessage.trim() !== "") {
+      return apiMessage;
+    }
+  }
+
+  if (error instanceof Error && error.message.trim() !== "") {
+    return error.message;
+  }
+
+  return fallback;
+};
 
 const BookDetailPage = () => {
   const { id } = useParams<{ id: string }>();
+  const accessToken = useAuthStore((state) => state.accessToken);
   const [book, setBook] = useState<Book | null>(null);
   const [loading, setLoading] = useState(true);
   const [quantity, setQuantity] = useState(1);
+  const [isWishlisted, setIsWishlisted] = useState(false);
+  const [wishlistLoading, setWishlistLoading] = useState(false);
 
   useEffect(() => {
     const fetchBook = async () => {
@@ -26,6 +48,53 @@ const BookDetailPage = () => {
 
     fetchBook();
   }, [id]);
+
+  useEffect(() => {
+    const fetchWishlistStatus = async () => {
+      if (!id || !accessToken) {
+        setIsWishlisted(false);
+        return;
+      }
+
+      try {
+        setWishlistLoading(true);
+        const response = await userService.getWishlistStatus(id);
+        setIsWishlisted(Boolean(response?.data?.isWishlisted));
+      } catch {
+        setIsWishlisted(false);
+      } finally {
+        setWishlistLoading(false);
+      }
+    };
+
+    fetchWishlistStatus();
+  }, [id, accessToken]);
+
+  const handleWishlistToggle = async () => {
+    if (!id) return;
+
+    if (!accessToken) {
+      toast.error("Vui lòng đăng nhập để sử dụng Wishlist.");
+      return;
+    }
+
+    try {
+      setWishlistLoading(true);
+      if (isWishlisted) {
+        await userService.removeFromWishlist(id);
+        setIsWishlisted(false);
+        toast.success("Đã xóa khỏi Wishlist!");
+      } else {
+        await userService.addToWishlist(id);
+        setIsWishlisted(true);
+        toast.success("Đã thêm vào Wishlist!");
+      }
+    } catch (error: unknown) {
+      toast.error(getErrorMessage(error, "Không thể cập nhật Wishlist."));
+    } finally {
+      setWishlistLoading(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -213,11 +282,15 @@ const BookDetailPage = () => {
                   </span>
                   Add to Cart
                 </button>
-                <button className="w-full sm:w-auto flex items-center justify-center gap-2 rounded-lg border-2 border-primary h-12 px-6 text-primary font-bold hover:bg-primary/10 transition-colors">
+                <button
+                  className="w-full sm:w-auto flex items-center justify-center gap-2 rounded-lg border-2 border-primary h-12 px-6 text-primary font-bold hover:bg-primary/10 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+                  onClick={handleWishlistToggle}
+                  disabled={wishlistLoading}
+                >
                   <span className="material-symbols-outlined">
-                    favorite_border
+                    {isWishlisted ? "favorite" : "favorite_border"}
                   </span>
-                  Add to Wishlist
+                  {isWishlisted ? "Remove from Wishlist" : "Add to Wishlist"}
                 </button>
               </div>
             </div>

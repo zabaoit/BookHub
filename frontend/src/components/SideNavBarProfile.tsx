@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router";
 import useAuthStore from "../store/useAuthStore";
 
@@ -5,6 +6,7 @@ const SideNavBarProfile = () => {
   const { user, logout } = useAuthStore();
   const navigate = useNavigate();
   const location = useLocation();
+  const [isMobileNavVisible, setIsMobileNavVisible] = useState(true);
 
   const handleLogout = async () => {
     try {
@@ -17,8 +19,83 @@ const SideNavBarProfile = () => {
 
   const isActive = (path: string) => location.pathname === path;
 
+  useEffect(() => {
+    const onScroll = () => {
+      const currentY = window.scrollY;
+      if (currentY <= 8) {
+        setIsMobileNavVisible(true);
+      } else {
+        setIsMobileNavVisible(false);
+      }
+    };
+
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
   return (
     <div className="bg-background">
+      <div className={`md:hidden fixed bottom-0 left-0 right-0 z-50 border-t border-border-light dark:border-border-dark bg-card-light dark:bg-card-dark shadow-[0_-6px_24px_rgba(0,0,0,0.08)] transition-transform duration-300 ease-out ${isMobileNavVisible ? "translate-y-0" : "translate-y-full"}`}>
+        <nav className="grid grid-cols-5">
+          <Link
+            className={`flex flex-col items-center justify-center gap-1 py-2 transition-colors ${
+              isActive("/account/profile") ? "text-primary" : "text-text-muted-light dark:text-text-muted-dark"
+            }`}
+            to="/account/profile"
+          >
+            <span className={`material-symbols-outlined text-[22px] ${isActive("/account/profile") ? "fill" : ""}`}>
+              person
+            </span>
+            <span className="text-[11px] font-medium">Profile</span>
+          </Link>
+
+          <Link
+            className={`flex flex-col items-center justify-center gap-1 py-2 transition-colors ${
+              isActive("/account/address-management") ? "text-primary" : "text-text-muted-light dark:text-text-muted-dark"
+            }`}
+            to="/account/address-management"
+          >
+            <span className={`material-symbols-outlined text-[22px] ${isActive("/account/address-management") ? "fill" : ""}`}>
+              home_pin
+            </span>
+            <span className="text-[11px] font-medium">Address</span>
+          </Link>
+
+          <Link
+            className={`flex flex-col items-center justify-center gap-1 py-2 transition-colors ${
+              isActive("/account/order-history") ? "text-primary" : "text-text-muted-light dark:text-text-muted-dark"
+            }`}
+            to="/account/order-history"
+          >
+            <span className={`material-symbols-outlined text-[22px] ${isActive("/account/order-history") ? "fill" : ""}`}>
+              receipt_long
+            </span>
+            <span className="text-[11px] font-medium">Orders</span>
+          </Link>
+
+          <Link
+            className={`flex flex-col items-center justify-center gap-1 py-2 transition-colors ${
+              isActive("/account/wishlist") ? "text-primary" : "text-text-muted-light dark:text-text-muted-dark"
+            }`}
+            to="/account/wishlist"
+          >
+            <span className={`material-symbols-outlined text-[22px] ${isActive("/account/wishlist") ? "fill" : ""}`}>
+              favorite
+            </span>
+            <span className="text-[11px] font-medium">Wishlist</span>
+          </Link>
+
+          <button
+            className="flex flex-col items-center justify-center gap-1 py-2 text-text-muted-light dark:text-text-muted-dark hover:text-primary transition-colors"
+            onClick={handleLogout}
+            type="button"
+          >
+            <span className="material-symbols-outlined text-[22px]">logout</span>
+            <span className="text-[11px] font-medium">Logout</span>
+          </button>
+        </nav>
+      </div>
+
       <aside className="w-64 flex-shrink-0 p-6  hidden md:block  ">
         <div className="flex flex-col gap-8 shadow-sm p-4 bg-card rounded-lg border border-border ">
           <div className="flex items-center gap-3">
@@ -87,18 +164,22 @@ const SideNavBarProfile = () => {
                 Order History
               </p>
             </Link>
-            {/* wishlist */}
-            {/* <a
-                  className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-primary/10 dark:hover:bg-primary/20 transition-colors"
-                  href="#"
-                >
-                  <span className="material-symbols-outlined text-text-muted-light dark:text-text-muted-dark">
-                    favorite
-                  </span>
-                  <p className="text-text-light dark:text-text-dark text-sm font-medium leading-normal">
-                    Wishlist
-                  </p>
-                </a> */}
+
+            <Link
+              className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${
+                isActive("/account/wishlist")
+                  ? "bg-primary/20 dark:bg-primary/30"
+                  : "hover:bg-primary/10 dark:hover:bg-primary/20"
+              }`}
+              to="/account/wishlist"
+            >
+              <span className={`material-symbols-outlined ${isActive("/account/wishlist") ? "fill text-primary" : "text-text-muted-light dark:text-text-muted-dark"}`}>
+                favorite
+              </span>
+              <p className={`text-sm leading-normal ${isActive("/account/wishlist") ? "text-primary font-bold" : "text-text-light dark:text-text-dark font-medium"}`}>
+                Wishlist
+              </p>
+            </Link>
             {/* notification */}
             {/* <a
                   className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-primary/10 dark:hover:bg-primary/20 transition-colors"

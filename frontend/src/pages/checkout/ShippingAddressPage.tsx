@@ -1,13 +1,55 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router";
+import { toast } from "sonner";
 import Footer from "../../components/Footer";
 import Header from "../../components/Header";
 import { useCartStore } from "../../store/useCartStore";
+import { userService } from "../../services/userService";
+
+// Vietnamese Provinces
+const PROVINCES = [
+  "An Giang", "Bà Rịa - Vũng Tàu", "Bắc Giang", "Bắc Kạn", "Bạc Liêu",
+  "Bắc Ninh", "Bến Tre", "Bình Định", "Bình Dương", "Bình Phước",
+  "Bình Thuận", "Cà Mau", "Cần Thơ", "Cao Bằng", "Đà Nẵng",
+  "Đắk Lắk", "Đắk Nông", "Điện Biên", "Đồng Nai", "Đồng Tháp",
+  "Gia Lai", "Hà Giang", "Hà Nam", "Hà Nội", "Hà Tĩnh",
+  "Hải Dương", "Hải Phòng", "Hậu Giang", "Hòa Bình", "Hưng Yên",
+  "Khánh Hòa", "Kiên Giang", "Kon Tum", "Lai Châu", "Lâm Đồng",
+  "Lạng Sơn", "Lào Cai", "Long An", "Nam Định", "Nghệ An",
+  "Ninh Bình", "Ninh Thuận", "Phú Thọ", "Phú Yên", "Quảng Bình",
+  "Quảng Nam", "Quảng Ngãi", "Quảng Ninh", "Quảng Trị", "Sóc Trăng",
+  "Sơn La", "Tây Ninh", "Thái Bình", "Thái Nguyên", "Thanh Hóa",
+  "Thừa Thiên Huế", "Tiền Giang", "TP. Hồ Chí Minh", "Trà Vinh",
+  "Tuyên Quang", "Vĩnh Long", "Vĩnh Phúc", "Yên Bái",
+];
+
+// Example wards
+const WARDS = [
+  "Phường 1", "Phường 2", "Phường 3", "Phường 4", "Phường 5",
+  "Phường 6", "Phường 7", "Phường 8", "Phường 9", "Phường 10",
+  "Phường 11", "Phường 12", "Phường 13", "Phường 14", "Phường 15",
+  "Phường Bến Nghé", "Phường Bến Thành", "Phường Cầu Kho", "Phường Cầu Ông Lãnh",
+  "Phường Cô Giang", "Phường Nguyễn Cư Trinh", "Phường Nguyễn Thái Bình",
+  "Phường Phạm Ngũ Lão", "Phường Tân Định", "Phường Đa Kao",
+  "Xã An Phú", "Xã Bình An", "Xã Bình Trưng", "Xã Long Phước",
+  "Thị trấn Bến Lức", "Thị trấn Cần Giuộc", "Thị trấn Đức Hòa",
+];
+
+interface Address {
+  _id: string;
+  fullName: string;
+  phone: string;
+  city: string;
+  ward: string;
+  specificAddress: string;
+  isDefault: boolean;
+}
 
 const ShippingAddressPage = () => {
   const { items, totalAmount, setCheckoutData } = useCartStore();
   const shippingFee = 30000;
 
+  const [addresses, setAddresses] = useState<Address[]>([]);
   const [formData, setFormData] = useState({
     savedAddress: "",
     fullName: "",
@@ -16,6 +58,30 @@ const ShippingAddressPage = () => {
     wardCommune: "",
     specificAddress: "",
   });
+
+  useEffect(() => {
+    const fetchAddresses = async () => {
+      try {
+        const res = await userService.getAddresses();
+        const addressData: Address[] = Array.isArray(res.data) ? res.data : [];
+        setAddresses(addressData);
+        const defaultAddress = addressData.find((a) => a.isDefault);
+        if (defaultAddress) {
+          setFormData({
+            savedAddress: defaultAddress._id,
+            fullName: defaultAddress.fullName,
+            phoneNumber: defaultAddress.phone,
+            provinceCity: defaultAddress.city,
+            wardCommune: defaultAddress.ward,
+            specificAddress: defaultAddress.specificAddress
+          });
+        }
+      } catch {
+        toast.error("Không thể tải danh sách địa chỉ.");
+      }
+    };
+    fetchAddresses();
+  }, []);
 
   const isFormValid =
     formData.savedAddress !== "" ||
@@ -29,7 +95,30 @@ const ShippingAddressPage = () => {
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    if (name === "savedAddress") {
+      const addr = addresses.find((a) => a._id === value);
+      if (addr) {
+        setFormData({
+          savedAddress: value,
+          fullName: addr.fullName,
+          phoneNumber: addr.phone,
+          provinceCity: addr.city,
+          wardCommune: addr.ward,
+          specificAddress: addr.specificAddress,
+        });
+      } else {
+        setFormData({
+          savedAddress: "",
+          fullName: "",
+          phoneNumber: "",
+          provinceCity: "",
+          wardCommune: "",
+          specificAddress: "",
+        });
+      }
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: value }));
+    }
   };
 
   return (
@@ -88,12 +177,11 @@ const ShippingAddressPage = () => {
                         className="form-input w-full rounded border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark focus:ring-primary focus:border-primary placeholder:text-muted-light dark:placeholder:text-muted-dark h-12 px-4 text-base"
                       >
                         <option value="">Add a new address</option>
-                        <option value="1">
-                          123 Bookworm Lane, Reading, PA 19601
-                        </option>
-                        <option value="2">
-                          456 Paperback Rd, Austin, TX 78701
-                        </option>
+                        {addresses.map((addr) => (
+                          <option key={addr._id} value={addr._id}>
+                            {[addr.fullName + ' - ' + addr.phone, addr.specificAddress, addr.ward, addr.city].filter(Boolean).join(", ")}
+                          </option>
+                        ))}
                       </select>
                     </label>
                     <label className="flex flex-col gap-2">
@@ -130,7 +218,7 @@ const ShippingAddressPage = () => {
                         disabled={!!formData.savedAddress}
                       >
                         <option value="">Add a new Province / City</option>
-                        <option value="1">Hà Nội</option>
+                          {PROVINCES.map(p => <option key={p} value={p}>{p}</option>)}
                       </select>
                     </label>
                     <label className="flex flex-col gap-2 md:col-span-1">
@@ -143,7 +231,7 @@ const ShippingAddressPage = () => {
                         disabled={!!formData.savedAddress}
                       >
                         <option value="">Add a new Ward / Commune</option>
-                        <option value="1">Phường 1</option>
+                          {WARDS.map(w => <option key={w} value={w}>{w}</option>)}
                       </select>
                     </label>
 
@@ -234,15 +322,30 @@ const ShippingAddressPage = () => {
                       if (!isFormValid) {
                         e.preventDefault();
                       } else {
-                        setCheckoutData({
-                           shippingAddress: {
-                             fullName: formData.fullName,
-                             phoneNumber: formData.phoneNumber,
-                             provinceCity: formData.provinceCity,
-                             wardCommune: formData.wardCommune,
-                             specificAddress: formData.specificAddress
-                           }
-                        });
+                        if (formData.savedAddress) {
+                          const addr = addresses.find(a => a._id === formData.savedAddress);
+                          if (addr) {
+                            setCheckoutData({
+                              shippingAddress: {
+                                fullName: addr.fullName,
+                                phoneNumber: addr.phone,
+                                provinceCity: addr.city,
+                                wardCommune: addr.ward,
+                                specificAddress: addr.specificAddress
+                              }
+                            });
+                          }
+                        } else {
+                          setCheckoutData({
+                            shippingAddress: {
+                              fullName: formData.fullName,
+                              phoneNumber: formData.phoneNumber,
+                              provinceCity: formData.provinceCity,
+                              wardCommune: formData.wardCommune,
+                              specificAddress: formData.specificAddress
+                            }
+                          });
+                        }
                       }
                     }}
                     className={`w-full flex items-center justify-center rounded-lg h-12 px-6 text-base font-bold focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 dark:focus:ring-offset-background-dark transition-colors ${
@@ -265,4 +368,7 @@ const ShippingAddressPage = () => {
 };
 
 export default ShippingAddressPage;
+
+
+
 

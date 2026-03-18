@@ -119,9 +119,6 @@ const BookCard = ({ book, className }: BookCardProps) => {
 
             <button
               className="w-full bg-gray-900 border border-gray-900 text-white rounded-xl py-2 text-xs font-bold hover:bg-primary hover:border-primary transition-all duration-300 shadow-sm"
-              onClick={(e) => {
-                e.preventDefault();
-              }}
             >
               Xem chi tiết
             </button>

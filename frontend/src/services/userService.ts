@@ -40,4 +40,24 @@ export const userService = {
     const response = await api.put(`/users/addresses/${id}/default`);
     return response.data;
   },
+
+  getWishlist: async () => {
+    const response = await api.get("/users/wishlist");
+    return response.data;
+  },
+
+  getWishlistStatus: async (bookId: string) => {
+    const response = await api.get(`/users/wishlist/${bookId}/status`);
+    return response.data;
+  },
+
+  addToWishlist: async (bookId: string) => {
+    const response = await api.post("/users/wishlist", { bookId });
+    return response.data;
+  },
+
+  removeFromWishlist: async (bookId: string) => {
+    const response = await api.delete(`/users/wishlist/${bookId}`);
+    return response.data;
+  },
 };
