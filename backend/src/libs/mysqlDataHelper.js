@@ -11,6 +11,7 @@ const toBookObject = (row) => ({
   pages: row.pages,
   language: row.language,
   price: Number(row.price || 0),
+  rating: Number(row.rating || 0),
   stock: Number(row.stock || 0),
   createdAt: row.created_at,
   updatedAt: row.updated_at,
@@ -30,7 +31,7 @@ export const getBooksByIds = async (bookIds) => {
   if (normalizedIds.length === 0) return [];
 
   const books = await query(
-    `SELECT id, title, slug, description, isbn, publisher, publication_date, pages, language, price, stock, created_at, updated_at
+    `SELECT id, title, slug, description, isbn, publisher, publication_date, pages, language, price, rating, stock, created_at, updated_at
      FROM books
      WHERE id IN (?)`,
     [normalizedIds]

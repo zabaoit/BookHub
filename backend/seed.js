@@ -24,6 +24,7 @@ const users = [
     email: "admin@bookhub.com",
     password: "Admin@123",
     role: "ADMIN",
+    email_verified_at: true,
   },
   {
     username: "nguyenvana",
@@ -263,17 +264,221 @@ const books = [
       "https://salt.tikicdn.com/cache/w1200/ts/product/cc/72/60/3e85d32de7bb595c05dc3c73f0f3f793.jpg",
     ],
   },
+  {
+    title: "Cây Cam Ngọt Của Tôi",
+    slug: "cay-cam-ngot-cua-toi",
+    description:
+      "Một câu chuyện cảm động về tuổi thơ và tình người, để lại dư âm sâu sắc cho người đọc.",
+    isbn: "978-604-4-55555-1",
+    publisher: "NXB Văn Học",
+    publication_date: "1968-01-01",
+    pages: 244,
+    language: "Tiếng Việt",
+    price: 99000,
+    stock: 44,
+    authors: ["Paulo Coelho"],
+    categories: ["Văn học nước ngoài"],
+    images: [
+      "https://salt.tikicdn.com/cache/w1200/ts/product/c2/26/5c/da7b8d7ad5a20f4fa9f3bcb9ba8f89d4.jpg",
+    ],
+  },
+  {
+    title: "Tuổi Trẻ Đáng Giá Bao Nhiêu",
+    slug: "tuoi-tre-dang-gia-bao-nhieu",
+    description:
+      "Những chia sẻ truyền cảm hứng giúp người trẻ định hình mục tiêu và phát triển bản thân.",
+    isbn: "978-604-4-55555-2",
+    publisher: "NXB Hội Nhà Văn",
+    publication_date: "2016-03-10",
+    pages: 285,
+    language: "Tiếng Việt",
+    price: 88000,
+    stock: 52,
+    authors: ["Nam Quốc Chánh"],
+    categories: ["Kỹ năng sống"],
+    images: [
+      "https://salt.tikicdn.com/cache/w1200/ts/product/0a/37/6c/91a3e8a49ddf95f2a4bb7d764de77f3c.jpg",
+    ],
+  },
+  {
+    title: "Khéo Ăn Nói Sẽ Có Được Thiên Hạ",
+    slug: "kheo-an-noi-se-co-duoc-thien-ha",
+    description:
+      "Cuốn sách về nghệ thuật giao tiếp, thuyết phục và xây dựng quan hệ trong đời sống hiện đại.",
+    isbn: "978-604-4-55555-3",
+    publisher: "NXB Thế Giới",
+    publication_date: "2014-09-21",
+    pages: 406,
+    language: "Tiếng Việt",
+    price: 118000,
+    stock: 37,
+    authors: ["Dale Carnegie"],
+    categories: ["Kỹ năng sống", "Tâm lý - Triết học"],
+    images: [
+      "https://salt.tikicdn.com/cache/w1200/ts/product/6f/6b/7f/45d301f97d65f34d16b0dd4f4ae79f40.jpg",
+    ],
+  },
+  {
+    title: "Lược Sử Thời Gian",
+    slug: "luoc-su-thoi-gian",
+    description:
+      "Tác phẩm phổ biến khoa học giúp độc giả tiếp cận những câu hỏi lớn về vũ trụ và thời gian.",
+    isbn: "978-604-4-55555-4",
+    publisher: "NXB Trẻ",
+    publication_date: "1988-04-01",
+    pages: 312,
+    language: "Tiếng Việt",
+    price: 145000,
+    stock: 29,
+    authors: ["Yuval Noah Harari"],
+    categories: ["Khoa học - Lịch sử"],
+    images: [
+      "https://salt.tikicdn.com/cache/w1200/ts/product/df/61/57/0a8ed3536c3a1e9bdfb1ef82fdf2f2d0.jpg",
+    ],
+  },
+  {
+    title: "Chuyện Con Mèo Dạy Hải Âu Bay",
+    slug: "chuyen-con-meo-day-hai-au-bay",
+    description:
+      "Một ngụ ngôn hiện đại về lòng tử tế, trách nhiệm và tình bạn vượt qua khác biệt.",
+    isbn: "978-604-4-55555-5",
+    publisher: "NXB Văn Học",
+    publication_date: "1996-01-01",
+    pages: 160,
+    language: "Tiếng Việt",
+    price: 69000,
+    stock: 61,
+    authors: ["Paulo Coelho"],
+    categories: ["Văn học nước ngoài", "Thiếu nhi"],
+    images: [
+      "https://salt.tikicdn.com/cache/w1200/ts/product/2b/62/0f/e87bfe19f68a5de1486f84b097dd6d8c.jpg",
+    ],
+  },
+  {
+    title: "Sống Mòn",
+    slug: "song-mon",
+    description:
+      "Tiểu thuyết phản ánh đời sống trí thức nghèo với nhiều suy tư nhân văn sâu sắc.",
+    isbn: "978-604-4-55555-6",
+    publisher: "NXB Văn Học",
+    publication_date: "1944-01-01",
+    pages: 320,
+    language: "Tiếng Việt",
+    price: 84000,
+    stock: 33,
+    authors: ["Tô Hoài"],
+    categories: ["Văn học Việt Nam"],
+    images: [
+      "https://salt.tikicdn.com/cache/w1200/ts/product/2a/e8/67/e3d36ab486215a252e83ff95a0f7bd5b.jpg",
+    ],
+  },
+  {
+    title: "Bí Mật Tư Duy Triệu Phú",
+    slug: "bi-mat-tu-duy-trieu-phu",
+    description:
+      "Những nguyên tắc thay đổi tư duy tài chính và thói quen tiền bạc để đạt tự do tài chính.",
+    isbn: "978-604-4-55555-7",
+    publisher: "NXB Lao Động",
+    publication_date: "2005-01-01",
+    pages: 304,
+    language: "Tiếng Việt",
+    price: 102000,
+    stock: 48,
+    authors: ["Nam Quốc Chánh"],
+    categories: ["Kinh tế - Kinh doanh", "Kỹ năng sống"],
+    images: [
+      "https://salt.tikicdn.com/cache/w1200/ts/product/9d/9c/3f/8786a2d9868335e44e7166b7e129703e.jpg",
+    ],
+  },
+  {
+    title: "Nghệ Thuật Tư Duy Rành Mạch",
+    slug: "nghe-thuat-tu-duy-ranh-mach",
+    description:
+      "Tổng hợp các thiên kiến phổ biến trong tư duy, giúp ra quyết định logic và hiệu quả hơn.",
+    isbn: "978-604-4-55555-8",
+    publisher: "NXB Thế Giới",
+    publication_date: "2011-01-01",
+    pages: 336,
+    language: "Tiếng Việt",
+    price: 112000,
+    stock: 41,
+    authors: ["Dale Carnegie"],
+    categories: ["Tâm lý - Triết học", "Kỹ năng sống"],
+    images: [
+      "https://salt.tikicdn.com/cache/w1200/ts/product/5f/91/11/20db698d3069a4124aa5d6cd999f4f13.jpg",
+    ],
+  },
+  {
+    title: "Đi Tìm Lẽ Sống",
+    slug: "di-tim-le-song",
+    description:
+      "Tác phẩm kinh điển về ý nghĩa cuộc đời và sức mạnh tinh thần trong nghịch cảnh.",
+    isbn: "978-604-4-55555-9",
+    publisher: "NXB Tổng hợp TP.HCM",
+    publication_date: "1946-01-01",
+    pages: 228,
+    language: "Tiếng Việt",
+    price: 92000,
+    stock: 58,
+    authors: ["Paulo Coelho"],
+    categories: ["Tâm lý - Triết học"],
+    images: [
+      "https://salt.tikicdn.com/cache/w1200/ts/product/c0/71/32/67f4cbf58e8ce5f89b0f6de2f7f8af3c.jpg",
+    ],
+  },
+  {
+    title: "Từ Tốt Đến Vĩ Đại",
+    slug: "tu-tot-den-vi-dai",
+    description:
+      "Phân tích yếu tố giúp doanh nghiệp chuyển mình từ tốt lên xuất sắc trong dài hạn.",
+    isbn: "978-604-4-55555-10",
+    publisher: "NXB Công Thương",
+    publication_date: "2001-10-16",
+    pages: 416,
+    language: "Tiếng Việt",
+    price: 159000,
+    stock: 36,
+    authors: ["Nam Quốc Chánh"],
+    categories: ["Kinh tế - Kinh doanh"],
+    images: [
+      "https://salt.tikicdn.com/cache/w1200/ts/product/71/84/5b/0d07aeb2b2b44f389b6876d8f996f8ff.jpg",
+    ],
+  },
 ];
 
 // ─── SEED FUNCTIONS ───────────────────────────────────────────────────────────
+
+const bookRatings = {
+  "toi-thay-hoa-vang-tren-co-xanh": 4.7,
+  "mat-biec": 4.6,
+  "nha-gia-kim": 4.8,
+  "dac-nhan-tam": 4.5,
+  "sapiens-luoc-su-loai-nguoi": 4.7,
+  "homo-deus-luoc-su-tuong-lai": 4.4,
+  "de-men-phieu-luu-ky": 4.6,
+  "nghi-giau-lam-giau": 4.3,
+  "cho-toi-xin-mot-ve-di-tuoi-tho": 4.5,
+  "21-bai-hoc-cho-the-ky-21": 4.4,
+  "cay-cam-ngot-cua-toi": 4.9,
+  "tuoi-tre-dang-gia-bao-nhieu": 4.2,
+  "kheo-an-noi-se-co-duoc-thien-ha": 4.1,
+  "luoc-su-thoi-gian": 4.5,
+  "chuyen-con-meo-day-hai-au-bay": 4.7,
+  "song-mon": 4.0,
+  "bi-mat-tu-duy-trieu-phu": 4.3,
+  "nghe-thuat-tu-duy-ranh-mach": 4.2,
+  "di-tim-le-song": 4.4,
+  "tu-tot-den-vi-dai": 4.1,
+};
 
 async function seedUsers() {
   console.log("Seeding users...");
   for (const u of users) {
     const hashed = await bcrypt.hash(u.password, 10);
+    const verifiedAt = u.email_verified_at ? new Date() : null;
     await query(
-      `INSERT IGNORE INTO users (username, email, hashed_password, role) VALUES (?, ?, ?, ?)`,
-      [u.username, u.email, hashed, u.role]
+      `INSERT IGNORE INTO users (username, email, hashed_password, role, email_verified_at) VALUES (?, ?, ?, ?, ?)`,
+      [u.username, u.email, hashed, u.role, verifiedAt]
     );
   }
   console.log(`  ✓ ${users.length} users inserted`);
@@ -315,17 +520,18 @@ async function seedBooks() {
     // Upsert book
     const [existing] = await query(`SELECT id FROM books WHERE slug = ?`, [b.slug]);
     let bookId;
+    const rating = bookRatings[b.slug] ?? 0;
 
     if (existing) {
       bookId = existing.id;
       await query(
-        `UPDATE books SET title=?, description=?, isbn=?, publisher=?, publication_date=?, pages=?, language=?, price=?, stock=? WHERE id=?`,
-        [b.title, b.description, b.isbn, b.publisher, b.publication_date, b.pages, b.language, b.price, b.stock, bookId]
+        `UPDATE books SET title=?, description=?, isbn=?, publisher=?, publication_date=?, pages=?, language=?, price=?, rating=?, stock=? WHERE id=?`,
+        [b.title, b.description, b.isbn, b.publisher, b.publication_date, b.pages, b.language, b.price, rating, b.stock, bookId]
       );
     } else {
       const result = await query(
-        `INSERT INTO books (title, slug, description, isbn, publisher, publication_date, pages, language, price, stock) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [b.title, b.slug, b.description, b.isbn, b.publisher, b.publication_date, b.pages, b.language, b.price, b.stock]
+        `INSERT INTO books (title, slug, description, isbn, publisher, publication_date, pages, language, price, rating, stock) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [b.title, b.slug, b.description, b.isbn, b.publisher, b.publication_date, b.pages, b.language, b.price, rating, b.stock]
       );
       bookId = result.insertId;
     }

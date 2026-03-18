@@ -3,11 +3,49 @@ import { formatOrderById } from "../libs/mysqlDataHelper.js";
 
 const validStatuses = ["PENDING", "PROCESSING", "SHIPPED", "COMPLETED", "CANCELLED"];
 const validPaymentStatuses = ["UNPAID", "PAID", "REFUNDED"];
+const promoDefinitions = {
+  BOOKHUB10: {
+    type: "percentage",
+    value: 10,
+    maxDiscount: 50000,
+    minSubtotal: 50000,
+  },
+};
+
+const calculatePromoDiscount = (subtotal, rawPromoCode) => {
+  if (!rawPromoCode) {
+    return { code: null, discountAmount: 0 };
+  }
+
+  const promoCode = String(rawPromoCode).trim().toUpperCase();
+  const promo = promoDefinitions[promoCode];
+
+  if (!promo) {
+    throw new Error("INVALID_PROMO_CODE");
+  }
+
+  if (promo.minSubtotal && subtotal < promo.minSubtotal) {
+    throw new Error("PROMO_NOT_ELIGIBLE");
+  }
+
+  let discountAmount = 0;
+  if (promo.type === "percentage") {
+    discountAmount = Math.floor((subtotal * promo.value) / 100);
+    if (promo.maxDiscount) {
+      discountAmount = Math.min(discountAmount, promo.maxDiscount);
+    }
+  } else if (promo.type === "fixed") {
+    discountAmount = promo.value;
+  }
+
+  discountAmount = Math.max(0, Math.min(subtotal, discountAmount));
+  return { code: promoCode, discountAmount };
+};
 
 const postOrder = async (req, res) => {
   try {
     const userId = Number(req.user._id);
-    const { shippingAddress, buyerName, buyerEmail, buyerPhone, note } = req.body;
+    const { shippingAddress, buyerName, buyerEmail, buyerPhone, note, promoCode } = req.body;
 
     if (!shippingAddress || !buyerName || !buyerPhone) {
       return res.status(400).json({ message: "Vui lòng điền đầy đủ thông tin" });
@@ -42,18 +80,25 @@ const postOrder = async (req, res) => {
         totalAmount += Number(item.price) * Number(item.quantity);
       }
 
+      const { code: appliedPromoCode, discountAmount } = calculatePromoDiscount(totalAmount, promoCode);
+      const finalTotalAmount = Math.max(0, totalAmount - discountAmount);
+      const promoNote = appliedPromoCode
+        ? `Promo ${appliedPromoCode} (-${discountAmount.toLocaleString("vi-VN")}đ)`
+        : null;
+      const composedNote = [note, promoNote].filter(Boolean).join(" | ") || null;
+
       const [result] = await conn.query(
         `INSERT INTO orders
          (user_id, total_amount, shipping_address, buyer_name, buyer_email, buyer_phone, note, status, payment_status)
          VALUES (?, ?, ?, ?, ?, ?, ?, 'PENDING', 'UNPAID')`,
         [
           userId,
-          totalAmount,
+          finalTotalAmount,
           shippingAddress,
           buyerName,
           buyerEmail || req.user.email,
           buyerPhone,
-          note || null,
+          composedNote,
         ]
       );
 
@@ -83,6 +128,14 @@ const postOrder = async (req, res) => {
     if (error.message.startsWith("OUT_OF_STOCK:")) {
       const [, title, stock] = error.message.split(":");
       return res.status(400).json({ message: `Sách "${title}" không đủ hàng! Còn lại: ${stock}` });
+    }
+
+    if (error.message === "INVALID_PROMO_CODE") {
+      return res.status(400).json({ message: "Mã khuyến mãi không hợp lệ" });
+    }
+
+    if (error.message === "PROMO_NOT_ELIGIBLE") {
+      return res.status(400).json({ message: "Đơn hàng chưa đủ điều kiện áp dụng mã khuyến mãi" });
     }
 
     return res.status(500).json({ message: `Create order error: ${error.message}` });

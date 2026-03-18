@@ -14,6 +14,11 @@ const createSchema = async () => {
         hashed_password VARCHAR(255) NOT NULL,
         role VARCHAR(20) NOT NULL DEFAULT 'USER',
         refresh_token TEXT NULL,
+        email_verified_at TIMESTAMP NULL,
+        email_verification_code VARCHAR(32) NULL,
+        email_verification_expires_at TIMESTAMP NULL,
+        password_reset_code VARCHAR(32) NULL,
+        password_reset_expires_at TIMESTAMP NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -52,6 +57,7 @@ const createSchema = async () => {
         pages INT NULL,
         language VARCHAR(100) NULL,
         price DECIMAL(12,2) NOT NULL,
+        rating DECIMAL(3,2) NOT NULL DEFAULT 0,
         stock INT NOT NULL DEFAULT 0,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -173,6 +179,59 @@ const createSchema = async () => {
         CONSTRAINT fk_payments_order FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
     `);
+
+    const userColumnAdds = [
+      "ADD COLUMN email_verified_at TIMESTAMP NULL",
+      "ADD COLUMN email_verification_code VARCHAR(32) NULL",
+      "ADD COLUMN email_verification_expires_at TIMESTAMP NULL",
+      "ADD COLUMN password_reset_code VARCHAR(32) NULL",
+      "ADD COLUMN password_reset_expires_at TIMESTAMP NULL",
+    ];
+
+    for (const alterClause of userColumnAdds) {
+      try {
+        await connection.query(`ALTER TABLE users ${alterClause}`);
+      } catch (error) {
+        if (!String(error?.message || "").toLowerCase().includes("duplicate column")) {
+          throw error;
+        }
+      }
+    }
+
+    try {
+      await connection.query("ALTER TABLE books ADD COLUMN rating DECIMAL(3,2) NOT NULL DEFAULT 0");
+    } catch (error) {
+      if (!String(error?.message || "").toLowerCase().includes("duplicate column")) {
+        throw error;
+      }
+    }
+
+    const seededRatings = [
+      ["toi-thay-hoa-vang-tren-co-xanh", 4.7],
+      ["mat-biec", 4.6],
+      ["nha-gia-kim", 4.8],
+      ["dac-nhan-tam", 4.5],
+      ["sapiens-luoc-su-loai-nguoi", 4.7],
+      ["homo-deus-luoc-su-tuong-lai", 4.4],
+      ["de-men-phieu-luu-ky", 4.6],
+      ["nghi-giau-lam-giau", 4.3],
+      ["cho-toi-xin-mot-ve-di-tuoi-tho", 4.5],
+      ["21-bai-hoc-cho-the-ky-21", 4.4],
+      ["cay-cam-ngot-cua-toi", 4.9],
+      ["tuoi-tre-dang-gia-bao-nhieu", 4.2],
+      ["kheo-an-noi-se-co-duoc-thien-ha", 4.1],
+      ["luoc-su-thoi-gian", 4.5],
+      ["chuyen-con-meo-day-hai-au-bay", 4.7],
+      ["song-mon", 4.0],
+      ["bi-mat-tu-duy-trieu-phu", 4.3],
+      ["nghe-thuat-tu-duy-ranh-mach", 4.2],
+      ["di-tim-le-song", 4.4],
+      ["tu-tot-den-vi-dai", 4.1],
+    ];
+
+    for (const [slug, rating] of seededRatings) {
+      await connection.query("UPDATE books SET rating = ? WHERE slug = ?", [rating, slug]);
+    }
   } finally {
     connection.release();
   }

@@ -26,6 +26,13 @@ const insertBookRelations = async (conn, bookId, authorIds, categoryIds, images 
   }
 };
 
+const normalizeIdList = (value) => {
+  if (!value) return [];
+
+  const rawValues = Array.isArray(value) ? value : String(value).split(",");
+  return [...new Set(rawValues.map((item) => Number.parseInt(String(item).trim(), 10)).filter((item) => Number.isFinite(item) && item > 0))];
+};
+
 const postBook = async (req, res) => {
   try {
     const {
@@ -38,6 +45,7 @@ const postBook = async (req, res) => {
       pages,
       language,
       price,
+      rating,
       stock,
       author,
       images,
@@ -57,8 +65,8 @@ const postBook = async (req, res) => {
 
     const bookId = await withTransaction(async (conn) => {
       const [result] = await conn.query(
-        `INSERT INTO books (title, slug, description, isbn, publisher, publication_date, pages, language, price, stock)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        `INSERT INTO books (title, slug, description, isbn, publisher, publication_date, pages, language, price, rating, stock)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [
           title,
           slug,
@@ -69,6 +77,7 @@ const postBook = async (req, res) => {
           pages || null,
           language || null,
           Number(price),
+          Number(rating || 0),
           Number(stock || 0),
         ]
       );
@@ -87,31 +96,65 @@ const postBook = async (req, res) => {
 
 const getAllBooks = async (req, res) => {
   try {
-    const { page = 1, limit = 16, search, category, author, sortBy } = req.query;
+    const { page = 1, limit = 16, search, category, categories, author, minPrice, maxPrice, rating, sortBy } = req.query;
 
     const parsedPage = Number.parseInt(page, 10);
     const parsedLimit = Number.parseInt(limit, 10);
     const pageNum = Number.isFinite(parsedPage) && parsedPage > 0 ? parsedPage : 1;
     const normalizedLimit = Number.isFinite(parsedLimit) && parsedLimit > 0 ? parsedLimit : 16;
-    const limitNum = Math.min(50, normalizedLimit);
+    const limitNum = Math.min(50, Math.max(16, normalizedLimit));
     const offset = (pageNum - 1) * limitNum;
 
     const whereParts = [];
     const params = [];
 
     if (search) {
-      whereParts.push("b.title LIKE ?");
-      params.push(`%${search}%`);
+      const searchTerm = String(search).trim();
+      if (searchTerm) {
+        whereParts.push(`(
+          b.title LIKE ?
+          OR EXISTS (
+            SELECT 1
+            FROM book_authors ba
+            INNER JOIN authors a ON a.id = ba.author_id
+            WHERE ba.book_id = b.id
+              AND a.name LIKE ?
+          )
+        )`);
+        params.push(`%${searchTerm}%`, `%${searchTerm}%`);
+      }
     }
 
-    if (category) {
-      whereParts.push("EXISTS (SELECT 1 FROM book_categories bc WHERE bc.book_id = b.id AND bc.category_id = ?)");
-      params.push(Number(category));
+    const categoryIds = normalizeIdList(categories || category);
+    if (categoryIds.length > 0) {
+      whereParts.push("EXISTS (SELECT 1 FROM book_categories bc WHERE bc.book_id = b.id AND bc.category_id IN (?))");
+      params.push(categoryIds);
+    }
+
+    const parsedMinPrice = Number.parseFloat(minPrice);
+    if (Number.isFinite(parsedMinPrice)) {
+      whereParts.push("b.price >= ?");
+      params.push(parsedMinPrice);
+    }
+
+    const parsedMaxPrice = Number.parseFloat(maxPrice);
+    if (Number.isFinite(parsedMaxPrice)) {
+      whereParts.push("b.price <= ?");
+      params.push(parsedMaxPrice);
+    }
+
+    const parsedRating = Number.parseFloat(rating);
+    if (Number.isFinite(parsedRating) && parsedRating > 0) {
+      whereParts.push("COALESCE(b.rating, 0) >= ?");
+      params.push(parsedRating);
     }
 
     if (author) {
-      whereParts.push("EXISTS (SELECT 1 FROM book_authors ba WHERE ba.book_id = b.id AND ba.author_id = ?)");
-      params.push(Number(author));
+      const authorId = Number.parseInt(author, 10);
+      if (Number.isFinite(authorId) && authorId > 0) {
+        whereParts.push("EXISTS (SELECT 1 FROM book_authors ba WHERE ba.book_id = b.id AND ba.author_id = ?)");
+        params.push(authorId);
+      }
     }
 
     let orderBy = "b.created_at DESC";
@@ -121,6 +164,10 @@ const getAllBooks = async (req, res) => {
       orderBy = "b.price ASC";
     } else if (sortBy === "price-high") {
       orderBy = "b.price DESC";
+    } else if (sortBy === "rating") {
+      orderBy = "COALESCE(b.rating, 0) DESC, b.created_at DESC";
+    } else if (sortBy === "popular") {
+      orderBy = "COALESCE(b.rating, 0) DESC, b.stock DESC, b.created_at DESC";
     }
 
     const whereClause = whereParts.length > 0 ? `WHERE ${whereParts.join(" AND ")}` : "";
@@ -183,6 +230,7 @@ const updateBookById = async (req, res) => {
       pages,
       language,
       price,
+      rating,
       stock,
       author,
       images,
@@ -203,7 +251,7 @@ const updateBookById = async (req, res) => {
       await conn.query(
         `UPDATE books
          SET title = ?, slug = ?, description = ?, isbn = ?, publisher = ?, publication_date = ?,
-             pages = ?, language = ?, price = ?, stock = ?
+             pages = ?, language = ?, price = ?, rating = ?, stock = ?
          WHERE id = ?`,
         [
           title,
@@ -215,6 +263,7 @@ const updateBookById = async (req, res) => {
           pages || null,
           language || null,
           Number(price),
+          Number(rating || 0),
           Number(stock || 0),
           id,
         ]
