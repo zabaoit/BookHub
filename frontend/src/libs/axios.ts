@@ -86,7 +86,7 @@ api.interceptors.response.use(
         // Refresh failed - clear auth state and redirect to login
         processQueue(refreshError, null);
         useAuthStore.getState().clearState();
-        window.location.href = "/signin";
+        window.location.href = `${import.meta.env.BASE_URL}signin`;
         return Promise.reject(refreshError);
       } finally {
         isRefreshing = false;

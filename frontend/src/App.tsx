@@ -53,7 +53,7 @@ const App = () => {
   return (
     <>
       <Toaster position="top-right" richColors closeButton duration={3000} />
-      <BrowserRouter>
+      <BrowserRouter basename={import.meta.env.BASE_URL}>
         <Routes>
           {/* public routes */}
           <Route path="/" element={<HomePage />} />
