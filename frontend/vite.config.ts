@@ -4,12 +4,12 @@ import tailwindcss from "@tailwindcss/vite";
 import path from "path";
 
 // https://vite.dev/config/
-export default defineConfig({
-  base: "/BookHub/",
+export default defineConfig(() => ({
+  base: process.env.VERCEL ? "/" : "/BookHub/",
   plugins: [react(), tailwindcss()],
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
     },
   },
-});
+}));

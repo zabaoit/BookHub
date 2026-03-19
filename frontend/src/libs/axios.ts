@@ -1,12 +1,12 @@
 import axios from "axios";
 import useAuthStore from "../store/useAuthStore";
 
-const api = axios.create({
-  baseURL:
-    import.meta.env.MODE === "development"
-      ? "http://localhost:8080/api"
-      : "/api",
+const apiBaseUrl =
+  import.meta.env.VITE_API_BASE_URL?.trim() ||
+  (import.meta.env.DEV ? "http://localhost:8080/api" : "/api");
 
+const api = axios.create({
+  baseURL: apiBaseUrl.replace(/\/$/, ""),
   withCredentials: true,
 });
 
