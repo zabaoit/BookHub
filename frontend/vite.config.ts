@@ -5,7 +5,8 @@ import path from "path";
 
 // https://vite.dev/config/
 export default defineConfig(() => ({
-  base: process.env.VERCEL ? "/" : "/BookHub/",
+  // Deploying on Vercel root domain => always serve assets from '/'
+  base: "/",
   plugins: [react(), tailwindcss()],
   resolve: {
     alias: {
