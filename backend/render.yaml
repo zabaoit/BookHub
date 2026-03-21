@@ -1,0 +1,22 @@
+services:
+  - type: web
+    name: bookhub-backend
+    runtime: docker
+    rootDir: backend
+    plan: free
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      # Set this in Render dashboard after Vercel deploy:
+      # FRONTEND_URL=https://<your-vercel-domain>
+      # MYSQL_HOST=...
+      # MYSQL_PORT=3306
+      # MYSQL_USER=...
+      # MYSQL_PASSWORD=...
+      # MYSQL_DATABASE=bookhub
+      # ACCESS_TOKEN_SECRET=...
+      # SMTP_USER=...
+      # SMTP_PASS=...

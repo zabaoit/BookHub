@@ -17,9 +17,21 @@ const app = express();
 const PORT = process.env.PORT || 8080;
 
 // middleware - CORS must be first
+const allowedOrigins = (
+  process.env.FRONTEND_URLS || process.env.FRONTEND_URL || "http://localhost:5173"
+)
+  .split(",")
+  .map((origin) => origin.trim())
+  .filter(Boolean);
+
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL || "http://localhost:5173",
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+      return callback(new Error("CORS blocked: origin not allowed"));
+    },
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
     exposedHeaders: ["set-cookie"],
